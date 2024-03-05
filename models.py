@@ -10,7 +10,7 @@ class User(db.Model):
     user_token = db.Column(db.String(64), nullable=False)
     token_expiration = db.Column(db.DateTime, nullable=False)
 
-    workout_plan = db.relationship("WorkoutPlan", back_populates="user")
+    # workout_plan = db.relationship("WorkoutPlan", back_populates="user")
 
 class Workout(db.Model):
     workout_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -23,7 +23,7 @@ class Workout(db.Model):
     workout_plan_item = db.relationship("WorkoutPlanItem", back_populates="workout")
 
 class WorkoutPlanItem(db.Model):
-    item_id = db.Column(db.Integer, primary_key=True)
+    item_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     workout_plan_id = db.Column(db.Integer, db.ForeignKey("workout_plan.workout_plan_id"))
     workout_id = db.Column(db.Integer, db.ForeignKey("workout.workout_id"))
 
@@ -33,34 +33,36 @@ class WorkoutPlanItem(db.Model):
 class WorkoutPlan(db.Model):
     workout_plan_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     plan_name = db.Column(db.String(64), nullable=False)
-    duration = db.Column(db.Float, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    playlist_id = db.Column(db.Integer, db.ForeignKey("playlist.playlist_id"))
+    duration = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, nullable=False)
+    playlist_id = db.Column(db.Integer, nullable=False)
+    # user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    # playlist_id = db.Column(db.Integer, db.ForeignKey("playlist.playlist_id"), nullable=True)
 
     workout_plan_item = db.relationship("WorkoutPlanItem", back_populates="workout_plan")
-    user = db.relationship("User", back_populates="workout_plan")
-    playlist = db.relationship("Playlist", back_populates="workout_plan")
+    # user = db.relationship("User", back_populates="workout_plan")
+    # playlist = db.relationship("Playlist", back_populates="workout_plan")
 
-class Playlist(db.Model):
-    playlist_id = db.Column(db.Integer, primary_key=True)
-    playlist_duration = db.Column(db.Float, nullable=False)
+# class Playlist(db.Model):
+#     playlist_id = db.Column(db.Integer, primary_key=True)
+#     playlist_duration = db.Column(db.Float, nullable=False)
 
-    playlist_item = db.relationship("PlaylistItem", back_populates="playlist")
-    workout_plan = db.relationship("WorkoutPlan", back_populates="playlist")  
+#     playlist_item = db.relationship("PlaylistItem", back_populates="playlist")
+#     # workout_plan = db.relationship("WorkoutPlan", back_populates="playlist")  
 
-class PlaylistItem(db.Model):
-    item_id = db.Column(db.Integer, primary_key=True)
-    song_id = db.Column(db.Integer, db.ForeignKey("song.song_id"))
-    playlist_id = db.Column(db.Integer, db.ForeignKey("playlist.playlist_id"))
+# class PlaylistItem(db.Model):
+#     item_id = db.Column(db.Integer, primary_key=True)
+#     song_id = db.Column(db.Integer, db.ForeignKey("song.song_id"))
+#     playlist_id = db.Column(db.Integer, db.ForeignKey("playlist.playlist_id"))
 
-    song = db.relationship("Song", back_populates="playlist_item")
-    playlist = db.relationship("Playlist", back_populates="playlist_item")
+#     song = db.relationship("Song", back_populates="playlist_item")
+#     playlist = db.relationship("Playlist", back_populates="playlist_item")
 
-class Song(db.Model):
-    song_id = db.Column(db.Integer, primary_key=True)
-    song_name = db.Column(db.String(64), nullable=False)
-    song_artist = db.Column(db.String(64), nullable=False)
-    song_genre = db.Column(db.String(64), nullable=False)
-    song_duration = db.Column(db.Float, nullable=False)
+# class Song(db.Model):
+#     song_id = db.Column(db.Integer, primary_key=True)
+#     song_name = db.Column(db.String(64), nullable=False)
+#     song_artist = db.Column(db.String(64), nullable=False)
+#     song_genre = db.Column(db.String(64), nullable=False)
+#     song_duration = db.Column(db.Float, nullable=False)
 
-    playlist_item = db.relationship("PlaylistItem", back_populates="song")
+#     playlist_item = db.relationship("PlaylistItem", back_populates="song")

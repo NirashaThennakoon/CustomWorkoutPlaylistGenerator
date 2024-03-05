@@ -56,7 +56,22 @@ class WorkoutResource(Resource):
 
         return "", 204
     
-class WorkoutAddingResource(Resource):
+class WorkoutsResource(Resource):
+        def get(self):
+            workout = Workout.query.all()
+            workout_list = []
+            for w in workout:  # Iterate over each Workout instance
+                workout_dict = {
+                    "workout_id": w.workout_id,
+                    "workout_name": w.workout_name,
+                    "duration": w.duration,
+                    "workout_intensity": w.workout_intensity,
+                    "equipment": w.equipment,
+                    "workout_type": w.workout_type
+                }
+                workout_list.append(workout_dict)
+            return jsonify(workout_list)
+    
         def post(self):
             data = request.json
             if not data or 'workout_name' not in data:
