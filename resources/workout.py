@@ -1,6 +1,6 @@
 from flask import jsonify, request
 from flask_restful import Resource
-from models import Workout
+from data_models.models import Workout
 from extensions import db
 
 class WorkoutResource(Resource):

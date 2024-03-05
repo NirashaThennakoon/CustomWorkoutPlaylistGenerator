@@ -1,8 +1,6 @@
 from flask import jsonify, request
 from flask_restful import Resource
-from models import WorkoutPlan
-from models import WorkoutPlanItem
-from models import Workout
+from data_models.models import WorkoutPlan, WorkoutPlanItem, Workout
 from extensions import db
 
 class WorkoutPlanResource(Resource):

@@ -1,7 +1,7 @@
 from extensions import db
 from flask import jsonify, request
 from flask_restful import Resource
-from models import WorkoutPlanItem
+from data_models.models import WorkoutPlanItem
 
 class WorkoutPlanItemResource(Resource):
     def get(self, workout_plan_id):
