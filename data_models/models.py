@@ -10,6 +10,7 @@ class User(db.Model):
     user_token = db.Column(db.String(64), nullable=False)
     token_expiration = db.Column(db.DateTime, nullable=False)
 
+    api_key = db.relationship("ApiKey", back_populates="user")
     # workout_plan = db.relationship("WorkoutPlan", back_populates="user")
 
 class Workout(db.Model):
@@ -43,26 +44,38 @@ class WorkoutPlan(db.Model):
     # user = db.relationship("User", back_populates="workout_plan")
     # playlist = db.relationship("Playlist", back_populates="workout_plan")
 
-# class Playlist(db.Model):
-#     playlist_id = db.Column(db.Integer, primary_key=True)
-#     playlist_duration = db.Column(db.Float, nullable=False)
+class Playlist(db.Model):
+    playlist_id = db.Column(db.Integer, primary_key=True)
+    playlist_duration = db.Column(db.Float, nullable=False)
 
-#     playlist_item = db.relationship("PlaylistItem", back_populates="playlist")
-#     # workout_plan = db.relationship("WorkoutPlan", back_populates="playlist")  
+    playlist_item = db.relationship("PlaylistItem", back_populates="playlist")
+    # workout_plan = db.relationship("WorkoutPlan", back_populates="playlist")  
 
-# class PlaylistItem(db.Model):
-#     item_id = db.Column(db.Integer, primary_key=True)
-#     song_id = db.Column(db.Integer, db.ForeignKey("song.song_id"))
-#     playlist_id = db.Column(db.Integer, db.ForeignKey("playlist.playlist_id"))
+class PlaylistItem(db.Model):
+    item_id = db.Column(db.Integer, primary_key=True)
+    song_id = db.Column(db.Integer, db.ForeignKey("song.song_id"))
+    playlist_id = db.Column(db.Integer, db.ForeignKey("playlist.playlist_id"))
 
-#     song = db.relationship("Song", back_populates="playlist_item")
-#     playlist = db.relationship("Playlist", back_populates="playlist_item")
+    song = db.relationship("Song", back_populates="playlist_item")
+    playlist = db.relationship("Playlist", back_populates="playlist_item")
 
-# class Song(db.Model):
-#     song_id = db.Column(db.Integer, primary_key=True)
-#     song_name = db.Column(db.String(64), nullable=False)
-#     song_artist = db.Column(db.String(64), nullable=False)
-#     song_genre = db.Column(db.String(64), nullable=False)
-#     song_duration = db.Column(db.Float, nullable=False)
+class Song(db.Model):
+    song_id = db.Column(db.Integer, primary_key=True)
+    song_name = db.Column(db.String(64), nullable=False)
+    song_artist = db.Column(db.String(64), nullable=False)
+    song_genre = db.Column(db.String(64), nullable=False)
+    song_duration = db.Column(db.Float, nullable=False)
 
-#     playlist_item = db.relationship("PlaylistItem", back_populates="song")
+    playlist_item = db.relationship("PlaylistItem", back_populates="song")
+     
+class ApiKey(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(32), nullable=False, unique=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
+    admin =  db.Column(db.Boolean, default=False)
+    
+    user = db.relationship("User", back_populates="api_key", uselist=False)
+    
+    @staticmethod
+    def key_hash(key):
+        return hashlib.sha256(key.encode()).digest()

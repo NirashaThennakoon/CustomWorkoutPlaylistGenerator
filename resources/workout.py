@@ -2,6 +2,7 @@ from flask import jsonify, request
 from flask_restful import Resource
 from data_models.models import Workout
 from extensions import db
+from enum import Enum
 
 class WorkoutResource(Resource):
     def get(self, workout_id):
@@ -56,6 +57,13 @@ class WorkoutResource(Resource):
 
         return "", 204
     
+class WorkoutIntensity(Enum):
+    SLOW = "slow"
+    MILD = "mild"
+    INTERMEDIATE = "intermediate"
+    FAST = "fast"
+    EXTREME = "extreme"
+    
 class WorkoutsResource(Resource):
         def get(self):
             workout = Workout.query.all()
@@ -84,11 +92,23 @@ class WorkoutsResource(Resource):
             existing_workout = Workout.query.filter_by(workout_name=workout_name).first()
             if existing_workout:
                 return {"error": "workout_name already exists"}, 409
+            
+            # Check if workout_intensity is valid
+            intensity = data.get('workout_intensity')
+
+            for e in WorkoutIntensity:
+                if intensity == e.value:
+                    workout_intensity = intensity
+                    print(type(intensity))
+                    print(type(WorkoutIntensity(intensity).value))  # This ensures that the comparison considers the Enum type
+                    break
+            else:
+                return {"message": "Invalid workout intensity"}, 400
             try:
                 workout = Workout(
                     workout_name=data["workout_name"],
                     duration=data["duration"],
-                    workout_intensity=data["workout_intensity"],
+                    workout_intensity=workout_intensity,
                     equipment=data["equipment"],
                     workout_type=data["workout_type"]
                 )
