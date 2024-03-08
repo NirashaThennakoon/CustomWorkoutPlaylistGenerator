@@ -5,12 +5,16 @@ import sqlalchemy
 from sqlalchemy import text
 from extensions import db
 from api import api_bp
+from middleware_Auth import authenticate
+from flask_jwt_extended import JWTManager
 
 app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
 app.config["SQLALCHEMY_DATABASE_BASE_URI"] = "mysql+mysqldb://admin:pwpdb7788@workoutplaylists.cpcoaea0i7dq.us-east-1.rds.amazonaws.com"
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+mysqldb://admin:pwpdb7788@workoutplaylists.cpcoaea0i7dq.us-east-1.rds.amazonaws.com/workout_playlists"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config['JWT_SECRET_KEY'] = 'ireshisthe key'
+jwt = JWTManager(app)
 
 db.init_app(app)
 
@@ -33,6 +37,6 @@ with app.app_context():
     db.create_all()
 
 app.register_blueprint(api_bp, url_prefix='/api')
-
+app.before_request(authenticate)
 if __name__ == "__main__":
     app.run(debug=True)

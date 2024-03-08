@@ -1,6 +1,6 @@
-from flask import jsonify, request, url_for
+from flask import jsonify, request, url_for, g
 from flask_restful import Resource
-from models import Song
+from data_models.models import Song
 from extensions import db
 from sqlalchemy.exc import IntegrityError
 from resources.playlist import CreatePlaylistResource
@@ -26,6 +26,8 @@ class SongResource(Resource):
         return songs_list, 200
 
     def put(self, song_id):
+        if g.current_api_key.user.user_type != 'admin':
+            return {"message": "Unauthorized access"}, 403
         data = request.json
         if not data:
             return {"message": "No input data provided"}, 400
@@ -50,6 +52,8 @@ class SongResource(Resource):
         return {"message": "Song updated successfully"}, 200
 
     def delete(self, song_id):
+        if g.current_api_key.user.user_type != 'admin':
+            return {"message": "Unauthorized access"}, 403
         song = Song.query.get(song_id)
         if not song:
             return {"message": "Song not found"}, 404
@@ -78,6 +82,8 @@ class SongListResource(Resource):
         return songs_list, 200
     
     def post(self):
+        if g.current_api_key.user.user_type != 'admin':
+            return {"message": "Unauthorized access"}, 403
         data = request.json
         if not data or 'song_name' not in data:
                 return {"message": "No song name provided"}, 400

@@ -1,65 +1,29 @@
-from flask import jsonify, request
+from flask import jsonify, request, url_for, g
 from flask_restful import Resource
-from models import WorkoutPlan
-from models import WorkoutPlanItem
+import requests
+from data_models.models import WorkoutPlan, WorkoutPlanItem, Workout
 from extensions import db
 
 class WorkoutPlanResource(Resource):
     def get(self, workout_plan_id):
-        workoutPlan = WorkoutPlan.query.get(workout_plan_id)
         workoutPlan_list = []
-        if workoutPlan:
-            workout_dict = {
-                "workout_plan_id": workoutPlan.workout_plan_id,
-                "plan_name": workoutPlan.plan_name,
-                "duration": workoutPlan.duration,
-                "user_id": workoutPlan.user_id,
-                "playlist_id": workoutPlan.playlist_id
-            }
-            workoutPlan_list.append(workout_dict)
-        return jsonify(workoutPlan_list)
-
-    def post(self):
-        data = request.json
-        if not data or 'plan_name' not in data:
-            return {"message": "No input data provided"}, 400
-        
-        if (data['duration'] is not None and not isinstance(data['duration'], float)):
-            return {"message": "Duration must be a float"}, 400
-        
-        if (data['playlist_id'] is not None and not isinstance(data['playlist_id'], int)):
-            return {"message": "Playlist Id must be an integer"}, 400
-
-        plan_name = data['plan_name']
-        existing_workout = WorkoutPlan.query.filter_by(plan_name=plan_name).first()
-        if existing_workout:
-            return {"error": "Workout plan name already exists"}, 409
-        else:
-            workoutPlan = WorkoutPlan(
-                plan_name=data["plan_name"],
-                duration=data["duration"],
-                user_id=data["user_id"],
-                playlist_id=data["playlist_id"]
-            )
-            db.session.add(workoutPlan)
-            db.session.commit()
-            
-            saved_workout = WorkoutPlan.query.filter_by(plan_name=plan_name).first()
-            if saved_workout:
-                workoutPlanItem = WorkoutPlanItem(
-                    plan_name=data["plan_name"],
-                    duration=data["duration"],
-                    user_id=data["user_id"],
-                    playlist_id=data["playlist_id"]
-                )
-                db.session.add(workoutPlanItem)
-                db.session.commit()
-            else:
-                return {"error": "No workout plan for the plan name"}, 404
-        
-        return "", 201
+        try:
+            workoutPlan = WorkoutPlan.query.get(workout_plan_id)
+            if workoutPlan:
+                workout_dict = {
+                    "workout_plan_id": workoutPlan.workout_plan_id,
+                    "plan_name": workoutPlan.plan_name,
+                    "user_id": workoutPlan.user_id,
+                    "duration": workoutPlan.duration
+                }
+                workoutPlan_list.append(workout_dict)
+            return jsonify(workoutPlan_list)
+        except Exception as e:
+            return "500", 500
 
     def put(self, workout_plan_id):
+        if g.current_api_key.user.user_type != 'admin':
+            return {"message": "Unauthorized access"}, 403
         data = request.json
         if not data:
             return {"message": "No input data provided"}, 400
@@ -93,3 +57,67 @@ class WorkoutPlanResource(Resource):
         db.session.commit()
 
         return "", 204
+
+class WorkoutPlanAddingResource(Resource):
+    def post(self):
+        data = request.json
+        totalDuration = 0
+        plan_name = data["plan_name"]
+        workout_ids = data.get('workout_ids', [])
+        
+        data = {
+            "playlist_name": f"{plan_name} Playlist",
+            "workout_ids": workout_ids
+        }
+        headers = {
+            "Content-Type": "application/json",
+            "X-API-Key": g.current_api_key.key
+        }
+
+        response = requests.post('http://127.0.0.1:5000/' + url_for('api.createplaylistresource'), json=data, headers=headers)
+        playlist_id = response.json()["playlist_id"]
+        
+        # Create workout plan
+        workoutPlan = WorkoutPlan(
+            plan_name=plan_name,
+            user_id= g.current_api_key.user.id,
+            duration=0,
+            playlist_id = playlist_id
+        )
+        db.session.add(workoutPlan)
+        db.session.commit()
+        print(g.current_api_key.user.id)
+        for workout_id in workout_ids:
+            # calculate total duration of the workout plan
+            workout = Workout.query.get(workout_id)
+            totalDuration = totalDuration + workout.duration
+
+            # update workout_id and workout_plan_id in WorkoutPlanItem table        
+            workout_plan_item = WorkoutPlanItem(
+                workout_plan_id=workoutPlan.workout_plan_id,
+                workout_id=workout_id
+            )
+            db.session.add(workout_plan_item)
+        db.session.commit()
+        
+        # update total duration of the workout plan
+        workoutPlan = WorkoutPlan.query.get(workoutPlan.workout_plan_id)
+        workoutPlan.duration = totalDuration
+        db.session.commit()
+        
+        return "201", 201
+    
+class WorkoutPlanItemResource(Resource):
+    def get(self, workout_plan_id):
+        workoutPlanItem_list = []
+        try:
+            workoutPlansItem = WorkoutPlanItem.query.filter_by(workout_plan_id=workout_plan_id).all()
+            for workoutPlanItem in workoutPlansItem:
+                workout_dict = {
+                    "workout_plan_id": workoutPlanItem.workout_plan_id,
+                    "workout_id": workoutPlanItem.workout_id
+                }
+                workoutPlanItem_list.append(workout_dict)
+            return jsonify(workoutPlanItem_list)
+        except Exception as e:
+            return "500", 500   

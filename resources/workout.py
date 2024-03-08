@@ -1,7 +1,8 @@
-from flask import jsonify, request
+from flask import jsonify, request, g
 from flask_restful import Resource
-from models import Workout
+from data_models.models import Workout
 from extensions import db
+from enum import Enum
 
 class WorkoutResource(Resource):
     def get(self, workout_id):
@@ -20,6 +21,8 @@ class WorkoutResource(Resource):
         return jsonify(workout_list)
 
     def put(self, workout_id):
+        if g.current_api_key.user.user_type != 'admin':
+            return {"message": "Unauthorized access"}, 403
         data = request.json
         if not data:
             return {"message": "No input data provided"}, 400
@@ -47,6 +50,8 @@ class WorkoutResource(Resource):
         return "", 204
 
     def delete(self, workout_id):
+        if g.current_api_key.user.user_type != 'admin':
+            return {"message": "Unauthorized access"}, 403
         workout = Workout.query.get(workout_id)
         if not workout:
             return {"message": "Workout not found"}, 404
@@ -56,8 +61,32 @@ class WorkoutResource(Resource):
 
         return "", 204
     
-class WorkoutAddingResource(Resource):
+class WorkoutIntensity(Enum):
+    SLOW = "slow"
+    MILD = "mild"
+    INTERMEDIATE = "intermediate"
+    FAST = "fast"
+    EXTREME = "extreme"
+    
+class WorkoutsResource(Resource):
+        def get(self):
+            workout = Workout.query.all()
+            workout_list = []
+            for w in workout:
+                workout_dict = {
+                    "workout_id": w.workout_id,
+                    "workout_name": w.workout_name,
+                    "duration": w.duration,
+                    "workout_intensity": w.workout_intensity,
+                    "equipment": w.equipment,
+                    "workout_type": w.workout_type
+                }
+                workout_list.append(workout_dict)
+            return jsonify(workout_list)
+    
         def post(self):
+            if g.current_api_key.user.user_type != 'admin':
+                return {"message": "Unauthorized access"}, 403
             data = request.json
             if not data or 'workout_name' not in data:
                 return {"message": "No input data provided"}, 400
@@ -69,11 +98,23 @@ class WorkoutAddingResource(Resource):
             existing_workout = Workout.query.filter_by(workout_name=workout_name).first()
             if existing_workout:
                 return {"error": "workout_name already exists"}, 409
+            
+            # Check if workout_intensity is valid
+            intensity = data.get('workout_intensity')
+
+            for e in WorkoutIntensity:
+                if intensity == e.value:
+                    workout_intensity = intensity
+                    print(type(intensity))
+                    print(type(WorkoutIntensity(intensity).value))  # This ensures that the comparison considers the Enum type
+                    break
+            else:
+                return {"message": "Invalid workout intensity"}, 400
             try:
                 workout = Workout(
                     workout_name=data["workout_name"],
                     duration=data["duration"],
-                    workout_intensity=data["workout_intensity"],
+                    workout_intensity=workout_intensity,
                     equipment=data["equipment"],
                     workout_type=data["workout_type"]
                 )
