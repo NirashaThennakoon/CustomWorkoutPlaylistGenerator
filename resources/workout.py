@@ -6,19 +6,22 @@ from enum import Enum
 
 class WorkoutResource(Resource):
     def get(self, workout_id):
-        workout = Workout.query.get(workout_id)
-        workout_list = []
-        if workout:
-            workout_dict = {
-                "workout_id": workout.workout_id,
-                "workout_name": workout.workout_name,
-                "duration": workout.duration,
-                "workout_intensity": workout.workout_intensity,
-                "equipment": workout.equipment,
-                "workout_type": workout.workout_type
-            }
-            workout_list.append(workout_dict)
-        return jsonify(workout_list)
+        try:
+            workout = Workout.query.get(workout_id)
+            workout_list = []
+            if workout:
+                workout_dict = {
+                    "workout_id": workout.workout_id,
+                    "workout_name": workout.workout_name,
+                    "duration": workout.duration,
+                    "workout_intensity": workout.workout_intensity,
+                    "equipment": workout.equipment,
+                    "workout_type": workout.workout_type
+                }
+                workout_list.append(workout_dict)
+        except KeyError:
+            return jsonify({"message": "Invalid input data"}), 400
+        return workout_list, 200
 
     def put(self, workout_id):
         if g.current_api_key.user.user_type != 'admin':
@@ -45,9 +48,9 @@ class WorkoutResource(Resource):
 
             db.session.commit()
         except ValueError as e:
-            return {"message": str(e)}, 400
+            return {"message": "Invalid input data: " + str(e)}, 400
 
-        return "", 204
+        return {"message": "Workout updated successfully"}, 200
 
     def delete(self, workout_id):
         if g.current_api_key.user.user_type != 'admin':
@@ -59,7 +62,7 @@ class WorkoutResource(Resource):
         db.session.delete(workout)
         db.session.commit()
 
-        return "", 204
+        return {"message": "Workout deleted successfully"}, 200
     
 class WorkoutIntensity(Enum):
     SLOW = "slow"
@@ -70,34 +73,37 @@ class WorkoutIntensity(Enum):
     
 class WorkoutsResource(Resource):
         def get(self):
-            workout = Workout.query.all()
-            workout_list = []
-            for w in workout:
-                workout_dict = {
-                    "workout_id": w.workout_id,
-                    "workout_name": w.workout_name,
-                    "duration": w.duration,
-                    "workout_intensity": w.workout_intensity,
-                    "equipment": w.equipment,
-                    "workout_type": w.workout_type
-                }
-                workout_list.append(workout_dict)
-            return jsonify(workout_list)
+            try:
+                workout = Workout.query.all()
+                workout_list = []
+                for w in workout:  # Iterate over each Workout instance
+                    workout_dict = {
+                        "workout_id": w.workout_id,
+                        "workout_name": w.workout_name,
+                        "duration": w.duration,
+                        "workout_intensity": w.workout_intensity,
+                        "equipment": w.equipment,
+                        "workout_type": w.workout_type
+                    }
+                    workout_list.append(workout_dict)
+            except KeyError:
+                return jsonify({"message": "Invalid input data"}), 400
+            return workout_list, 200
     
         def post(self):
             if g.current_api_key.user.user_type != 'admin':
                 return {"message": "Unauthorized access"}, 403
             data = request.json
             if not data or 'workout_name' not in data:
-                return {"message": "No input data provided"}, 400
+                return {"message": "No workout name provided"}, 400
             
             if (data['duration'] is not None and not isinstance(data['duration'], float)):
-                return {"message": "Duration must be a float"}, 400
+                return {"message": "Workout duration must be a float"}, 400
 
             workout_name = data['workout_name']
             existing_workout = Workout.query.filter_by(workout_name=workout_name).first()
             if existing_workout:
-                return {"error": "workout_name already exists"}, 409
+                return {"error": "Workout already exists"}, 409
             
             # Check if workout_intensity is valid
             intensity = data.get('workout_intensity')
@@ -105,8 +111,6 @@ class WorkoutsResource(Resource):
             for e in WorkoutIntensity:
                 if intensity == e.value:
                     workout_intensity = intensity
-                    print(type(intensity))
-                    print(type(WorkoutIntensity(intensity).value))  # This ensures that the comparison considers the Enum type
                     break
             else:
                 return {"message": "Invalid workout intensity"}, 400
@@ -122,4 +126,4 @@ class WorkoutsResource(Resource):
                 db.session.commit()
             except ValueError as e:
                 return {"message": str(e)}, 400
-            return "", 201
+            return {"message": "Workout added successfully"}, 201
