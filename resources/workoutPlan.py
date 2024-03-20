@@ -66,7 +66,18 @@ class WorkoutPlanAddingResource(Resource):
             return {"message": "Invalid input data on Create Workout Plan"}, 400
 
         totalDuration = 0
+        data = request.json
+        if not data:
+            return {"message": "No input data provided"}, 400
+        
+        if not 'plan_name' in data:
+            return {"message": "Plan name not found"}, 400
+        
         plan_name = data["plan_name"]
+
+        if not 'workout_ids' in data:
+            return {"message": "Workout ids not found"}, 400
+        
         workout_ids = data.get('workout_ids', [])
         
         data = {
