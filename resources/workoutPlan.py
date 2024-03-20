@@ -17,9 +17,9 @@ class WorkoutPlanResource(Resource):
                     "duration": workoutPlan.duration
                 }
                 workoutPlan_list.append(workout_dict)
-            return jsonify(workoutPlan_list)
-        except Exception as e:
-            return "500", 500
+        except KeyError:
+            return jsonify({"message": "Invalid input data"}), 400
+        return workoutPlan_list, 200
 
     def put(self, workout_plan_id):
         if g.current_api_key.user.user_type != 'admin':
@@ -46,7 +46,7 @@ class WorkoutPlanResource(Resource):
         except ValueError as e:
             return {"message": str(e)}, 400
 
-        return "", 204
+        return {"message": "Workout plan updated successfully"}, 200
 
     def delete(self, workout_plan_id):
         workout = WorkoutPlan.query.get(workout_plan_id)
@@ -56,10 +56,15 @@ class WorkoutPlanResource(Resource):
         db.session.delete(workout)
         db.session.commit()
 
-        return "", 204
+        return {"message": "Workout plan deleted successfully"}, 200
 
 class WorkoutPlanAddingResource(Resource):
     def post(self):
+        data = request.json
+        
+        if not data or 'workout_ids' not in data:
+            return {"message": "Invalid input data on Create Workout Plan"}, 400
+
         totalDuration = 0
         data = request.json
         if not data:
@@ -96,7 +101,7 @@ class WorkoutPlanAddingResource(Resource):
         )
         db.session.add(workoutPlan)
         db.session.commit()
-        print(g.current_api_key.user.id)
+
         for workout_id in workout_ids:
             # calculate total duration of the workout plan
             workout = Workout.query.get(workout_id)
@@ -115,7 +120,7 @@ class WorkoutPlanAddingResource(Resource):
         workoutPlan.duration = totalDuration
         db.session.commit()
         
-        return "201", 201
+        return {"message": "Workout plan created successfully", "workout_plan_id": workoutPlan.workout_plan_id}, 201
     
 class WorkoutPlanItemResource(Resource):
     def get(self, workout_plan_id):
@@ -128,9 +133,7 @@ class WorkoutPlanItemResource(Resource):
                     "workout_id": workoutPlanItem.workout_id
                 }
                 workoutPlanItem_list.append(workout_dict)
-            return jsonify(workoutPlanItem_list)
-        except Exception as e:
-            return "500", 500
-
-
-        
+        except KeyError:
+            return jsonify({"message": "Invalid input data"}), 400
+        return workoutPlanItem_list, 200
+    
