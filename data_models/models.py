@@ -1,4 +1,7 @@
 import hashlib
+import click
+
+from flask.cli import with_appcontext
 from extensions import db
 
 class User(db.Model):
@@ -204,3 +207,7 @@ class ApiKey(db.Model):
     def key_hash(key):
         return hashlib.sha256(key.encode()).digest()
     
+@click.command("init-db")
+@with_appcontext
+def init_db_command():
+    db.create_all()
