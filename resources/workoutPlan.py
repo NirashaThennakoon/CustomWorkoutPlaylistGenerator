@@ -3,8 +3,12 @@ from flask_restful import Resource
 import requests
 from data_models.models import WorkoutPlan, WorkoutPlanItem, Workout
 from extensions import db
+from extensions import cache
+from jsonschema import validate, ValidationError, FormatChecker
+from werkzeug.exceptions import NotFound, Conflict, BadRequest, UnsupportedMediaType
 
 class WorkoutPlanResource(Resource):
+    @cache.cached(timeout=10)
     def get(self, workout_plan_id):
         workoutPlan_list = []
         try:
@@ -24,6 +28,7 @@ class WorkoutPlanResource(Resource):
     def put(self, workout_plan_id):
         if g.current_api_key.user.user_type != 'admin':
             return {"message": "Unauthorized access"}, 403
+        
         data = request.json
         if not data:
             return {"message": "No input data provided"}, 400
@@ -33,6 +38,8 @@ class WorkoutPlanResource(Resource):
             return {"message": "Workout plan not found"}, 404
 
         try:
+            validate(request.json, WorkoutPlan.json_schema(), format_checker=FormatChecker())
+
             if 'plan_name' in data:
                 workout.plan_name = data['plan_name']
             if 'duration' in data:
@@ -43,6 +50,8 @@ class WorkoutPlanResource(Resource):
                 workout.playlist_id = data['playlist_id']
 
             db.session.commit()
+        except ValidationError as e:
+                raise BadRequest(description=str(e))
         except ValueError as e:
             return {"message": str(e)}, 400
 
@@ -64,6 +73,11 @@ class WorkoutPlanAddingResource(Resource):
         
         if not data or 'workout_ids' not in data:
             return {"message": "Invalid input data on Create Workout Plan"}, 400
+        
+        try:
+            validate(request.json, WorkoutPlan.json_schema(), format_checker=FormatChecker())
+        except ValidationError as e:
+                raise BadRequest(description=str(e))
 
         totalDuration = 0
         data = request.json

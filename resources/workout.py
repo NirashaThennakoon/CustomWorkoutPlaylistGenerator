@@ -2,9 +2,13 @@ from flask import jsonify, request, g
 from flask_restful import Resource
 from data_models.models import Workout
 from extensions import db
+from extensions import cache
 from enum import Enum
+from jsonschema import validate, ValidationError, FormatChecker
+from werkzeug.exceptions import NotFound, Conflict, BadRequest, UnsupportedMediaType
 
 class WorkoutResource(Resource):
+    @cache.cached(timeout=10)
     def get(self, workout_id):
         try:
             workout = Workout.query.get(workout_id)
@@ -35,6 +39,8 @@ class WorkoutResource(Resource):
             return {"message": "Workout not found"}, 404
 
         try:
+            validate(request.json, Workout.json_schema(), format_checker=FormatChecker())
+
             if 'workout_name' in data:
                 workout.workout_name = data['workout_name']
             if 'duration' in data:
@@ -47,6 +53,8 @@ class WorkoutResource(Resource):
                 workout.workout_type = data['workout_type']
 
             db.session.commit()
+        except ValidationError as e:
+                raise BadRequest(description=str(e))
         except ValueError as e:
             return {"message": "Invalid input data: " + str(e)}, 400
 
@@ -72,6 +80,7 @@ class WorkoutIntensity(Enum):
     EXTREME = "extreme"
     
 class WorkoutsResource(Resource):
+        @cache.cached(timeout=30)
         def get(self):
             try:
                 workout = Workout.query.all()
@@ -93,9 +102,13 @@ class WorkoutsResource(Resource):
         def post(self):
             if g.current_api_key.user.user_type != 'admin':
                 return {"message": "Unauthorized access"}, 403
+            
             data = request.json
-            if not data or 'workout_name' not in data:
-                return {"message": "No workout name provided"}, 400
+
+            try:         
+                validate(request.json, Workout.json_schema(), format_checker=FormatChecker())
+            except ValidationError as e:
+                raise BadRequest(description=str(e))
             
             if (data['duration'] is not None and not isinstance(data['duration'], float)):
                 return {"message": "Workout duration must be a float"}, 400

@@ -2,9 +2,13 @@ from flask import jsonify, request, g
 from flask_restful import Resource
 from data_models.models import Playlist, PlaylistItem, Workout, Song
 from extensions import db
+from extensions import cache
+from jsonschema import validate, ValidationError, FormatChecker
+from werkzeug.exceptions import NotFound, Conflict, BadRequest, UnsupportedMediaType
 
 
 class PlaylistResource(Resource):
+    @cache.cached(timeout=10)
     def get(self, playlist_id):
         playlist = Playlist.query.get(playlist_id)
         playlist_items = PlaylistItem.query.filter_by(playlist_id=playlist_id).all()
@@ -36,13 +40,18 @@ class PlaylistResource(Resource):
     def put(self, playlist_id):
         if g.current_api_key.user.user_type != 'admin':
             return {"message": "Unauthorized access"}, 403
+        
         data = request.json
         if not data:
             return {"message": "No input data provided"}, 400
+        
         playlist = Playlist.query.get(playlist_id)
         if not playlist:
             return {"message": "Playlist not found"}, 404
+        
         try:
+            validate(request.json, Playlist.json_schema(), format_checker=FormatChecker())
+
             if 'playlist_name' in data:
                 playlist.playlist_name = data['playlist_name']
             if 'song_list' in data:
@@ -59,6 +68,8 @@ class PlaylistResource(Resource):
                     db.session.add(playlist_item)
 
             db.session.commit()
+        except ValidationError as e:
+                raise BadRequest(description=str(e))
         except ValueError as e:
             return {"message": str(e)}, 400
         return "", 204
@@ -85,7 +96,7 @@ class CreatePlaylistResource(Resource):
     def post(self):
         data = request.json
         if not data or 'workout_ids' not in data:
-            return {"message": "Invalid input data on CreatePlayList"}, 400
+            return {"message": "Invalid input data on CreatePlayList"}, 400            
 
         playlist_name_rec = data['playlist_name']
         workout_ids = data['workout_ids']
