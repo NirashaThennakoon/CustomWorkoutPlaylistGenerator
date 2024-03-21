@@ -7,6 +7,9 @@ from data_models.models import ApiKey, User
 from extensions import db
 from flask_jwt_extended import create_access_token
 from datetime import timedelta
+from jsonschema import validate, ValidationError, FormatChecker
+from werkzeug.exceptions import NotFound, Conflict, BadRequest, UnsupportedMediaType
+from copy import deepcopy
 import uuid
 
 def generate_api_key():
@@ -17,6 +20,11 @@ class UserRegistrationResource(Resource):
         data = request.json
         if not data or not all(key in data for key in ['email', 'password', 'height', 'weight', 'user_type']):
             return {"message": "Invalid input data for user registration"}, 400
+        
+        try:         
+            validate(request.json, User.json_schema(), format_checker=FormatChecker())
+        except ValidationError as e:
+                raise BadRequest(description=str(e))
         
         email = data['email']
         password = data['password']
@@ -60,6 +68,9 @@ class UserLoginResource(Resource):
         data = request.json
         if not data or not all(key in data for key in ['email', 'password']):
             return {"message": "Invalid input data for user login"}, 400
+        
+        user_schema = User.json_schema()
+        validate_request(data, user_schema)
         
         email = data['email']
         password = data['password']
@@ -136,3 +147,23 @@ class ApiKeyUpdateResource(Resource):
             return {"message": "Failed to update API key", "error": str(e)}, 500
         
         return {"message": "API key updated successfully", "new_api_key": new_api_key}, 200
+
+    #valdiate login request using same User model schema 
+def validate_request(json_data, json_schema):
+    json_schema_copy = deepcopy(json_schema)
+    if 'height' in json_schema_copy['properties']:
+        del json_schema_copy['properties']['height']
+    if 'weight' in json_schema_copy['properties']:
+        del json_schema_copy['properties']['weight']
+    if 'user_type' in json_schema_copy['properties']:
+        del json_schema_copy['properties']['user_type']
+
+    if 'required' in json_schema_copy:
+        for item in ['height', 'weight', 'user_type']:
+            if item in json_schema_copy['required']:
+                json_schema_copy['required'].remove(item)
+
+    try:
+        validate(json_data, json_schema_copy, format_checker=FormatChecker())
+    except ValidationError as e:
+        raise BadRequest(description=str(e))

@@ -22,6 +22,34 @@ class User(db.Model):
         hashed_password = User.password_hash(password)
         return self.password == hashed_password
 
+    def json_schema():
+        schema = {
+            "type": "object",
+            "required": ["email", "password", "height", "weight", "user_type"]
+        }
+        props = schema["properties"] = {}
+        props["email"] = {
+            "description": "Users email",
+            "type": "string"
+        }
+        props["password"] = {
+            "description": "Users password",
+            "type": "string"
+        }
+        props["height"] = {
+            "description": "Users height",
+            "type": "number"
+        }
+        props["weight"] = {
+            "description": "Users weight",
+            "type": "number"
+        }
+        props["user_type"] = {
+            "description": "Users type",
+            "type": "string"
+        }
+        return schema
+
 class Workout(db.Model):
     workout_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     workout_name = db.Column(db.String(64), nullable=False)
@@ -31,6 +59,35 @@ class Workout(db.Model):
     workout_type = db.Column(db.String(64), nullable=False)
 
     workout_plan_item = db.relationship("WorkoutPlanItem", back_populates="workout")
+
+    @staticmethod
+    def json_schema():
+        schema = {
+            "type": "object",
+            "required": ["workout_name", "duration", "workout_intensity", "equipment", "workout_type"]
+        }
+        props = schema["properties"] = {}
+        props["workout_name"] = {
+            "description": "Name of the workout",
+            "type": "string"
+        }
+        props["duration"] = {
+            "description": "Duration of the workout",
+            "type": "number"
+        }
+        props["workout_intensity"] = {
+            "description": "Intensity of the workout",
+            "type": "string"
+        }
+        props["equipment"] = {
+            "description": "Equipment needed for the workout",
+            "type": "string"
+        }
+        props["workout_type"] = {
+            "description": "Type of the workout",
+            "type": "string"
+        }
+        return schema
 
 class WorkoutPlanItem(db.Model):
     item_id = db.Column(db.Integer, primary_key=True)
@@ -51,13 +108,47 @@ class WorkoutPlan(db.Model):
     user = db.relationship("User", back_populates="workout_plan")
     playlist = db.relationship("Playlist", back_populates="workout_plan")
 
+    @staticmethod
+    def json_schema():
+        schema = {
+            "type": "object",
+            "required": ["plan_name", "duration"]
+        }
+        props = schema["properties"] = {}
+        props["plan_name"] = {
+            "description": "Name of the workout plan",
+            "type": "string"
+        }
+        props["duration"] = {
+            "description": "Duration of the workout plan",
+            "type": "number"
+        }
+        return schema
+
 class Playlist(db.Model):
     playlist_id = db.Column(db.Integer, primary_key=True)
     playlist_duration = db.Column(db.Float, nullable=False)
     playlist_name = db.Column(db.String(64), nullable=False)
 
     playlist_item = db.relationship("PlaylistItem", back_populates="playlist")
-    workout_plan = db.relationship("WorkoutPlan", back_populates="playlist")  
+    workout_plan = db.relationship("WorkoutPlan", back_populates="playlist") 
+
+    @staticmethod
+    def json_schema():
+        schema = {
+            "type": "object",
+            "required": ["playlist_name", "playlist_duration"]
+        }
+        props = schema["properties"] = {}
+        props["playlist_name"] = {
+            "description": "Name of the playlist",
+            "type": "string"
+        }
+        props["playlist_duration"] = {
+            "description": "Duration of the playlist",
+            "type": "number"
+        }
+        return schema 
 
 class PlaylistItem(db.Model):
     item_id = db.Column(db.Integer, primary_key=True)
@@ -75,6 +166,31 @@ class Song(db.Model):
     song_duration = db.Column(db.Float, nullable=False)
 
     playlist_item = db.relationship("PlaylistItem", back_populates="song")
+
+    @staticmethod
+    def json_schema():
+        schema = {
+            "type": "object",
+            "required": ["song_name", "song_artist", "song_genre", "song_duration"]
+        }
+        props = schema["properties"] = {}
+        props["song_name"] = {
+            "description": "Name of the song",
+            "type": "string"
+        }
+        props["song_artist"] = {
+            "description": "Artist of the song",
+            "type": "string"
+        }
+        props["song_genre"] = {
+            "description": "Genre of the song",
+            "type": "string"
+        }
+        props["song_duration"] = {
+            "description": "Duration of the song",
+            "type": "number"
+        }
+        return schema 
 
 class ApiKey(db.Model):
     id = db.Column(db.Integer, primary_key=True)
