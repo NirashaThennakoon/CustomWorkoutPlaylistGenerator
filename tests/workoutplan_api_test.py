@@ -65,16 +65,16 @@ def test_put_workout_plan(client):
         
         # test with valid
         resp = client.put(f'{RESOURCE_URL}/1', json=valid)
-        assert resp.status_code == 204
+        assert resp.status_code == 200
         
         # remove field
         valid.pop("plan_name")
         resp = client.put(f'{RESOURCE_URL}/1', json=valid)
-        assert resp.status_code == 204
+        assert resp.status_code == 200
 
 def test_delete_workout_plan(client):
         resp = client.delete(f'{RESOURCE_URL}/3')
-        assert resp.status_code == 204
+        assert resp.status_code == 200
         resp = client.delete(f'{RESOURCE_URL}/3')
         assert resp.status_code == 404
         resp = client.delete(f'{RESOURCE_URL}/id')

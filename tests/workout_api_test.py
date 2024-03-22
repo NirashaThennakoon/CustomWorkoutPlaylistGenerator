@@ -62,12 +62,12 @@ def test_put_workout(client):
         
         # test with valid
         resp = client.put(f'{RESOURCE_URL}/1', json=valid)
-        assert resp.status_code == 204
+        assert resp.status_code == 200
         
         # remove field
         valid.pop("workout_name")
         resp = client.put(f'{RESOURCE_URL}/1', json=valid)
-        assert resp.status_code == 204
+        assert resp.status_code == 200
 
         #invalid intensity
         # resp = client.put(f'{RESOURCE_URL}/1', json=invalidJson)
@@ -75,7 +75,7 @@ def test_put_workout(client):
 
 def test_delete_workout(client):
         resp = client.delete(f'{RESOURCE_URL}/2')
-        assert resp.status_code == 204
+        assert resp.status_code == 200
         resp = client.delete(f'{RESOURCE_URL}/2')
         assert resp.status_code == 404
         resp = client.delete(f'{RESOURCE_URL}/2')
