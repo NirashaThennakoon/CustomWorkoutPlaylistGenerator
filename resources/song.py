@@ -11,7 +11,7 @@ from werkzeug.exceptions import NotFound, Conflict, BadRequest, UnsupportedMedia
 
 
 class SongResource(Resource):
-    @cache.cached(timeout=30)
+    @cache.cached(timeout=60)
     def get(self, song_id):           
         try:
             
@@ -55,6 +55,7 @@ class SongResource(Resource):
                 song.song_duration = data['song_duration']
 
             db.session.commit()
+            cache.clear()
         except ValidationError as e:
                 raise BadRequest(description=str(e))
         except ValueError as e:
@@ -71,11 +72,12 @@ class SongResource(Resource):
 
         db.session.delete(song)
         db.session.commit()
+        cache.clear()
         return {"message": "Song deleted successfully"}, 200
     
 
 class SongListResource(Resource):
-    @cache.cached(timeout=30)
+    @cache.cached(timeout=60)
     def get(self):           
         try:
             songs = Song.query.all()
@@ -122,6 +124,7 @@ class SongListResource(Resource):
 
             db.session.add(song)
             db.session.commit()
+            cache.clear()
         except ValueError as e:
             return {"message": str(e)}, 400
 
