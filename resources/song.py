@@ -2,13 +2,19 @@ from flask import jsonify, request, url_for, g
 from flask_restful import Resource
 from data_models.models import Song
 from extensions import db
+from extensions import cache
 from sqlalchemy.exc import IntegrityError
 from resources.playlist import CreatePlaylistResource
 import requests
+from jsonschema import validate, ValidationError, FormatChecker
+from werkzeug.exceptions import NotFound, Conflict, BadRequest, UnsupportedMediaType
+
 
 class SongResource(Resource):
+    @cache.cached(timeout=30)
     def get(self, song_id):           
         try:
+            
             song = Song.query.get(song_id)
             songs_list = []
             if song:
@@ -19,15 +25,16 @@ class SongResource(Resource):
                     "song_genre": song.song_genre,
                     "song_duration": song.song_duration,
                 }
-                songs_list.append(song_dict)       
-            
+                songs_list.append(song_dict)
         except KeyError:
             return jsonify({"message": "Invalid input data"}), 400
         return songs_list, 200
 
     def put(self, song_id):
+
         if g.current_api_key.user.user_type != 'admin':
             return {"message": "Unauthorized access"}, 403
+        
         data = request.json
         if not data:
             return {"message": "No input data provided"}, 400
@@ -35,7 +42,9 @@ class SongResource(Resource):
         if not song:
             return {"message": "Song not found"}, 404
 
-        try:
+        try:         
+            validate(request.json, Song.json_schema(), format_checker=FormatChecker())
+            
             if 'song_name' in data:
                 song.song_name = data['song_name']
             if 'song_artist' in data:
@@ -46,6 +55,8 @@ class SongResource(Resource):
                 song.song_duration = data['song_duration']
 
             db.session.commit()
+        except ValidationError as e:
+                raise BadRequest(description=str(e))
         except ValueError as e:
             return {"message": "Invalid input data: " + str(e)}, 400
 
@@ -64,6 +75,7 @@ class SongResource(Resource):
     
 
 class SongListResource(Resource):
+    @cache.cached(timeout=30)
     def get(self):           
         try:
             songs = Song.query.all()
@@ -84,9 +96,13 @@ class SongListResource(Resource):
     def post(self):
         if g.current_api_key.user.user_type != 'admin':
             return {"message": "Unauthorized access"}, 403
+        
         data = request.json
-        if not data or 'song_name' not in data:
-                return {"message": "No song name provided"}, 400
+
+        try:
+            validate(request.json, Song.json_schema(), format_checker=FormatChecker())
+        except ValidationError as e:
+            raise BadRequest(description=str(e))
             
         if (data['song_duration'] is not None and not isinstance(data['song_duration'], float)):
             return {"message": "Song duration must be a float"}, 400
