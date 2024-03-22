@@ -8,7 +8,7 @@ from werkzeug.exceptions import NotFound, Conflict, BadRequest, UnsupportedMedia
 
 
 class PlaylistResource(Resource):
-    @cache.cached(timeout=10)
+    @cache.cached(timeout=60)
     def get(self, playlist_id):
         playlist = Playlist.query.get(playlist_id)
         playlist_items = PlaylistItem.query.filter_by(playlist_id=playlist_id).all()
@@ -68,6 +68,7 @@ class PlaylistResource(Resource):
                     db.session.add(playlist_item)
 
             db.session.commit()
+            cache.clear()
         except ValidationError as e:
                 raise BadRequest(description=str(e))
         except ValueError as e:
@@ -88,6 +89,7 @@ class PlaylistResource(Resource):
         # Delete playlist
         db.session.delete(playlist)
         db.session.commit()
+        cache.clear()
 
         return "", 204
 
@@ -152,5 +154,6 @@ class CreatePlaylistResource(Resource):
             )
             db.session.add(playlist_item)
         db.session.commit()
+        cache.clear()
 
         return {"message": "Playlist created successfully", "playlist_id": playlist.playlist_id}, 201

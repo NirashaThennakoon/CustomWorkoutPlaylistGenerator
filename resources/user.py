@@ -10,6 +10,7 @@ from datetime import timedelta
 from jsonschema import validate, ValidationError, FormatChecker
 from werkzeug.exceptions import NotFound, Conflict, BadRequest, UnsupportedMediaType
 from copy import deepcopy
+from extensions import cache
 import uuid
 
 def generate_api_key():
@@ -86,6 +87,23 @@ class UserLoginResource(Resource):
         return {"message": "Login successful", "access_token": access_token}, 200
 
 class UserResource(Resource):
+    @cache.cached(timeout=60)
+    def get(self, user_id):           
+        try:            
+            user = User.query.get(user_id)
+            user_data = []
+            if user:
+                song_dict = {
+                    "email": user.email,
+                    "height": user.height,
+                    "weight": user.weight,
+                    "user_type": user.user_type
+                }
+                user_data.append(song_dict)
+        except KeyError:
+            return jsonify({"message": "Invalid input data"}), 400
+        return user_data, 200
+    
     def delete(self, user_id):
         if g.current_api_key.user.user_type != 'admin':
             return {"message": "Unauthorized access"}, 403
@@ -110,6 +128,8 @@ class UserResource(Resource):
             return {"message": "User not found"}, 404
         
         try:
+            validate(request.json, User.json_schema(), format_checker=FormatChecker())
+
             if 'email' in data:
                 user.email = data['email']
             if 'password' in data:
@@ -122,6 +142,9 @@ class UserResource(Resource):
                 user.user_type = data['user_type']
             
             db.session.commit()
+            cache.clear()
+        except ValidationError as e:
+                raise BadRequest(description=str(e))
         except Exception as e:
             return {"message": str(e)}, 400
         

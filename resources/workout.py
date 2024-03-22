@@ -8,7 +8,7 @@ from jsonschema import validate, ValidationError, FormatChecker
 from werkzeug.exceptions import NotFound, Conflict, BadRequest, UnsupportedMediaType
 
 class WorkoutResource(Resource):
-    @cache.cached(timeout=10)
+    @cache.cached(timeout=60)
     def get(self, workout_id):
         try:
             workout = Workout.query.get(workout_id)
@@ -53,6 +53,7 @@ class WorkoutResource(Resource):
                 workout.workout_type = data['workout_type']
 
             db.session.commit()
+            cache.clear()
         except ValidationError as e:
                 raise BadRequest(description=str(e))
         except ValueError as e:
@@ -69,6 +70,7 @@ class WorkoutResource(Resource):
 
         db.session.delete(workout)
         db.session.commit()
+        cache.clear()
 
         return {"message": "Workout deleted successfully"}, 200
     
@@ -80,7 +82,7 @@ class WorkoutIntensity(Enum):
     EXTREME = "extreme"
     
 class WorkoutsResource(Resource):
-        @cache.cached(timeout=30)
+        @cache.cached(timeout=60)
         def get(self):
             try:
                 workout = Workout.query.all()
@@ -137,6 +139,7 @@ class WorkoutsResource(Resource):
                 )
                 db.session.add(workout)
                 db.session.commit()
+                cache.clear()
             except ValueError as e:
                 return {"message": str(e)}, 400
             return {"message": "Workout added successfully"}, 201
