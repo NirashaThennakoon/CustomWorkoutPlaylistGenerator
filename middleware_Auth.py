@@ -5,6 +5,12 @@ from extensions import db
 from data_models.models import ApiKey 
 
 def authenticate():
+
+    # Allow unauthenticated access to Swagger UI documentation
+    if request.path.startswith('/apidocs/') or request.path.startswith('/flasgger_static/') or request.path.startswith('/apispec_1.json'):
+        return
+    
+    # Continue with your existing authentication logic for other endpoints
     if request.endpoint != 'static':
         api_key = request.headers.get('X-API-Key')
         if not api_key:

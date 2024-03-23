@@ -1,4 +1,5 @@
 import os
+import yaml
 from flask import Flask, jsonify, request
 from flask_restful import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
@@ -10,6 +11,7 @@ from api import api_bp
 
 from middleware_Auth import authenticate
 from flask_jwt_extended import JWTManager
+from flasgger import Swagger
 
 app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
@@ -23,6 +25,28 @@ app.config["CACHE_DIR"] = "./cache"
 jwt = JWTManager(app)
 db.init_app(app)
 cache.init_app(app)
+
+# Load and parse the external YAML file for Swagger
+template_file_path = os.path.join(os.getcwd(), 'api_spec.yml')
+with open(template_file_path, 'r') as f:
+    template = yaml.safe_load(f.read())
+
+swagger_config = {
+    "headers": [],
+    "specs": [
+        {
+            "endpoint": 'apispec_1',
+            "route": '/apispec_1.json',
+            "rule_filter": lambda rule: True,
+            "model_filter": lambda tag: True,
+        }
+    ],
+    "static_url_path": "/flasgger_static",
+    "swagger_ui": True,
+    "specs_route": "/apidocs/"
+}
+
+swagger = Swagger(app, template=template, config=swagger_config)
 
 def create_database():
     engine = sqlalchemy.create_engine(app.config['SQLALCHEMY_DATABASE_BASE_URI'], echo=True)

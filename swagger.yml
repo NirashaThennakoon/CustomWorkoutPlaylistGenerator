@@ -1,0 +1,173 @@
+swagger: '2.0'
+info:
+  title: Sample API
+  description: API description in Markdown.
+  version: "1.0.0"
+servers:
+  - url: http://localhost:5000/api/v1
+paths:
+  /api/workout/{workout_id}:
+    get:
+      summary: Get a single workout by ID
+      parameters:
+        - in: path
+          name: workout_id
+          required: true
+          schema:
+            type: integer
+          description: Unique identifier of the workout
+      responses:
+        200:
+          description: A workout object
+          schema:
+            $ref: '#/definitions/Workout'
+        400:
+          description: Invalid input data
+        404:
+          description: Workout not found
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+    put:
+      summary: Update a workout
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: workout_id
+          required: true
+          type: integer
+          description: Unique identifier of the workout to be updated
+        - in: body
+          name: workout
+          description: Workout data to be updated
+          required: true
+          schema:
+            $ref: '#/definitions/Workout'
+      responses:
+        200:
+          description: Workout updated successfully
+          schema:
+            $ref: '#/definitions/Workout'
+        400:
+          description: No input data provided or invalid input data
+        403:
+          description: Unauthorized access
+        404:
+          description: Workout not found
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+    delete:
+      summary: Delete a workout
+      parameters:
+        - in: path
+          name: workout_id
+          required: true
+          schema:
+            type: integer
+          description: Unique identifier of the workout to be deleted
+      responses:
+        200:
+          description: Workout deleted successfully
+          schema:
+            $ref: '#/definitions/Workout'
+        403:
+          description: Unauthorized access
+        404:
+          description: Workout not found
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+  /api/workout:
+    get:
+      summary: Get all workouts
+      responses:
+        200:
+          description: An array of workout objects
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Workout'
+        400:
+          description: Invalid input data
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+    post:
+      summary: Add a new workout
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: workout
+          description: Workout object that needs to be added to the store
+          required: true
+          schema:
+            $ref: '#/definitions/Workout'
+      responses:
+        201:
+          description: Workout added successfully
+          schema:
+            $ref: '#/definitions/Workout'
+        400:
+          description: Invalid input data
+        403:
+          description: Unauthorized access
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+securityDefinitions:
+  BearerAuth:
+    type: apiKey
+    in: header
+    name: Authorization
+    description: Enter your bearer token in the format **Bearer <token>**
+  X-API-Key:
+    type: apiKey
+    in: header
+    name: X-API-Key
+    description: "Enter your API key in the X-API-Key header"
+definitions:
+  Workout:
+    type: object
+    required:
+      - workout_id
+      - workout_name
+      - duration
+      - workout_intensity
+      - equipment
+      - workout_type
+    properties:
+      workout_id:
+        type: integer
+        format: int64
+        description: Unique identifier for the workout
+        example: 1
+      workout_name:
+        type: string
+        description: Name of the workout
+        example: "Cardio Blast"
+      duration:
+        type: number
+        format: float
+        description: Duration of the workout in minutes
+        example: 30.0
+      workout_intensity:
+        type: string
+        description: Intensity level of the workout (e.g., low, medium, high)
+        example: "high"
+      equipment:
+        type: string
+        description: Equipment required for the workout (e.g., treadmill, none)
+        example: "treadmill"
+      workout_type:
+        type: string
+        description: Type of the workout (e.g., Cardio, Strength)
+        example: "Cardio"
+
+
