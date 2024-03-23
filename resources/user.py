@@ -88,9 +88,8 @@ class UserLoginResource(Resource):
 
 class UserResource(Resource):
     @cache.cached(timeout=60)
-    def get(self, user_id):           
-        try:            
-            user = User.query.get(user_id)
+    def get(self, user):           
+        try:
             user_data = []
             if user:
                 song_dict = {
@@ -104,11 +103,9 @@ class UserResource(Resource):
             return jsonify({"message": "Invalid input data"}), 400
         return user_data, 200
     
-    def delete(self, user_id):
+    def delete(self, user):
         if g.current_api_key.user.user_type != 'admin':
             return {"message": "Unauthorized access"}, 403
-        
-        user = User.query.get(user_id)
         if not user:
             return {"message": "User not found"}, 404
 
@@ -116,14 +113,10 @@ class UserResource(Resource):
         db.session.commit()
         return {"message": "User deleted successfully"}, 200
 
-    def put(self, user_id):
-        if g.current_api_key.user.user_type != 'admin':
-            return {"message": "Unauthorized access"}, 403
+    def put(self, user):
         data = request.json
         if not data:
             return {"message": "No input data provided"}, 400
-        
-        user = User.query.get(user_id)
         if not user:
             return {"message": "User not found"}, 404
         
@@ -151,13 +144,13 @@ class UserResource(Resource):
         return {"message": "User updated successfully"}, 200
     
 class ApiKeyUpdateResource(Resource):
-    def put(self, user_id):
-        user = User.query.get(user_id)
+    def put(self, user):
+        # user = User.query.get(user_id)
         if not user:
             return {"message": "User not found"}, 404
         
         new_api_key = generate_api_key()
-        api_key = ApiKey.query.filter_by(user_id=user_id).first()
+        api_key = ApiKey.query.filter_by(user_id=user.id).first()
         if not api_key:
             return {"message": "API key not found for the user"}, 404
 

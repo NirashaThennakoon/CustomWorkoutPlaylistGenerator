@@ -9,9 +9,8 @@ from werkzeug.exceptions import NotFound, Conflict, BadRequest, UnsupportedMedia
 
 class PlaylistResource(Resource):
     @cache.cached(timeout=60)
-    def get(self, playlist_id):
-        playlist = Playlist.query.get(playlist_id)
-        playlist_items = PlaylistItem.query.filter_by(playlist_id=playlist_id).all()
+    def get(self, playlist):
+        playlist_items = PlaylistItem.query.filter_by(playlist_id=playlist.playlist_id).all()
                
         songs_list = []
         for item in playlist_items:
@@ -37,15 +36,14 @@ class PlaylistResource(Resource):
         return jsonify(playlist_dict)
     
     # user can change the playlist song order
-    def put(self, playlist_id):
+    def put(self, playlist):
         if g.current_api_key.user.user_type != 'admin':
             return {"message": "Unauthorized access"}, 403
         
         data = request.json
         if not data:
             return {"message": "No input data provided"}, 400
-        
-        playlist = Playlist.query.get(playlist_id)
+
         if not playlist:
             return {"message": "Playlist not found"}, 404
         
@@ -57,12 +55,12 @@ class PlaylistResource(Resource):
             if 'song_list' in data:
                 song_order = data['song_list']
                 # Delete existing records in the playlist_item table for the playlist id
-                PlaylistItem.query.filter_by(playlist_id=playlist_id).delete()
+                PlaylistItem.query.filter_by(playlist_id=playlist.playlist_id).delete()
 
                 # Re-enter the incoming song ids with the updated order
                 for index, song_id in enumerate(song_order):
                     playlist_item = PlaylistItem(
-                        playlist_id=playlist_id,
+                        playlist_id=playlist.playlist_id,
                         song_id=song_id,
                     )
                     db.session.add(playlist_item)
@@ -75,12 +73,12 @@ class PlaylistResource(Resource):
             return {"message": str(e)}, 400
         return "", 204
     
-    def delete(self, playlist_id):
-        playlist = Playlist.query.get(playlist_id)
+    def delete(self, playlist):
+        # playlist = Playlist.query.get(playlist_id)
         if not playlist:
             return {"message": "Playlist not found"}, 404
 
-        playlist_items = PlaylistItem.query.filter_by(playlist_id=playlist_id).all()
+        playlist_items = PlaylistItem.query.filter_by(playlist_id=playlist.playlist_id).all()
 
         # Delete playlist items
         for item in playlist_items:
