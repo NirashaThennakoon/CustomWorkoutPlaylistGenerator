@@ -9,10 +9,9 @@ from werkzeug.exceptions import NotFound, Conflict, BadRequest, UnsupportedMedia
 
 class WorkoutPlanResource(Resource):
     @cache.cached(timeout=60)
-    def get(self, workout_plan_id):
+    def get(self, workoutPlan):
         workoutPlan_list = []
         try:
-            workoutPlan = WorkoutPlan.query.get(workout_plan_id)
             if workoutPlan:
                 workout_dict = {
                     "workout_plan_id": workoutPlan.workout_plan_id,
@@ -25,29 +24,27 @@ class WorkoutPlanResource(Resource):
             return jsonify({"message": "Invalid input data"}), 400
         return workoutPlan_list, 200
 
-    def put(self, workout_plan_id):
+    def put(self, workoutPlan):
         if g.current_api_key.user.user_type != 'admin':
             return {"message": "Unauthorized access"}, 403
         
         data = request.json
         if not data:
             return {"message": "No input data provided"}, 400
-
-        workout = WorkoutPlan.query.get(workout_plan_id)
-        if not workout:
+        if not workoutPlan:
             return {"message": "Workout plan not found"}, 404
 
         try:
             validate(request.json, WorkoutPlan.json_schema(), format_checker=FormatChecker())
 
             if 'plan_name' in data:
-                workout.plan_name = data['plan_name']
+                workoutPlan.plan_name = data['plan_name']
             if 'duration' in data:
-                workout.duration = data['duration']
+                workoutPlan.duration = data['duration']
             if 'user_id' in data:
-                workout.user_id = data['user_id']
+                workoutPlan.user_id = data['user_id']
             if 'playlist_id' in data:
-                workout.playlist_id = data['playlist_id']
+                workoutPlan.playlist_id = data['playlist_id']
 
             db.session.commit()
             cache.clear()
@@ -58,12 +55,11 @@ class WorkoutPlanResource(Resource):
 
         return {"message": "Workout plan updated successfully"}, 200
 
-    def delete(self, workout_plan_id):
-        workout = WorkoutPlan.query.get(workout_plan_id)
-        if not workout:
+    def delete(self, workoutPlan):
+        if not workoutPlan:
             return {"message": "Workout plan not found"}, 404
 
-        db.session.delete(workout)
+        db.session.delete(workoutPlan)
         db.session.commit()
         cache.clear()
 

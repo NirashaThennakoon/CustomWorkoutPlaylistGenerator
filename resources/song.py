@@ -12,10 +12,8 @@ from werkzeug.exceptions import NotFound, Conflict, BadRequest, UnsupportedMedia
 
 class SongResource(Resource):
     @cache.cached(timeout=60)
-    def get(self, song_id):           
+    def get(self, song):           
         try:
-            
-            song = Song.query.get(song_id)
             songs_list = []
             if song:
                 song_dict = {
@@ -30,7 +28,7 @@ class SongResource(Resource):
             return jsonify({"message": "Invalid input data"}), 400
         return songs_list, 200
 
-    def put(self, song_id):
+    def put(self, song):
 
         if g.current_api_key.user.user_type != 'admin':
             return {"message": "Unauthorized access"}, 403
@@ -38,7 +36,6 @@ class SongResource(Resource):
         data = request.json
         if not data:
             return {"message": "No input data provided"}, 400
-        song = Song.query.get(song_id)
         if not song:
             return {"message": "Song not found"}, 404
 
@@ -63,10 +60,9 @@ class SongResource(Resource):
 
         return {"message": "Song updated successfully"}, 200
 
-    def delete(self, song_id):
+    def delete(self, song):
         if g.current_api_key.user.user_type != 'admin':
             return {"message": "Unauthorized access"}, 403
-        song = Song.query.get(song_id)
         if not song:
             return {"message": "Song not found"}, 404
 

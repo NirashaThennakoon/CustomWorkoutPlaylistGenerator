@@ -9,9 +9,8 @@ from werkzeug.exceptions import NotFound, Conflict, BadRequest, UnsupportedMedia
 
 class WorkoutResource(Resource):
     @cache.cached(timeout=60)
-    def get(self, workout_id):
+    def get(self, workout):
         try:
-            workout = Workout.query.get(workout_id)
             workout_list = []
             if workout:
                 workout_dict = {
@@ -27,14 +26,12 @@ class WorkoutResource(Resource):
             return jsonify({"message": "Invalid input data"}), 400
         return workout_list, 200
 
-    def put(self, workout_id):
+    def put(self, workout):
         if g.current_api_key.user.user_type != 'admin':
             return {"message": "Unauthorized access"}, 403
         data = request.json
         if not data:
             return {"message": "No input data provided"}, 400
-
-        workout = Workout.query.get(workout_id)
         if not workout:
             return {"message": "Workout not found"}, 404
 
@@ -61,10 +58,9 @@ class WorkoutResource(Resource):
 
         return {"message": "Workout updated successfully"}, 200
 
-    def delete(self, workout_id):
+    def delete(self, workout):
         if g.current_api_key.user.user_type != 'admin':
             return {"message": "Unauthorized access"}, 403
-        workout = Workout.query.get(workout_id)
         if not workout:
             return {"message": "Workout not found"}, 404
 
