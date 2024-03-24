@@ -1,6 +1,5 @@
 import json
 import pytest
-from unittest.mock import Mock, patch, MagicMock
 from werkzeug.datastructures import Headers
 
 RESOURCE_URL = '/api/workoutPlan'
@@ -10,6 +9,7 @@ def mock_post(mocker):
     return mocker.patch('requests.post')
 
 def test_get_workoutplan(client):
+    #get workout plan by id
     response = client.get(f'{RESOURCE_URL}/1')
     assert response.status_code == 200
 
@@ -27,66 +27,85 @@ def test_post_workout_plan(client, mock_post):
     assert resp.status_code in (400, 415)
 
     # test with wrong content type
-    resp = client.post(RESOURCE_URL, data = None, headers=Headers({"Content-Type": "application/json"}))
+    resp = client.post(RESOURCE_URL, json={})
     assert resp.status_code == 400
-    
+    data = json.loads(resp.data)
+    assert data["message"] == "Invalid input data on Create Workout Plan"
+
     # Test with valid data
     resp = client.post(RESOURCE_URL, json=valid_data)
     assert resp.status_code == 201
+    data = json.loads(resp.data)
+    assert data["message"] == "Workout plan created successfully", "workout_plan_id 1"
 
-    # Remove workout_name field for 404
+    # Remove workout_name field for 400
     valid_data.pop("plan_name")
     resp = client.post(RESOURCE_URL, json=valid_data)
     assert resp.status_code == 400
 
-    # Remove workout_name field for 404
+    # Remove workout_name field for 400
     invalid = _get_json_without_workout_ids()
     resp = client.post(RESOURCE_URL, json=invalid)
     assert resp.status_code == 400
 
 def test_put_workout_plan(client):
-        valid = _get_workout_plan_json()
+    valid = _get_workout_plan_json()
 
-        # test with wrong content type
-        resp = client.put(f'{RESOURCE_URL}/1', data="notjson", headers=Headers({"Content-Type": "text"}))
-        assert resp.status_code in (400, 415)
+    # test with wrong content type
+    resp = client.put(f'{RESOURCE_URL}/1', data="notjson", headers=Headers({"Content-Type": "text"}))
+    assert resp.status_code in (400, 415)
 
-        # test with wrong content type
-        resp = client.put(f'{RESOURCE_URL}/1', data = None, headers=Headers({"Content-Type": "application/json"}))
-        assert resp.status_code == 400
+    # test with wrong content type
+    resp = client.put(f'{RESOURCE_URL}/1', json = {})
+    assert resp.status_code == 400
+    data = json.loads(resp.data)
+    assert data["message"] == "No input data provided"
 
-        #test with wrong id
-        resp = client.put(f'{RESOURCE_URL}/id', json=valid)
-        assert resp.status_code == 404
+    #test with wrong id
+    resp = client.put(f'{RESOURCE_URL}/id', json=valid)
+    assert resp.status_code == 404
         
-        # test with not avaliable id
-        resp = client.put(f'{RESOURCE_URL}/10000', json=valid)
-        assert resp.status_code == 404
+    # test with not avaliable id
+    resp = client.put(f'{RESOURCE_URL}/10000', json=valid)
+    assert resp.status_code == 404
         
-        # test with valid
-        resp = client.put(f'{RESOURCE_URL}/1', json=valid)
-        assert resp.status_code == 200
+    # test with valid
+    resp = client.put(f'{RESOURCE_URL}/1', json=valid)
+    assert resp.status_code == 200
+    data = json.loads(resp.data)
+    assert data["message"] == "Workout plan updated successfully"
         
-        # remove field
-        valid.pop("plan_name")
-        resp = client.put(f'{RESOURCE_URL}/1', json=valid)
-        assert resp.status_code == 200
+    # remove field
+    valid.pop("plan_name")
+    resp = client.put(f'{RESOURCE_URL}/1', json=valid)
+    assert resp.status_code == 400
+
+def test_put_workout_plan_with_db_error(client, mocker):
+    valid = _get_workout_plan_json()
+    # Mock the db commit
+    mock_commit = mocker.patch('extensions.db.session.commit')
+    # Make commit raise an exception
+    mock_commit.side_effect = ValueError("Mocked exception")
+
+    resp = client.put(f'{RESOURCE_URL}/1', json=valid)
+    assert resp.status_code == 400
+
+    data = json.loads(resp.data)
+    assert data["message"] == "Mocked exception"
 
 def test_delete_workout_plan(client):
-        resp = client.delete(f'{RESOURCE_URL}/3')
-        assert resp.status_code == 200
-        resp = client.delete(f'{RESOURCE_URL}/3')
-        assert resp.status_code == 404
-        resp = client.delete(f'{RESOURCE_URL}/id')
-        assert resp.status_code == 404
+    #delete workout plan with valid id
+    resp = client.delete(f'{RESOURCE_URL}/3')
+    assert resp.status_code == 200
+    data = json.loads(resp.data)
+    assert data["message"] == "Workout plan deleted successfully"
+    #delete same data
+    resp = client.delete(f'{RESOURCE_URL}/3')
+    assert resp.status_code == 404
 
-def test_get_workout_plan_item(client):
-    RESOURCE_URL = "/api/workoutPlanItem"
-    response = client.get(f'{RESOURCE_URL}/1')
-    assert response.status_code == 200
-
-    data = json.loads(response.data)
-    assert len(data) == 1
+    #delete workout plan with wrong id
+    resp = client.delete(f'{RESOURCE_URL}/id')
+    assert resp.status_code == 404
 
 def _get_workout_plan_json():
     """
@@ -107,7 +126,8 @@ def _get_json_for_post():
     
     return {
         "plan_name": "test-workout-plan-1",
-        "workout_ids": [1, 2 ,3]
+        "workout_ids": [1, 3 ,5],
+        "duration": 78.9
     }
 
 def _get_json_without_workout_ids():

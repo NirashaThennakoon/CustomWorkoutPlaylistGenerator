@@ -8,7 +8,6 @@ from flask.testing import FlaskClient
 from data_models.models import Workout, Playlist, Song, WorkoutPlan, User, ApiKey, WorkoutPlanItem, PlaylistItem
 from extensions import db
 from werkzeug.datastructures import Headers
-from flask.cli import with_appcontext
 
 def generate_api_key():
     return str(uuid.uuid4())
@@ -16,7 +15,7 @@ def generate_api_key():
 TEST_ADMIN_KEY = 'eaecf80e-3b2a-48b8-94c2-d754cf38'
 TEST_USER_KEY = '1baf9207-4e72-4de8-b30b-fbbbbef5'
 
-@pytest.fixture(scope='class')
+@pytest.fixture(scope='session')
 def client():
     config = {
         "SQLALCHEMY_DATABASE_URI": "mysql+mysqldb://admin:pwpdb7788@workoutplaylists.cpcoaea0i7dq.us-east-1.rds.amazonaws.com/test_workout_playlists",

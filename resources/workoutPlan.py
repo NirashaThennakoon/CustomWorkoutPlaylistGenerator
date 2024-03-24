@@ -5,23 +5,21 @@ from data_models.models import WorkoutPlan, WorkoutPlanItem, Workout
 from extensions import db
 from extensions import cache
 from jsonschema import validate, ValidationError, FormatChecker
-from werkzeug.exceptions import NotFound, Conflict, BadRequest, UnsupportedMediaType
+from werkzeug.exceptions import BadRequest
 
 class WorkoutPlanResource(Resource):
     @cache.cached(timeout=60)
     def get(self, workoutPlan):
         workoutPlan_list = []
-        try:
-            if workoutPlan:
-                workout_dict = {
-                    "workout_plan_id": workoutPlan.workout_plan_id,
-                    "plan_name": workoutPlan.plan_name,
-                    "user_id": workoutPlan.user_id,
-                    "duration": workoutPlan.duration
-                }
-                workoutPlan_list.append(workout_dict)
-        except KeyError:
-            return jsonify({"message": "Invalid input data"}), 400
+        if workoutPlan:
+            workout_dict = {
+                "workout_plan_id": workoutPlan.workout_plan_id,
+                "plan_name": workoutPlan.plan_name,
+                "user_id": workoutPlan.user_id,
+                "duration": workoutPlan.duration
+            }
+            workoutPlan_list.append(workout_dict)
+        
         return workoutPlan_list, 200
 
     def put(self, workoutPlan):
@@ -31,9 +29,6 @@ class WorkoutPlanResource(Resource):
         data = request.json
         if not data:
             return {"message": "No input data provided"}, 400
-        if not workoutPlan:
-            return {"message": "Workout plan not found"}, 404
-
         try:
             validate(request.json, WorkoutPlan.json_schema(), format_checker=FormatChecker())
 
@@ -56,16 +51,13 @@ class WorkoutPlanResource(Resource):
         return {"message": "Workout plan updated successfully"}, 200
 
     def delete(self, workoutPlan):
-        if not workoutPlan:
-            return {"message": "Workout plan not found"}, 404
-
         db.session.delete(workoutPlan)
         db.session.commit()
         cache.clear()
 
         return {"message": "Workout plan deleted successfully"}, 200
 
-class WorkoutPlanAddingResource(Resource):
+class WorkoutPlanCreator(Resource):
     def post(self):
         data = request.json
         
@@ -77,19 +69,8 @@ class WorkoutPlanAddingResource(Resource):
         except ValidationError as e:
                 raise BadRequest(description=str(e))
 
-        totalDuration = 0
-        data = request.json
-        if not data:
-            return {"message": "No input data provided"}, 400
-        
-        if not 'plan_name' in data:
-            return {"message": "Plan name not found"}, 400
-        
+        totalDuration = 0        
         plan_name = data["plan_name"]
-
-        if not 'workout_ids' in data:
-            return {"message": "Workout ids not found"}, 400
-        
         workout_ids = data.get('workout_ids', [])
         
         data = {
@@ -101,7 +82,7 @@ class WorkoutPlanAddingResource(Resource):
             "X-API-Key": g.current_api_key.key
         }
 
-        response = requests.post('http://127.0.0.1:5000/' + url_for('api.createplaylistresource'), json=data, headers=headers)
+        response = requests.post('http://127.0.0.1:5000/' + url_for('api.playlistcreation'), json=data, headers=headers)
         playlist_id = response.json()["playlist_id"]
         
         # Create workout plan
@@ -116,6 +97,7 @@ class WorkoutPlanAddingResource(Resource):
 
         for workout_id in workout_ids:
             # calculate total duration of the workout plan
+            print(workout_id)
             workout = Workout.query.get(workout_id)
             totalDuration = totalDuration + workout.duration
 
