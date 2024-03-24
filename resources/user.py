@@ -16,12 +16,9 @@ import uuid
 def generate_api_key():
     return str(uuid.uuid4())
 
-class UserRegistrationResource(Resource):
+class UserRegistration(Resource):
     def post(self):
         data = request.json
-        if not data or not all(key in data for key in ['email', 'password', 'height', 'weight', 'user_type']):
-            return {"message": "Invalid input data for user registration"}, 400
-        
         try:         
             validate(request.json, User.json_schema(), format_checker=FormatChecker())
         except ValidationError as e:
@@ -48,7 +45,7 @@ class UserRegistrationResource(Resource):
             db.session.commit()
         except Exception as e:
             db.session.rollback()
-            return {"Failed to register user"}, 500
+            return {"error":"Failed to register user"}, 500
         
        
         api_key = generate_api_key()
@@ -60,11 +57,11 @@ class UserRegistrationResource(Resource):
             db.session.commit()
         except Exception as e:
             db.session.rollback()
-            return {"Failed to generate API key"}, 500
+            return {"error":"Failed to generate API key"}, 500
         
         return {"message": "User registered successfully", "user_id": user.id}, 201
 
-class UserLoginResource(Resource):
+class UserLogin(Resource):
     def post(self):
         data = request.json
         if not data or not all(key in data for key in ['email', 'password']):
@@ -78,7 +75,7 @@ class UserLoginResource(Resource):
 
         user = User.query.filter_by(email=email).first()
         if not user:
-            return {"message": "No sucxh user in the system"}, 404
+            return {"message": "No such user in the system"}, 404
         
         if not user.verify_password(password):
             return {"message": "Invalid password"}, 401
@@ -89,26 +86,21 @@ class UserLoginResource(Resource):
 class UserResource(Resource):
     @cache.cached(timeout=60)
     def get(self, user):           
-        try:
-            user_data = []
-            if user:
-                song_dict = {
-                    "email": user.email,
-                    "height": user.height,
-                    "weight": user.weight,
-                    "user_type": user.user_type
-                }
-                user_data.append(song_dict)
-        except KeyError:
-            return jsonify({"message": "Invalid input data"}), 400
+        user_data = []
+        if user:
+            song_dict = {
+                "email": user.email,
+                "height": user.height,
+                "weight": user.weight,
+                "user_type": user.user_type
+            }
+        user_data.append(song_dict)
         return user_data, 200
     
     def delete(self, user):
         if g.current_api_key.user.user_type != 'admin':
             return {"message": "Unauthorized access"}, 403
-        if not user:
-            return {"message": "User not found"}, 404
-
+        
         db.session.delete(user)
         db.session.commit()
         return {"message": "User deleted successfully"}, 200
@@ -117,8 +109,6 @@ class UserResource(Resource):
         data = request.json
         if not data:
             return {"message": "No input data provided"}, 400
-        if not user:
-            return {"message": "User not found"}, 404
         
         try:
             validate(request.json, User.json_schema(), format_checker=FormatChecker())
@@ -143,12 +133,9 @@ class UserResource(Resource):
         
         return {"message": "User updated successfully"}, 200
     
-class ApiKeyUpdateResource(Resource):
+class ApiKeyResource(Resource):
     def put(self, user):
-        # user = User.query.get(user_id)
-        if not user:
-            return {"message": "User not found"}, 404
-        
+              
         new_api_key = generate_api_key()
         api_key = ApiKey.query.filter_by(user_id=user.id).first()
         if not api_key:

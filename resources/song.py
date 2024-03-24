@@ -3,29 +3,25 @@ from flask_restful import Resource
 from data_models.models import Song
 from extensions import db
 from extensions import cache
-from sqlalchemy.exc import IntegrityError
-from resources.playlist import CreatePlaylistResource
-import requests
 from jsonschema import validate, ValidationError, FormatChecker
-from werkzeug.exceptions import NotFound, Conflict, BadRequest, UnsupportedMediaType
+from werkzeug.exceptions import BadRequest
 
 
 class SongResource(Resource):
     @cache.cached(timeout=60)
-    def get(self, song):           
-        try:
-            songs_list = []
-            if song:
-                song_dict = {
-                    "song_id": song.song_id,
-                    "song_name": song.song_name,
-                    "song_artist": song.song_artist,
-                    "song_genre": song.song_genre,
-                    "song_duration": song.song_duration,
-                }
-                songs_list.append(song_dict)
-        except KeyError:
-            return jsonify({"message": "Invalid input data"}), 400
+    def get(self, song):      
+
+        songs_list = []
+        if song:
+            song_dict = {
+                "song_id": song.song_id,
+                "song_name": song.song_name,
+                "song_artist": song.song_artist,
+                "song_genre": song.song_genre,
+                "song_duration": song.song_duration,
+            }
+            songs_list.append(song_dict)
+        
         return songs_list, 200
 
     def put(self, song):
@@ -36,8 +32,6 @@ class SongResource(Resource):
         data = request.json
         if not data:
             return {"message": "No input data provided"}, 400
-        if not song:
-            return {"message": "Song not found"}, 404
 
         try:         
             validate(request.json, Song.json_schema(), format_checker=FormatChecker())
@@ -63,32 +57,28 @@ class SongResource(Resource):
     def delete(self, song):
         if g.current_api_key.user.user_type != 'admin':
             return {"message": "Unauthorized access"}, 403
-        if not song:
-            return {"message": "Song not found"}, 404
-
+        
         db.session.delete(song)
         db.session.commit()
         cache.clear()
         return {"message": "Song deleted successfully"}, 200
     
 
-class SongListResource(Resource):
+class SongsCollection(Resource):
     @cache.cached(timeout=60)
     def get(self):           
-        try:
-            songs = Song.query.all()
-            songs_list = []
-            for song in songs:
-                song_dict = {
-                    "song_id": song.song_id,
-                    "song_name": song.song_name,
-                    "song_artist": song.song_artist,
-                    "song_genre": song.song_genre,
-                    "song_duration": song.song_duration,
-                }
-                songs_list.append(song_dict)
-        except KeyError:
-            return jsonify({"message": "Invalid input data"}), 400
+        songs = Song.query.all()
+        songs_list = []
+        for song in songs:
+            song_dict = {
+                "song_id": song.song_id,
+                "song_name": song.song_name,
+                "song_artist": song.song_artist,
+                "song_genre": song.song_genre,
+                "song_duration": song.song_duration,
+            }
+            songs_list.append(song_dict)
+        
         return songs_list, 200
     
     def post(self):

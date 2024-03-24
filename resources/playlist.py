@@ -43,10 +43,6 @@ class PlaylistResource(Resource):
         data = request.json
         if not data:
             return {"message": "No input data provided"}, 400
-
-        if not playlist:
-            return {"message": "Playlist not found"}, 404
-        
         try:
             validate(request.json, Playlist.json_schema(), format_checker=FormatChecker())
 
@@ -74,10 +70,6 @@ class PlaylistResource(Resource):
         return "", 204
     
     def delete(self, playlist):
-        # playlist = Playlist.query.get(playlist_id)
-        if not playlist:
-            return {"message": "Playlist not found"}, 404
-
         playlist_items = PlaylistItem.query.filter_by(playlist_id=playlist.playlist_id).all()
 
         # Delete playlist items
@@ -92,7 +84,7 @@ class PlaylistResource(Resource):
         return "", 204
 
 
-class CreatePlaylistResource(Resource):
+class PlaylistCreation(Resource):
     def post(self):
         data = request.json
         if not data or 'workout_ids' not in data:

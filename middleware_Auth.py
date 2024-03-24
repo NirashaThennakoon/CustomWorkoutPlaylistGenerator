@@ -2,7 +2,7 @@ from http.client import FORBIDDEN
 import secrets
 from flask import jsonify, request, g
 from extensions import db
-from data_models.models import ApiKey 
+from data_models.models import ApiKey
 
 def authenticate():
     if request.endpoint != 'static':

@@ -115,16 +115,12 @@ class WorkoutPlan(db.Model):
     def json_schema():
         schema = {
             "type": "object",
-            "required": ["plan_name", "duration"]
+            "required": ["plan_name"]
         }
         props = schema["properties"] = {}
         props["plan_name"] = {
             "description": "Name of the workout plan",
             "type": "string"
-        }
-        props["duration"] = {
-            "description": "Duration of the workout plan",
-            "type": "number"
         }
         return schema
 
