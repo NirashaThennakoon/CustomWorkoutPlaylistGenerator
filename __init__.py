@@ -27,7 +27,7 @@ db.init_app(app)
 cache.init_app(app)
 
 # Load and parse the external YAML file for Swagger
-template_file_path = os.path.join(os.getcwd(), 'api_spec.yml')
+template_file_path = os.path.join(os.getcwd(), 'swagger.yml')
 with open(template_file_path, 'r') as f:
     template = yaml.safe_load(f.read())
 
