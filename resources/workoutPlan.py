@@ -75,21 +75,20 @@ class WorkoutPlanAddingResource(Resource):
         
         if not data or 'workout_ids' not in data:
             return {"message": "Invalid input data on Create Workout Plan"}, 400
-        print("1")
         
         try:
             validate(request.json, WorkoutPlan.json_schema(), format_checker=FormatChecker())
         except ValidationError as e:
                 raise BadRequest(description=str(e))
-        print("2")
         totalDuration = 0
         data = request.json
+        
         if not data:
             return {"message": "No input data provided"}, 400
-        print("3")
+        
         if not 'plan_name' in data:
             return {"message": "Plan name not found"}, 400
-        print("4")
+        
         plan_name = data["plan_name"]
 
         if not 'workout_ids' in data:

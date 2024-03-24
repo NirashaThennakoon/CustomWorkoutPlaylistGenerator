@@ -684,12 +684,12 @@ definitions:
     properties:
       workout_ids:
         type: array
-        items:
-          type: integer
         description: List of IDs of workouts included in the plan.
+        example: [5,6]
       plan_name:
         type: string
-        description: Name of the workout plan.    
+        description: Name of the workout plan.  
+        example: "Summer Night Plan"
   Song:
     type: object
     required:
