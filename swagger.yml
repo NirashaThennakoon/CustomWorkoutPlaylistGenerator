@@ -606,6 +606,28 @@ paths:
       security:
         - BearerAuth: []
         - X-API-Key: []
+  /api/user/update_api_key/{user_id}:
+    put:
+      tags:
+        - Generate API Key
+      summary: Update a user's API key
+      description: Generates a new API key for the specified user and updates the existing one, using the Mason response format.
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          type: integer
+          description: Unique identifier of the user whose API key needs to be updated.
+      responses:
+        200:
+          description: API key updated successfully. 
+        404:
+          description: User not found or API key not found for the user.
+        500:
+          description: Failed to update API key. 
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
 securityDefinitions:
   BearerAuth:
     type: apiKey
