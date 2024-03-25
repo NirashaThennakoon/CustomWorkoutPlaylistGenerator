@@ -34,16 +34,30 @@
 
 
 ## Meeting 2.
-* **DATE:**
-* **ASSISTANTS:**
+* **20th February 2024/ 09:50 PM :**
+* **Iván Sánchez Milara:**
+
+### Attendies
+
+1.	Kavindu Wijesinghe
+2.	Nirasha Thennakoon
+3.	Sonali Liyana Badalge
+4.	Iresh Bandara
 
 ### Minutes
-*Summary of what was discussed during the meeting*
+
+- [x]  Database Design: provided insights into the database schema, on the relationship between workout plans, workouts, and users..
+- [x]  API Implementation: recommended implementing an authentication API rather than using sessions
+- [x]  Data Model Refinement: Adjust schema for clarity, focusing on many-to-many relationships.
+- [x]  Address Feedback: Make necessary adjustments based on recommendations.
+- [x]  Efficient Development: Maintain a structured approach to project development.
+- [x]  Focus on Statelessness: Prioritize stateless architecture for API design.
+
 
 ### Action points
-*List here the actions points discussed with assistants*
-
-
+- [x]  Implement an authentication API
+- [x]  Address Feedback
+- [x]  Complete API implementation
 
 
 ## Meeting 3.

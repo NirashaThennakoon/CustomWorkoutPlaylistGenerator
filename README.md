@@ -1,5 +1,18 @@
+
 # PWP SPRING 2024
 # Custom Workout Playlist Generator
+```
+  ____          _                   __        __         _               _        
+ / ___|   _ ___| |_ ___  _ __ ___   \ \      / /__  _ __| | _____  _   _| |_      
+| |  | | | / __| __/ _ \| '_ ` _ \   \ \ /\ / / _ \| '__| |/ / _ \| | | | __|     
+| |__| |_| \__ \ || (_) | | | | | |   \ V  V / (_) | |  |   < (_) | |_| | |_      
+ \____\__,_|___/\__\___/|_| |_| |_| ___\_/\_/ \___/|_|  |_|\_\___/ \__,_|\__|     
+|  _ \| | __ _ _   _| (_)___| |_   / ___| ___ _ __   ___ _ __ __ _| |_ ___  _ __  
+| |_) | |/ _` | | | | | / __| __| | |  _ / _ \ '_ \ / _ \ '__/ _` | __/ _ \| '__| 
+|  __/| | (_| | |_| | | \__ \ |_  | |_| |  __/ | | |  __/ | | (_| | || (_) | |    
+|_|   |_|\__,_|\__, |_|_|___/\__|  \____|\___|_| |_|\___|_|  \__,_|\__\___/|_|    
+               |___/                                                                
+```
 # Group information
 * Student 1. Iresh Jayasundara - Iresh.JayasundaraMudiyanselage@student.oulu.fi
 * Student 2. Kavindu Wijesinghe - Kavindu.WijesingheArachchilage@student.oulu.fi
@@ -8,8 +21,6 @@
 
 # Database Implementation :Custom Workout Playlist Generator
 The following chapter describes the the selection of databases, libraries and instructions to setup the requirements needed for the Custom Workout Playlist Generator. 
-
-
 
 ## 🔗 Dependencies and Setup
 
@@ -55,11 +66,33 @@ MySQL was chosen as a database for the project because it's free to use, widely 
 - [x]  When prompted for the credentials duting the installation wizard, use the **username root  and password root.** if you wish to use a different credentials, make sure to update the modified credentials when runng the app.py in the next section. 
 - [x]  Configre the MySQL server to run on your OS with your credentials.
 
+## install the follwoing libs to run Custom Workout Playlist Generator
+- ☑️ blinker==1.7.0
+- ☑️ click==8.1.7
+- ☑️ colorama==0.4.6
+- ☑️ Flask==3.0.2
+- ☑️ Flask-SQLAlchemy==3.1.1
+- ☑️ greenlet==3.0.3
+- ☑️ itsdangerous==2.1.2
+- ☑️ Jinja2==3.1.3
+- ☑️ MarkupSafe==2.1.5
+- ☑️ mysqlclient==2.2.3
+- ☑️ numpy==1.26.3
+- ☑️ pandas==2.2.0
+- ☑️ python-dateutil==2.8.2
+- ☑️ pytz==2023.3.post1
+- ☑️ scipy==1.12.0
+- ☑️ six==1.16.0
+- ☑️ SQLAlchemy==2.0.25
+- ☑️ typing_extensions==4.9.0
+- ☑️ tzdata==2023.4
+- ☑️ Werkzeug==3.0.1
+- ☑️ flask-jwt-extended==4.6.0
+- ☑️ pytest=8.1.1
 
+#Flask App and Environment Setup
 
-#Database Setup  (Flask App and Environment Setup)
-
-If you have skipped the manual setup to install the required libraries, you can use the **Requirements.txt** file to install the nessacery libraries. 
+If you have skipped the manual setup to install the required libraries, you can use the ❎❎**requirements.txt**❎❎ file to install the nessacery libraries. 
 
 - [x]  We recommend you use a Python Virtual Environment for setting-up the next steps.
 - [x]  Create a folder of your choosing for the virtual Environment
@@ -83,11 +116,23 @@ pip install -r requirements.txt
 app.config["SQLALCHEMY_DATABASE_BASE_URI"] = "mysql+mysqldb://root@localhost/"
 ```
 ```bash
-python .\app.py
+python __init__.py
 ```
 - [x] To add sample data to the tables, you can run the provided sql dump using the following command.
 
 ```bash
 use workout_playlists
 source /path/to/sql/your_sql_file.sql
+```
+## Running Tests
+
+To run all test cases 
+
+```bash
+Run “pytest” cmd in project folder
+```
+
+To run specific test class 
+```bash
+– Run pytest <path to test folder>/<testclassname>.py
 ```
