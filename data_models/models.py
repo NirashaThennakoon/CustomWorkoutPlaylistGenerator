@@ -136,16 +136,12 @@ class Playlist(db.Model):
     def json_schema():
         schema = {
             "type": "object",
-            "required": ["playlist_name", "playlist_duration"]
+            "required": ["playlist_name"]
         }
         props = schema["properties"] = {}
         props["playlist_name"] = {
             "description": "Name of the playlist",
             "type": "string"
-        }
-        props["playlist_duration"] = {
-            "description": "Duration of the playlist",
-            "type": "number"
         }
         return schema 
 

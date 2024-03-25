@@ -189,29 +189,29 @@ class PlaylistResource(Resource):
         return "", 204
     
     def delete(self, playlist_id):
+        if g.current_api_key.user.user_type != 'admin':
+            return create_error_response(403, "Unauthorized access")
+
         playlist = Playlist.query.get(playlist_id)
         if not playlist:
-            return {"message": "Playlist not found"}, 404
+            return create_error_response(404, "Playlist not found")
 
-        playlist_items = PlaylistItem.query.filter_by(playlist_id=playlist_id).all()
-
-        # Delete playlist items
-        for item in playlist_items:
-            db.session.delete(item)
-
-        # Delete playlist
+        PlaylistItem.query.filter_by(playlist_id=playlist_id).delete()
         db.session.delete(playlist)
         db.session.commit()
         cache.clear()
 
-        return "", 204
+        playlist_builder = PlaylistBuilder()
+        playlist_builder["message"] = "Playlist deleted successfully"
+        playlist_builder.add_control_get_playlist(playlist_id)  
 
+        return Response(json.dumps(playlist_builder), 200, mimetype=MASON)
 
 class CreatePlaylistResource(Resource):
     def post(self):
         data = request.json
         if not data or 'workout_ids' not in data:
-            return {"message": "Invalid input data on CreatePlayList"}, 400            
+            return create_error_response(400,"Invalid input data on CreatePlayList")          
 
         playlist_name_rec = data['playlist_name']
         workout_ids = data['workout_ids']
@@ -268,5 +268,9 @@ class CreatePlaylistResource(Resource):
             db.session.add(playlist_item)
         db.session.commit()
         cache.clear()
+        
+        playlist_builder = PlaylistBuilder()
+        playlist_builder.add_control_get_playlist(playlist.playlist_id)
+        playlist_builder["message"] = "Playlist created successfully"
 
-        return {"message": "Playlist created successfully", "playlist_id": playlist.playlist_id}, 201
+        return Response(json.dumps(playlist_builder), status=201, mimetype=MASON)
