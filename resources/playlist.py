@@ -12,31 +12,17 @@ from extensions import cache
 
 class PlaylistResource(Resource):
     """
-    Represents a playlist of songs.
-    
-    Attributes:
-    - name (str): The name of the playlist.
-    - songs (list): A list of Song objects in the playlist.
+        This resource includes the playlist GET, PUT and DELETE endpoint.
+
     """
     @cache.cached(timeout=60)
     def get(self, playlist):
         """
-        Retrieve details of a playlist.
+            Retrieve details of a playlist.
 
-        This method retrieves the details of a playlist including its ID, duration, 
-        and the list of songs it contains. The playlist and its associated songs
-        are retrieved from the database.
-
-        Parameters:
-        ----------
-        playlist : Playlist
-            The playlist object to retrieve details for.
-
-        Returns:
-        -------
-        Response
-            A JSON response containing the details of the playlist including its ID, 
-            duration, and a list of songs it contains.
+            This method retrieves the details of a playlist including its ID, duration, 
+            and the list of songs it contains. The playlist and its associated songs
+            are retrieved from the database.
 
         """
         playlist_items = PlaylistItem.query.filter_by(playlist_id=playlist.playlist_id).all()
@@ -65,24 +51,8 @@ class PlaylistResource(Resource):
     # user can change the playlist song order
     def put(self, playlist):
         """
-        Update a playlist.
-
-        This method updates the details of a playlist based on the provided JSON data.
-
-        Parameters:
-        ----------
-        playlist : Playlist
-            The playlist object to be updated.
-
-        Returns:
-        -------
-        tuple
-            A tuple containing an empty string and status code 204 if the update is successful.
-
-        Raises:
-        ------
-        BadRequest
-            If the provided JSON data fails validation or if there is an issue with the data format.
+            Update a playlist.
+            This method updates the details of a playlist based on the provided JSON data.
         """
         if g.current_api_key.user.user_type != 'admin':
             return {"message": "Unauthorized access"}, 403
@@ -116,19 +86,9 @@ class PlaylistResource(Resource):
         return "", 204
     def delete(self, playlist):
         """
-        Delete a playlist and its associated items.
+            Delete a playlist and its associated items.
 
-        This method deletes the specified playlist along with all its associated items.
-
-        Parameters:
-        ----------
-        playlist : Playlist
-            The playlist object to be deleted.
-
-        Returns:
-        -------
-        tuple
-            A tuple containing an empty string and status code 204 upon successful deletion.
+            This method deletes the specified playlist along with all its associated items.
 
         """
         playlist_items = PlaylistItem.query.filter_by(playlist_id=playlist.playlist_id).all()
@@ -156,16 +116,11 @@ class PlaylistCreation(Resource):
     """
     def post(self):
         """
-        Create a playlist based on provided workout IDs.
+            Create a playlist based on provided workout IDs.
 
-        This method creates a playlist based on the workout IDs provided in the request JSON data.
-        The playlist is created with songs selected according to the intensity of each workout.
-
-        Returns:
-        -------
-        tuple
-            A tuple containing a message indicating the success of playlist creation along with
-            the playlist ID and status code 201 upon successful creation.
+            This method creates a playlist based on the workout IDs provided in
+            the request JSON data. The playlist is created with songs selected
+            according to the intensity of each workout.
 
         """
         data = request.json
