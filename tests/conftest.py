@@ -1,13 +1,19 @@
-import pytest
-import random
-import datetime
+"""
+This module is responsible for app configuration and db population for test
+"""
 import hashlib
+import datetime
+import random
 import uuid
-from .. import create_app 
+import pytest
 from flask.testing import FlaskClient 
-from data_models.models import Workout, Playlist, Song, WorkoutPlan, User, ApiKey, WorkoutPlanItem, PlaylistItem
-from extensions import db
 from werkzeug.datastructures import Headers
+from extensions import db
+from data_models.models import (
+    Workout, Playlist, Song, WorkoutPlan, User, 
+    ApiKey, WorkoutPlanItem, PlaylistItem
+)
+from .. import create_app 
 
 def generate_api_key():
     return str(uuid.uuid4())
@@ -18,9 +24,15 @@ TEST_USER_KEY = '1baf9207-4e72-4de8-b30b-fbbbbef5'
 @pytest.fixture(scope='session')
 def client():
     config = {
-        "SQLALCHEMY_DATABASE_URI": "mysql+mysqldb://admin:pwpdb7788@workoutplaylists.cpcoaea0i7dq.us-east-1.rds.amazonaws.com/test_workout_playlists",
+        "SQLALCHEMY_DATABASE_URI": (
+            "mysql+mysqldb://admin:pwpdb7788@"
+            "workoutplaylists.cpcoaea0i7dq."
+            "us-east-1.rds.amazonaws.com/"
+            "test_workout_playlists"
+        ),
         "TESTING": True
     }
+
         
     app = create_app(config)
     
@@ -49,12 +61,12 @@ def _populate_db():
     for i in range(1, 6):
         p = Playlist(
             playlist_duration=random.random(),
-            playlist_name="test-workout-plan-{} Playlist".format(i)
+            playlist_name=f"test-workout-plan-{i} Playlist"
         )
         song_artist_list = ["Taylor Swift","Drake","Ed Sheeran","Billie Eilish"]
         song_genre_list = ["classic", "pop", "falk", "country"]
         s = Song(
-            song_name="test-song-{}".format(i),
+            song_name=f"test-song-{i}",
             song_artist=random.choice(song_artist_list),
             song_genre=random.choice(song_genre_list),
             song_duration=random.random()
@@ -108,7 +120,9 @@ def _populate_db():
     db.session.commit()   
 
 def populate_user_api_key_tables():
-    
+    """
+    populate user and api key tables
+    """
     token_expiration = datetime.datetime.utcnow() + datetime.timedelta(hours=24)
     u1 = User(
             email="test-email-1@gmail.com",
