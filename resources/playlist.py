@@ -13,7 +13,6 @@ from extensions import cache
 class PlaylistResource(Resource):
     """
         This resource includes the playlist GET, PUT and DELETE endpoint.
-
     """
     @cache.cached(timeout=60)
     def get(self, playlist):
@@ -23,7 +22,6 @@ class PlaylistResource(Resource):
             This method retrieves the details of a playlist including its ID, duration, 
             and the list of songs it contains. The playlist and its associated songs
             are retrieved from the database.
-
         """
         playlist_items = PlaylistItem.query.filter_by(playlist_id=playlist.playlist_id).all()
         songs_list = []
@@ -107,12 +105,11 @@ class PlaylistResource(Resource):
 
 class PlaylistCreation(Resource):
     """
-    Resource for creating playlists based on workout IDs.
+        Resource for creating playlists based on workout IDs.
 
-    This class defines a resource for creating playlists based on workout IDs provided
-    in the request JSON data. It handles the creation of playlists with songs selected
-    according to the intensity of each workout.
-
+        This class defines a resource for creating playlists based on workout IDs provided
+        in the request JSON data. It handles the creation of playlists with songs selected
+        according to the intensity of each workout.
     """
     def post(self):
         """
@@ -121,7 +118,6 @@ class PlaylistCreation(Resource):
             This method creates a playlist based on the workout IDs provided in
             the request JSON data. The playlist is created with songs selected
             according to the intensity of each workout.
-
         """
         data = request.json
         if not data or 'workout_ids' not in data:
