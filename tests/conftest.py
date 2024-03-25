@@ -108,7 +108,9 @@ def _populate_db():
     db.session.commit()   
 
 def populate_user_api_key_tables():
-    
+    """
+    populate user and api key tables
+    """
     token_expiration = datetime.datetime.utcnow() + datetime.timedelta(hours=24)
     u1 = User(
             email="test-email-1@gmail.com",
