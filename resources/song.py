@@ -120,7 +120,7 @@ class SongBuilder(MasonBuilder):
         )
 MASON = "application/vnd.mason+json"
 ERROR_PROFILE = "/profiles/error/"
-WORKOUT_PROFILE = "/profiles/song/"  
+SONG_PROFILE = "/profiles/song/"  
 
 def create_error_response(status_code, title, message=None):
     body = SongBuilder()
@@ -135,11 +135,11 @@ class SongResource(Resource):
             return create_error_response(404, "Song not found")
 
         song_builder = SongBuilder()
-        song_builder.add_namespace("song", WORKOUT_PROFILE)
+        song_builder.add_namespace("song", SONG_PROFILE)
         song_builder.add_control_get_song(song_id)
         song_builder.add_control_edit_song(song_id)
         song_builder.add_control_delete_song(song_id)
-        song_builder.add_control("profile", href=WORKOUT_PROFILE)
+        song_builder.add_control("profile", href=SONG_PROFILE)
 
         song_dict = {
             "song_id": song.song_id,
@@ -176,11 +176,11 @@ class SongResource(Resource):
             cache.clear()
 
             song_builder = SongBuilder()
-            song_builder.add_namespace("song", WORKOUT_PROFILE)
+            song_builder.add_namespace("song", SONG_PROFILE)
             song_builder.add_control_get_song(song_id)
             song_builder.add_control_edit_song(song_id)
             song_builder.add_control_delete_song(song_id)
-            song_builder.add_control("profile", href=WORKOUT_PROFILE)
+            song_builder.add_control("profile", href=SONG_PROFILE)
             song_builder["message"] = "Song updated successfully"
 
             return Response(json.dumps(song_builder), 200, mimetype=MASON)
@@ -212,7 +212,7 @@ class SongListResource(Resource):
     @cache.cached(timeout=60)
     def get(self): 
         song_builder = SongBuilder()
-        song_builder.add_namespace("song", WORKOUT_PROFILE)
+        song_builder.add_namespace("song", SONG_PROFILE)
         song_builder.add_control_add_song()  
         songs = Song.query.all()
         items = []
@@ -221,7 +221,7 @@ class SongListResource(Resource):
             item.add_control_get_song(song.song_id)
             item.add_control_edit_song(song.song_id)
             item.add_control_delete_song(song.song_id)
-            item.add_control("profile", href=WORKOUT_PROFILE)
+            item.add_control("profile", href=SONG_PROFILE)
             
             item.update({
                 "song_id": song.song_id,
@@ -268,9 +268,9 @@ class SongListResource(Resource):
             cache.clear()
             
             song_builder = SongBuilder()
-            song_builder.add_namespace("song", WORKOUT_PROFILE)
+            song_builder.add_namespace("song", SONG_PROFILE)
             song_builder.add_control_get_song(song.song_id)
-            song_builder.add_control("profile", href=WORKOUT_PROFILE)
+            song_builder.add_control("profile", href=SONG_PROFILE)
             song_builder["message"] = "Song added successfully"
             
             return Response(json.dumps(song_builder), status=201, mimetype=MASON)

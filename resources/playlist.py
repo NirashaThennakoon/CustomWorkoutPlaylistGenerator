@@ -1,40 +1,153 @@
-from flask import jsonify, request, g
+from flask import Response, jsonify, request, g
 from flask_restful import Resource
 from data_models.models import Playlist, PlaylistItem, Workout, Song
 from extensions import db
 from extensions import cache
 from jsonschema import validate, ValidationError, FormatChecker
 from werkzeug.exceptions import NotFound, Conflict, BadRequest, UnsupportedMediaType
+import json
 
+class MasonBuilder(dict):
+    """
+    A convenience class for managing dictionaries that represent Mason
+    objects. It provides nice shorthands for inserting some of the more
+    elements into the object but mostly is just a parent for the much more
+    useful subclass defined next. This class is generic in the sense that it
+    does not contain any application specific implementation details.
+    """
+
+    def add_error(self, title, details):
+        """
+        Adds an error element to the object. Should only be used for the root
+        object, and only in error scenarios.
+
+        Note: Mason allows more than one string in the @messages property (it's
+        in fact an array). However we are being lazy and supporting just one
+        message.
+
+        : param str title: Short title for the error
+        : param str details: Longer human-readable description
+        """
+
+        self["@error"] = {
+            "@message": title,
+            "@messages": [details],
+        }
+
+    def add_namespace(self, ns, uri):
+        """
+        Adds a namespace element to the object. A namespace defines where our
+        link relations are coming from. The URI can be an address where
+        developers can find information about our link relations.
+
+        : param str ns: the namespace prefix
+        : param str uri: the identifier URI of the namespace
+        """
+
+        if "@namespaces" not in self:
+            self["@namespaces"] = {}
+
+        self["@namespaces"][ns] = {
+            "name": uri
+        }
+
+    def add_control(self, ctrl_name, href, **kwargs):
+        """
+        Adds a control property to an object. Also adds the @controls property
+        if it doesn't exist on the object yet. Technically only certain
+        properties are allowed for kwargs but again we're being lazy and don't
+        perform any checking.
+
+        The allowed properties can be found from here
+        https://github.com/JornWildt/Mason/blob/master/Documentation/Mason-draft-2.md
+
+        : param str ctrl_name: name of the control (including namespace if any)
+        : param str href: target URI for the control
+        """
+
+        if "@controls" not in self:
+            self["@controls"] = {}
+
+        self["@controls"][ctrl_name] = kwargs
+        self["@controls"][ctrl_name]["href"] = href
+
+class PlaylistBuilder(MasonBuilder):
+    def add_control_get_playlist(self, playlist_id):
+        self.add_control(
+            "playlist:get",
+            href=f"/api/playlist/{playlist_id}",
+            method="GET",
+            title="Get Playlist by ID"
+        )
+
+    def add_control_edit_playlist(self, playlist_id):
+        self.add_control(
+            "playlist:edit",
+            href=f"/api/playlist/{playlist_id}",
+            method="PUT",
+            title="Edit This Playlist",
+            encoding="json",
+            schema=Playlist.json_schema()
+        )
+
+    def add_control_delete_playlist(self, playlist_id):
+        self.add_control(
+            "playlist:delete",
+            href=f"/api/playlist/{playlist_id}",
+            method="DELETE",
+            title="Delete This Playlist"
+        )
+
+    def add_control_add_playlist(self):
+        self.add_control(
+            "playlist:add",
+            href="/api/playlist",
+            method="POST",
+            title="Add New Playlist",
+            encoding="json",
+            schema=Playlist.json_schema()
+        )
+MASON = "application/vnd.mason+json"
+ERROR_PROFILE = "/profiles/error/"
+PLAYLIST_PROFILE = "/profiles/playlist/"  
+
+
+def create_error_response(status_code, title, message=None):
+    body = PlaylistBuilder()
+    body.add_error(title, message if message else "")
+    return Response(json.dumps(body), status_code, mimetype=MASON)
 
 class PlaylistResource(Resource):
     @cache.cached(timeout=60)
     def get(self, playlist_id):
         playlist = Playlist.query.get(playlist_id)
+        if not playlist:
+            return create_error_response(404, "Playlist not found")
+
+        playlist_builder = PlaylistBuilder()
+        playlist_builder.add_namespace("playlist", PLAYLIST_PROFILE)
+        playlist_builder.add_control_get_playlist(playlist_id)
+        playlist_builder.add_control_edit_playlist(playlist_id)
+        playlist_builder.add_control_delete_playlist(playlist_id)
+        playlist_builder.add_control("profile", href=PLAYLIST_PROFILE)
+
         playlist_items = PlaylistItem.query.filter_by(playlist_id=playlist_id).all()
-               
-        songs_list = []
-        for item in playlist_items:
-            song = Song.query.get(item.song_id)
-            if song:
-                song_dict = {
-                    "song_id": song.song_id,
-                    "song_name": song.song_name,
-                    "artist": song.song_artist,
-                    "genre": song.song_genre,
-                    "duration": song.song_duration
-                }
-            songs_list.append(song_dict)
+        songs_list = [Song.query.get(item.song_id) for item in playlist_items if item.song_id]
 
-        playlist_dict = {}
-
-        if playlist:
-            playlist_dict = {
+        playlist_dict = {
             "playlist_id": playlist.playlist_id,
             "playlist_duration": playlist.playlist_duration,
-            "songs_list": songs_list
-            }
-        return jsonify(playlist_dict)
+            "songs_list": [{
+                "song_id": song.song_id,
+                "song_name": song.song_name,
+                "artist": song.song_artist,
+                "genre": song.song_genre,
+                "duration": song.song_duration
+            } for song in songs_list if song]
+        }
+
+        playlist_builder.update(playlist_dict)
+        return Response(json.dumps(playlist_builder), mimetype=MASON)
     
     # user can change the playlist song order
     def put(self, playlist_id):
