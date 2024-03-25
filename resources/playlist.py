@@ -70,7 +70,7 @@ class PlaylistResource(Resource):
                 PlaylistItem.query.filter_by(playlist_id=playlist.playlist_id).delete()
 
                 # Re-enter the incoming song ids with the updated order
-                for song_id in enumerate(song_order):
+                for index, song_id in enumerate(song_order):
                     playlist_item = PlaylistItem(
                         playlist_id=playlist.playlist_id,
                         song_id=song_id,
