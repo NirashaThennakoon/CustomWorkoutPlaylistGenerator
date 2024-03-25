@@ -1,3 +1,4 @@
+
 # PWP SPRING 2024
 # Custom Workout Playlist Generator
 # Group information
@@ -8,8 +9,6 @@
 
 # Database Implementation :Custom Workout Playlist Generator
 The following chapter describes the the selection of databases, libraries and instructions to setup the requirements needed for the Custom Workout Playlist Generator. 
-
-
 
 ## 🔗 Dependencies and Setup
 
@@ -83,11 +82,23 @@ pip install -r requirements.txt
 app.config["SQLALCHEMY_DATABASE_BASE_URI"] = "mysql+mysqldb://root@localhost/"
 ```
 ```bash
-python .\app.py
+python __init__.py
 ```
 - [x] To add sample data to the tables, you can run the provided sql dump using the following command.
 
 ```bash
 use workout_playlists
 source /path/to/sql/your_sql_file.sql
+```
+## Running Tests
+
+To run all test cases 
+
+```bash
+Run “pytest” cmd in project folder
+```
+
+To run specific test class 
+```bash
+– Run pytest <path to test folder>/<testclassname>.py
 ```
