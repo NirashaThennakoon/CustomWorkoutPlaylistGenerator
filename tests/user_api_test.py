@@ -15,7 +15,7 @@ def test_post_user_register(client):
     """
         test user registration
     """
-    resource_url = "/api/user/register"
+    resource_url = "/api/user"
     valid = _get_user_json()
 
     # test with wrong content type
@@ -42,7 +42,7 @@ def test_post_user_register_with_db_error(client, mocker):
     """
         test user registration when db error occurs
     """
-    resource_url = "/api/user/register"
+    resource_url = "/api/user"
     valid = _get_newuser_json()
 
     # Mock the db commit
@@ -58,7 +58,7 @@ def test_post_user_login(client):
     """
         test user login
     """
-    resource_url = "/api/user/login"
+    resource_url = "/api/user/1"
     valid = _get_user_json_for_login()
     invalid_email = _get_user_json_with_invalid_email()
     inavlis_pwd = _get_user_json_with_invalid_pwd()

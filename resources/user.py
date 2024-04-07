@@ -77,39 +77,39 @@ class UserRegistration(Resource):
 
         return {"message": "User registered successfully", "user_id": user.id}, 201
 
-class UserLogin(Resource):
-    """
-        This resource includes the user login POST endpoint.
-    """
-    def post(self):
-        """
-            This method authenticates a user based on the provided email and password.
+# class UserLogin(Resource):
+#     """
+#         This resource includes the user login POST endpoint.
+#     """
+#     def post(self):
+#         """
+#             This method authenticates a user based on the provided email and password.
 
-            Returns:
-                A tuple containing a dictionary with a message indicating the
-                success of the operation, an access token for the authenticated user,
-                and an HTTP status code. If the operation is successful,
-                the status code is 200.
-        """
-        data = request.json
-        if not data or not all(key in data for key in ['email', 'password']):
-            return {"message": "Invalid input data for user login"}, 400
+#             Returns:
+#                 A tuple containing a dictionary with a message indicating the
+#                 success of the operation, an access token for the authenticated user,
+#                 and an HTTP status code. If the operation is successful,
+#                 the status code is 200.
+#         """
+#         data = request.json
+#         if not data or not all(key in data for key in ['email', 'password']):
+#             return {"message": "Invalid input data for user login"}, 400
 
-        user_schema = User.json_schema()
-        validate_request(data, user_schema)
+#         user_schema = User.json_schema()
+#         validate_request(data, user_schema)
 
-        email = data['email']
-        password = data['password']
+#         email = data['email']
+#         password = data['password']
 
-        user = User.query.filter_by(email=email).first()
-        if not user:
-            return {"message": "No such user in the system"}, 404
+#         user = User.query.filter_by(email=email).first()
+#         if not user:
+#             return {"message": "No such user in the system"}, 404
 
-        if not user.verify_password(password):
-            return {"message": "Invalid password"}, 401
+#         if not user.verify_password(password):
+#             return {"message": "Invalid password"}, 401
 
-        access_token = create_access_token(identity=user.id, expires_delta=timedelta(days=1))
-        return {"message": "Login successful", "access_token": access_token}, 200
+#         access_token = create_access_token(identity=user.id, expires_delta=timedelta(days=1))
+#         return {"message": "Login successful", "access_token": access_token}, 200
 
 class UserResource(Resource):
     """
@@ -197,6 +197,36 @@ class UserResource(Resource):
             return {"message": str(e)}, 400
 
         return {"message": "User updated successfully"}, 200
+    
+    def post(self, user):
+        """
+            This method authenticates a user based on the provided email and password.
+
+            Returns:
+                A tuple containing a dictionary with a message indicating the
+                success of the operation, an access token for the authenticated user,
+                and an HTTP status code. If the operation is successful,
+                the status code is 200.
+        """
+        data = request.json
+        if not data or not all(key in data for key in ['email', 'password']):
+            return {"message": "Invalid input data for user login"}, 400
+
+        user_schema = User.json_schema()
+        validate_request(data, user_schema)
+
+        email = data['email']
+        password = data['password']
+
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            return {"message": "No such user in the system"}, 404
+
+        if not user.verify_password(password):
+            return {"message": "Invalid password"}, 401
+
+        access_token = create_access_token(identity=user.id, expires_delta=timedelta(days=1))
+        return {"message": "Login successful", "access_token": access_token}, 200
 
 class ApiKeyResource(Resource):
     """
