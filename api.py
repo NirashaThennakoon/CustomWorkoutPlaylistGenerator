@@ -2,10 +2,8 @@ from flask import Blueprint
 from flask_restful import Api
 from resources.workout import WorkoutResource,WorkoutsCollection
 from resources.workoutPlan import WorkoutPlanResource, WorkoutPlanCreator, WorkoutPlanItemResource
-from resources.song import SongResource
-from resources.song import SongsCollection
-from resources.playlist import PlaylistResource
-from resources.playlist import PlaylistCreation
+from resources.song import SongResource, SongsCollection
+from resources.playlist import PlaylistResource, PlaylistCreation, PlaylistItemResource
 from resources.user import UserRegistration, UserResource, ApiKeyResource
 
 api_bp = Blueprint('api', __name__)
@@ -20,6 +18,7 @@ api.add_resource(SongResource, "/song/<song:song>/")
 api.add_resource(SongsCollection, "/song/")
 api.add_resource(PlaylistResource, "/playlist/<playlist:playlist>/")
 api.add_resource(PlaylistCreation, "/playlist/")
+api.add_resource(PlaylistItemResource, "/playlistItem/<playlist_id>")
 api.add_resource(UserRegistration, "/user")
 api.add_resource(UserResource, "/user/<user:user>")
 api.add_resource(ApiKeyResource, "/user/update_api_key/<user:user>")

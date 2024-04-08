@@ -175,24 +175,25 @@ class WorkoutPlanResource(Resource):
             workout_plan_builder.add_control_add_workout_plan()
             workout_plan_builder.add_control_edit_workout_plan(workoutPlan.workout_plan_id)
             workout_plan_builder.add_control_delete_workout_plan(workoutPlan.workout_plan_id)
-            workout_plan_builder.add_control_get_playlist(workoutPlan.workout_plan.playlist_id)
-            workout_plan_builder.add_control_get_user(workoutPlan.workout_plan.user_id)
+            workout_plan_builder.add_control_get_playlist(workoutPlan.playlist_id)
+            workout_plan_builder.add_control_get_user(workoutPlan.user_id)
             workout_plan_builder.add_control_get_workouts(workoutPlan.workout_plan_id)
             workout_plan_builder.add_control("profile", href=WORKOUT_PLAN_PROFILE)
             
-            workoutPlan_list = []
-            if workoutPlan:
-                workout_dict = {
-                    "workout_plan_id": workoutPlan.workout_plan_id,
-                    "plan_name": workoutPlan.plan_name,
-                    "user_id": workoutPlan.user_id,
-                    "duration": workoutPlan.duration
-                }
-                workoutPlan_list.append(workout_dict)
-
+            workout_plan_dict = {
+                "workout_plan_id": workoutPlan.workout_plan_id,
+                "plan_name": workoutPlan.plan_name,
+                "user_id": workoutPlan.user_id,
+                "duration": workoutPlan.duration
+            }
+            for key, value in workout_plan_dict.items():
+                workout_plan_builder[key] = value
             return Response(json.dumps(workout_plan_builder), mimetype=MASON)
-        except KeyError:
-            return create_error_response(400, "Invalid input data")
+        
+        except ValidationError as e:
+            return create_error_response(400, "Invalid JSON document", str(e))
+        except ValueError as e:
+            return create_error_response(400, "Invalid input data", str(e))
         
     def put(self, workoutPlan):
         """
@@ -369,12 +370,12 @@ class WorkoutPlanItemResource(Resource):
             workoutPlansItem = WorkoutPlanItem.query.filter_by(workout_plan_id=workout_plan_id).all()
             workout_plan_builder = WorkoutPlanBuilder()
             for workoutPlanItem in workoutPlansItem:
-                # workout_dict = {
-                #     "workout_plan_id": workoutPlanItem.workout_plan_id,
-                #     "workout_id": workoutPlanItem.workout_id
-                # }
-                workoutPlanItem_list.append(workoutPlanItem.workout_id)
-                workout_plan_builder["workout plan list"] = workoutPlanItem_list
+                workout_dict = {
+                    "workout_plan_id": workoutPlanItem.workout_plan_id,
+                    "workout_id": workoutPlanItem.workout_id
+                }
+                workoutPlanItem_list.append(workout_dict)
+                workout_plan_builder["workout list"] = workoutPlanItem_list
             
             return Response(json.dumps(workout_plan_builder), mimetype=MASON)
         except KeyError:
