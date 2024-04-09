@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template
 from flask_restful import Api
-from resources.workout import WorkoutResource,WorkoutsCollection
+from resources.workout import WorkoutResource,WorkoutsCollection, WorkoutItemResource
 from resources.workoutPlan import WorkoutPlanResource, WorkoutPlanCreator, WorkoutPlanItemResource
 from resources.song import SongResource, SongsCollection, AllSongsResource
 from resources.playlist import PlaylistResource, PlaylistCreation, PlaylistItemResource
@@ -11,6 +11,7 @@ api = Api(api_bp)
 
 api.add_resource(WorkoutResource, "/workout/<workout:workout>")
 api.add_resource(WorkoutsCollection, "/workout")
+api.add_resource(WorkoutItemResource, "/workoutItem/<workout_id>")
 api.add_resource(WorkoutPlanResource, "/workoutPlan/<workoutPlan:workoutPlan>")
 api.add_resource(WorkoutPlanCreator, "/workoutPlan")
 api.add_resource(WorkoutPlanItemResource, "/workoutPlanItem/<workout_plan_id>")

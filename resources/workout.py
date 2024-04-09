@@ -6,7 +6,7 @@ from jsonschema import validate, ValidationError, FormatChecker
 from werkzeug.exceptions import BadRequest
 from flask import request, g
 from flask_restful import Resource
-from data_models.models import Workout
+from data_models.models import Workout, WorkoutPlanItem
 from extensions import db
 from extensions import cache
 from flask import Response, jsonify, request, g, render_template
@@ -78,12 +78,20 @@ class MasonBuilder(dict):
         self["@controls"][ctrl_name]["href"] = href
 
 class WorkoutBuilder(MasonBuilder):
-    def add_control_get_all_workouts(self):
+    def add_control_get_workout_collection(self):
         self.add_control(
             "custWorkoutPlaylistGen:collection",
             href="/api/workout",
             method="GET",
             title="List All Workouts"
+        )
+
+    def add_control_get_workout(self, workout_id):
+        self.add_control(
+            "custWorkoutPlaylistGen:up",
+            href=f"/api/workoutItem/{workout_id}",
+            method="GET",
+            title="Get workouts for the workout plan"
         )
         
     def add_control_get_workout(self, workout_id):
@@ -145,7 +153,8 @@ class WorkoutResource(Resource):
         
         workout_builder = WorkoutBuilder()
         workout_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
-        workout_builder.add_control_get_all_workouts()
+        workout_builder.add_control_get_workout_collection()
+        workout_builder.add_control_get_workout(workout.workout_id)
         workout_builder.add_control_edit_workout(workout.workout_id)
         workout_builder.add_control_delete_workout(workout.workout_id)
         workout_builder.add_control("profile", href=WORKOUT_PROFILE)
@@ -340,3 +349,25 @@ class WorkoutsCollection(Resource):
             return Response(json.dumps(response_builder), status=201, mimetype=MASON)
         except Exception as e: 
             return create_error_response(500, "Internal Server Error", str(e))
+
+class WorkoutItemResource(Resource):
+    """
+        This resource includes the GET workout items endpoint.
+    """
+    @cache.cached(timeout=60)
+    def get(self, workout_id):
+        workoutItem_list = []
+        try:
+            workoutItem = WorkoutPlanItem.query.filter_by(workout_id= workout_id).all()
+            workout_builder = WorkoutBuilder()
+            for workoutItem in workoutItem:
+                workout_dict = {
+                    "workout_id": workoutItem.workout_id,
+                    "workout_plan_id": workoutItem.workout_plan_id
+                }
+                workoutItem_list.append(workout_dict)
+                workout_builder["workout list"] = workoutItem_list
+            
+            return Response(json.dumps(workout_builder), mimetype=MASON)
+        except KeyError:
+            return create_error_response(400, "Invalid input data")

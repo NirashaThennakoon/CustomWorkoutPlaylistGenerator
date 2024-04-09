@@ -84,6 +84,14 @@ class PlaylistBuilder(MasonBuilder):
             title="Get songs for the playlist"
         )
 
+    # def add_control_get_workout_plan(self, workout_plan_id):
+    #     self.add_control(
+    #         "custWorkoutPlaylistGen:workoutplan",
+    #         href=f"/api/workoutPlan/{workout_plan_id}",
+    #         method="GET",
+    #         title="Get Workout plan by playlist"
+    #     )
+        
     def add_control_edit_playlist(self, playlist_id):
         self.add_control(
             "custWorkoutPlaylistGen:edit",
