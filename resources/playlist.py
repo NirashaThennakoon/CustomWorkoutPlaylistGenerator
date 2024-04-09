@@ -75,18 +75,10 @@ class MasonBuilder(dict):
         self["@controls"][ctrl_name]["href"] = href
 
 class PlaylistBuilder(MasonBuilder):
-    def add_control_get_playlist(self, playlist_id):
-        self.add_control(
-            "custWorkoutPlaylistGen:get-playlist",
-            href=f"/api/playlist/{playlist_id}",
-            method="GET",
-            title="Get Playlist by ID"
-        )
-
 
     def add_control_get_song(self, playlist_id):
         self.add_control(
-            "custWorkoutPlaylistGen:get-song",
+            "custWorkoutPlaylistGen:item",
             href=f"/api/playlistItem/{playlist_id}",
             method="GET",
             title="Get songs for the playlist"
@@ -94,7 +86,7 @@ class PlaylistBuilder(MasonBuilder):
 
     def add_control_edit_playlist(self, playlist_id):
         self.add_control(
-            "custWorkoutPlaylistGen:edit-playlist",
+            "custWorkoutPlaylistGen:edit",
             href=f"/api/playlist/{playlist_id}",
             method="PUT",
             title="Edit This Playlist",
@@ -104,21 +96,12 @@ class PlaylistBuilder(MasonBuilder):
 
     def add_control_delete_playlist(self, playlist_id):
         self.add_control(
-            "custWorkoutPlaylistGen:delete-playlist",
+            "custWorkoutPlaylistGen:delete",
             href=f"/api/playlist/{playlist_id}",
             method="DELETE",
             title="Delete This Playlist"
         )
 
-    def add_control_add_playlist(self):
-        self.add_control(
-            "custWorkoutPlaylistGen:add-playlist",
-            href="/api/playlist",
-            method="POST",
-            title="Add New Playlist",
-            encoding="json",
-            schema=Playlist.json_schema()
-        )
 MASON = "application/vnd.mason+json"
 ERROR_PROFILE = "/profiles/error/"
 PLAYLIST_PROFILE = "/profiles/playlist/"  
@@ -147,7 +130,6 @@ class PlaylistResource(Resource):
         
         playlist_builder = PlaylistBuilder()
         playlist_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
-        playlist_builder.add_control_add_playlist()
         playlist_builder.add_control_get_song(playlist.playlist_id)
         playlist_builder.add_control_edit_playlist(playlist.playlist_id)
         playlist_builder.add_control_delete_playlist(playlist.playlist_id)
