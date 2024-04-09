@@ -311,7 +311,7 @@ class WorkoutPlanCreator(Resource):
         response = requests.post('http://127.0.0.1:5000/' + url_for('api.playlistcreation'),
                                  json=data, headers=headers)
         playlist_id = response.json()["playlist_id"]
-
+        
         # Create workout plan
         workoutPlan = WorkoutPlan(
             plan_name=plan_name,

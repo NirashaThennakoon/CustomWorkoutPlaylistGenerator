@@ -323,6 +323,7 @@ class PlaylistCreation(Resource):
 
         playlist_builder = PlaylistBuilder()
         playlist_builder["message"] = "Playlist created successfully"
+        playlist_builder["playlist_id"] = playlist.playlist_id
 
         return Response(json.dumps(playlist_builder), status=201, mimetype=MASON)
 

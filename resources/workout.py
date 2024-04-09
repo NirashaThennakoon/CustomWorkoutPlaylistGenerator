@@ -9,7 +9,7 @@ from flask_restful import Resource
 from data_models.models import Workout
 from extensions import db
 from extensions import cache
-from flask import Response, jsonify, request, g
+from flask import Response, jsonify, request, g, render_template
 from werkzeug.exceptions import NotFound, Conflict, BadRequest, UnsupportedMediaType
 import json
 
