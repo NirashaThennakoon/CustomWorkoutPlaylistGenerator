@@ -80,7 +80,7 @@ class MasonBuilder(dict):
 class WorkoutBuilder(MasonBuilder):
     def add_control_get_all_workouts(self):
         self.add_control(
-            "workout:all",
+            "custWorkoutPlaylistGen:workout-all",
             href="/api/workout",
             method="GET",
             title="List All Workouts"
@@ -88,7 +88,7 @@ class WorkoutBuilder(MasonBuilder):
         
     def add_control_get_workout(self, workout_id):
         self.add_control(
-            "workout:get",
+            "custWorkoutPlaylistGen:get-workout",
             href=f"/api/workout/{workout_id}",
             method="GET",
             title="Get Workout by workout_id"
@@ -96,7 +96,7 @@ class WorkoutBuilder(MasonBuilder):
 
     def add_control_add_workout(self):
         self.add_control(
-            "workout:add",
+            "custWorkoutPlaylistGen:add-workout",
             href="/api/workout",
             method="POST",
             title="Add New Workout",
@@ -106,7 +106,7 @@ class WorkoutBuilder(MasonBuilder):
 
     def add_control_edit_workout(self, workout_id):
         self.add_control(
-            "workout:edit",
+            "custWorkoutPlaylistGen:edit-workout",
             href=f"/api/workout/{workout_id}",
             method="PUT",
             title="Edit This Workout",
@@ -116,7 +116,7 @@ class WorkoutBuilder(MasonBuilder):
 
     def add_control_delete_workout(self, workout_id):
         self.add_control(
-            "workout:delete",
+            "custWorkoutPlaylistGen:delete-workout",
             href=f"/api/workout/{workout_id}",
             method="DELETE",
             title="Delete This Workout"
@@ -125,6 +125,7 @@ class WorkoutBuilder(MasonBuilder):
 MASON = "application/vnd.mason+json"
 ERROR_PROFILE = "/profiles/error/"
 WORKOUT_PROFILE = "/profiles/workout/"  
+LINK_RELATION = "http://127.0.0.1:5000/api/link-relations/"
 
 def create_error_response(status_code, title, message=None):
     body = WorkoutBuilder()
@@ -153,7 +154,7 @@ class WorkoutResource(Resource):
             return create_error_response(400, "Invalid input data")
         
         workout_builder = WorkoutBuilder()
-        workout_builder.add_namespace("workout", WORKOUT_PROFILE)
+        workout_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
         workout_builder.add_control_get_all_workouts()
         workout_builder.add_control_add_workout()
         workout_builder.add_control_edit_workout(workout.workout_id)
@@ -283,7 +284,7 @@ class WorkoutsCollection(Resource):
             workout_list = []
             for w in workout:  # Iterate over each Workout instance
                 workout_builder = WorkoutBuilder()
-                workout_builder.add_namespace("workout", WORKOUT_PROFILE)
+                workout_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
                 workout_builder.add_control_get_workout(w.workout_id)
                 workout_builder.add_control("profile", href=WORKOUT_PROFILE)
 

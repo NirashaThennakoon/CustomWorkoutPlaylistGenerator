@@ -79,7 +79,7 @@ class MasonBuilder(dict):
 class SongBuilder(MasonBuilder):
     def add_control_all_songs(self):
         self.add_control(
-            "song:all",
+            "custWorkoutPlaylistGen:song-all",
             href="/api/song",
             method="GET",
             title="List All Songs"
@@ -87,7 +87,7 @@ class SongBuilder(MasonBuilder):
         
     def add_control_get_song(self, song_id):
         self.add_control(
-            "song:get",
+            "custWorkoutPlaylistGen:get-song",
             href=f"/api/song/{song_id}",
             method="GET",
             title="Get Song by song_id"
@@ -95,7 +95,7 @@ class SongBuilder(MasonBuilder):
         
     def add_control_add_song(self):
         self.add_control(
-            "song:add",
+            "custWorkoutPlaylistGen:add-song",
             href="/api/song",
             method="POST",
             title="Add New Song",
@@ -105,7 +105,7 @@ class SongBuilder(MasonBuilder):
         
     def add_control_edit_song(self, song_id):
         self.add_control(
-            "song:edit",
+            "custWorkoutPlaylistGen:edit-song",
             href=f"/api/song/{song_id}",
             method="PUT",
             title="Edit This Song",
@@ -115,7 +115,7 @@ class SongBuilder(MasonBuilder):
         
     def add_control_delete_song(self, song_id):
         self.add_control(
-            "song:delete",
+            "custWorkoutPlaylistGen:delete-song",
             href=f"/api/song/{song_id}",
             method="DELETE",
             title="Delete This Song"
@@ -123,6 +123,7 @@ class SongBuilder(MasonBuilder):
 MASON = "application/vnd.mason+json"
 ERROR_PROFILE = "/profiles/error/"
 SONG_PROFILE = "/profiles/song/"  
+LINK_RELATION = "http://127.0.0.1:5000/api/link-relations/"
 
 def create_error_response(status_code, title, message=None):
     body = SongBuilder()
@@ -149,7 +150,7 @@ class SongResource(Resource):
             return create_error_response(404, "Song not found")
         
         song_builder = SongBuilder()
-        song_builder.add_namespace("song", SONG_PROFILE)
+        song_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
         song_builder.add_control_add_song()
         song_builder.add_control_all_songs()
         song_builder.add_control_edit_song(song.song_id)
@@ -255,7 +256,7 @@ class SongsCollection(Resource):
             for song in songs:
                 
                 song_builder = SongBuilder()
-                song_builder.add_namespace("song", SONG_PROFILE)
+                song_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
                 song_builder.add_control_get_song(song.song_id)
                 song_builder.add_control("profile", href=SONG_PROFILE)
                 

@@ -87,7 +87,7 @@ class MasonBuilder(dict):
 class UserBuilder(MasonBuilder):
     def add_control_login_user(self):
         self.add_control(
-            "user:login",
+            "custWorkoutPlaylistGen:user-login",
             href=f"/api/user/login",
             method="POST",
             title="Login registered User"
@@ -95,7 +95,7 @@ class UserBuilder(MasonBuilder):
 
     def add_control_get_user(self, user_id):
         self.add_control(
-            "user:get",
+            "custWorkoutPlaylistGen:get-user",
             href=f"/api/user/{user_id}",
             method="GET",
             title="Get User by ID"
@@ -103,7 +103,7 @@ class UserBuilder(MasonBuilder):
 
     def add_control_edit_user(self, user_id):
         self.add_control(
-            "user:edit",
+            "custWorkoutPlaylistGen:edit-user",
             href=f"/api/users/{user_id}",
             method="PUT",
             title="Edit This User",
@@ -113,7 +113,7 @@ class UserBuilder(MasonBuilder):
 
     def add_control_delete_user(self, user_id):
         self.add_control(
-            "user:delete",
+            "custWorkoutPlaylistGen:delete-user",
             href=f"/api/user/{user_id}",
             method="DELETE",
             title="Delete This User"
@@ -122,6 +122,7 @@ class UserBuilder(MasonBuilder):
 MASON = "application/vnd.mason+json"
 ERROR_PROFILE = "/profiles/error/"
 USER_PROFILE = "/profiles/user/"  
+LINK_RELATION = "http://127.0.0.1:5000/api/link-relations/"
 
 def create_error_response(status_code, title, message=None):
     body = UserBuilder()
@@ -253,7 +254,7 @@ class UserResource(Resource):
             return create_error_response(404, "User not found")
         
         user_builder = UserBuilder()
-        user_builder.add_namespace("user", USER_PROFILE)
+        user_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
         user_builder.add_control_get_user(user.id)
         user_builder.add_control_edit_user(user.id)
         user_builder.add_control_delete_user(user.id)
@@ -367,7 +368,7 @@ class UserResource(Resource):
         access_token = create_access_token(identity=user.id, expires_delta=timedelta(days=1))
         
         user_builder = UserBuilder()
-        user_builder.add_namespace("user", USER_PROFILE) 
+        user_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION) 
         user_builder.add_control_edit_user(user.id)
         user_builder.add_control_delete_user(user.id)
         user_builder.add_control("profile", href=USER_PROFILE)

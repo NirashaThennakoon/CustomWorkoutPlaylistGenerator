@@ -79,7 +79,7 @@ class MasonBuilder(dict):
 class WorkoutPlanBuilder(MasonBuilder):
     def add_control_get_workout_plan(self, workout_plan_id):
         self.add_control(
-            "workoutplan:get",
+            "custWorkoutPlaylistGen:get-workoutplan",
             href=f"/api/workoutPlan/{workout_plan_id}",
             method="GET",
             title="Get Workout Plan by ID"
@@ -87,7 +87,7 @@ class WorkoutPlanBuilder(MasonBuilder):
 
     def add_control_get_playlist(self, playlist_id):
         self.add_control(
-            "playlist:get",
+            "custWorkoutPlaylistGen:get-playlist",
             href=f"/api/playlist/{playlist_id}",
             method="GET",
             title="Get Playlist by ID"
@@ -95,7 +95,7 @@ class WorkoutPlanBuilder(MasonBuilder):
 
     def add_control_get_user(self, user_id):
         self.add_control(
-            "user:get",
+            "custWorkoutPlaylistGen:get-user",
             href=f"/api/user/{user_id}",
             method="GET",
             title="Get User by ID"
@@ -103,7 +103,7 @@ class WorkoutPlanBuilder(MasonBuilder):
 
     def add_control_add_workout_plan(self):
         self.add_control(
-            "workoutplan:add",
+            "custWorkoutPlaylistGen:add-workoutplan",
             href="/api/workoutPlan",
             method="POST",
             title="Add New Workout Plan",
@@ -113,7 +113,7 @@ class WorkoutPlanBuilder(MasonBuilder):
 
     def add_control_edit_workout_plan(self, workout_plan_id):
         self.add_control(
-            "workoutplan:edit",
+            "custWorkoutPlaylistGen:edit-workoutplan",
             href=f"/api/workoutPlan/{workout_plan_id}",
             method="PUT",
             title="Edit This Workout Plan",
@@ -123,7 +123,7 @@ class WorkoutPlanBuilder(MasonBuilder):
 
     def add_control_delete_workout_plan(self, workout_plan_id):
         self.add_control(
-            "workoutplan:delete",
+            "custWorkoutPlaylistGen:delete-workoutplan",
             href=f"/api/workoutPlan/{workout_plan_id}",
             method="DELETE",
             title="Delete This Workout Plan"
@@ -131,7 +131,7 @@ class WorkoutPlanBuilder(MasonBuilder):
 
     def add_control_get_workouts(self, workout_plan_id):
         self.add_control(
-            "workoutplanitem:get",
+            "custWorkoutPlaylistGen:get-workoutplanitem",
             href=f"/api/workoutPlanItem/{workout_plan_id}",
             method="GET",
             title="Get Workouts for the Plan"
@@ -140,6 +140,7 @@ class WorkoutPlanBuilder(MasonBuilder):
 MASON = "application/vnd.mason+json"
 ERROR_PROFILE = "/profiles/error/"
 WORKOUT_PLAN_PROFILE = "/profiles/workoutplan/"  
+LINK_RELATION = "http://127.0.0.1:5000/api/link-relations/"
 
 def create_error_response(status_code, title, message=None):
     body = WorkoutPlanBuilder()
@@ -171,7 +172,7 @@ class WorkoutPlanResource(Resource):
                 return create_error_response(404, "Workout plan not found")
             
             workout_plan_builder = WorkoutPlanBuilder()
-            workout_plan_builder.add_namespace("workoutplan", WORKOUT_PLAN_PROFILE)
+            workout_plan_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
             workout_plan_builder.add_control_add_workout_plan()
             workout_plan_builder.add_control_edit_workout_plan(workoutPlan.workout_plan_id)
             workout_plan_builder.add_control_delete_workout_plan(workoutPlan.workout_plan_id)

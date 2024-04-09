@@ -77,7 +77,7 @@ class MasonBuilder(dict):
 class PlaylistBuilder(MasonBuilder):
     def add_control_get_playlist(self, playlist_id):
         self.add_control(
-            "playlist:get",
+            "custWorkoutPlaylistGen:get-playlist",
             href=f"/api/playlist/{playlist_id}",
             method="GET",
             title="Get Playlist by ID"
@@ -86,7 +86,7 @@ class PlaylistBuilder(MasonBuilder):
 
     def add_control_get_song(self, playlist_id):
         self.add_control(
-            "song:get",
+            "custWorkoutPlaylistGen:get-song",
             href=f"/api/playlistItem/{playlist_id}",
             method="GET",
             title="Get songs for the playlist"
@@ -94,7 +94,7 @@ class PlaylistBuilder(MasonBuilder):
 
     def add_control_edit_playlist(self, playlist_id):
         self.add_control(
-            "playlist:edit",
+            "custWorkoutPlaylistGen:edit-playlist",
             href=f"/api/playlist/{playlist_id}",
             method="PUT",
             title="Edit This Playlist",
@@ -104,7 +104,7 @@ class PlaylistBuilder(MasonBuilder):
 
     def add_control_delete_playlist(self, playlist_id):
         self.add_control(
-            "playlist:delete",
+            "custWorkoutPlaylistGen:delete-playlist",
             href=f"/api/playlist/{playlist_id}",
             method="DELETE",
             title="Delete This Playlist"
@@ -112,7 +112,7 @@ class PlaylistBuilder(MasonBuilder):
 
     def add_control_add_playlist(self):
         self.add_control(
-            "playlist:add",
+            "custWorkoutPlaylistGen:add-playlist",
             href="/api/playlist",
             method="POST",
             title="Add New Playlist",
@@ -122,6 +122,7 @@ class PlaylistBuilder(MasonBuilder):
 MASON = "application/vnd.mason+json"
 ERROR_PROFILE = "/profiles/error/"
 PLAYLIST_PROFILE = "/profiles/playlist/"  
+LINK_RELATION = "http://127.0.0.1:5000/api/link-relations/"
 
 def create_error_response(status_code, title, message=None):
     body = PlaylistBuilder()
@@ -145,7 +146,7 @@ class PlaylistResource(Resource):
             return create_error_response(404, "Playlist not found")
         
         playlist_builder = PlaylistBuilder()
-        playlist_builder.add_namespace("playlist", PLAYLIST_PROFILE)
+        playlist_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
         playlist_builder.add_control_add_playlist()
         playlist_builder.add_control_get_song(playlist.playlist_id)
         playlist_builder.add_control_edit_playlist(playlist.playlist_id)
