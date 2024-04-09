@@ -90,7 +90,7 @@ paths:
   /api/workout:
     get:
       tags:
-        - Workouts
+        - Workouts Collection
       summary: Get all workouts
       responses:
         200:
@@ -106,7 +106,7 @@ paths:
         - X-API-Key: []
     post:
       tags:
-        - Workouts
+        - Workouts Collection
       summary: Add a new workout
       consumes:
         - application/json
@@ -134,7 +134,7 @@ paths:
   /api/workoutPlan:
     post:
       tags:
-        - Add Workout Plan
+        - Create Workout Plan
       summary: Add a new workout plan
       description: Creates a new workout plan with a specified name and list of workout IDs.
       consumes:
@@ -326,7 +326,7 @@ paths:
   /api/song:
     get:
       tags:
-        - Songs
+        - Songs Collection
       summary: Get all songs
       responses:
         200:
@@ -342,7 +342,7 @@ paths:
         - X-API-Key: []
     post:
       tags:
-        - Songs
+        - Songs Collection
       summary: Add a new song
       consumes:
         - application/json
@@ -448,7 +448,7 @@ paths:
   /api/playlist:
     post:
       tags:
-        - Add Playlist
+        - Create Playlist
       summary: Create a new playlist
       description: Creates a new playlist based on provided workout IDs, with a specific duration and name. 
       consumes:
@@ -472,10 +472,10 @@ paths:
       security:
         - BearerAuth: []
         - X-API-Key: []
-  /api/user/register:
+  /api/user:
     post:
       tags:
-        - User Register
+        - User Registration
       summary: Register a new user
       description: Creates a new user account with the provided details.
       consumes:
@@ -499,7 +499,7 @@ paths:
       security:
         - BearerAuth: []
         - X-API-Key: []
-  /api/user/login:
+  /api/user/{user_id}:
     post:
       tags:
         - User Login
@@ -515,7 +515,7 @@ paths:
           schema:
             $ref: '#/definitions/UserLogin'
       responses:
-        200:
+        201:
           description: Login successful
           schema:
             $ref: '#/definitions/UserLogin'
@@ -528,7 +528,6 @@ paths:
       security:
         - BearerAuth: []
         - X-API-Key: []
-  /api/user/{user_id}:
     get:
       tags:
         - User
