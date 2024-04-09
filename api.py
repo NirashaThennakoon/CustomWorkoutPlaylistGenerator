@@ -22,7 +22,3 @@ api.add_resource(PlaylistItemResource, "/playlistItem/<playlist_id>")
 api.add_resource(UserRegistration, "/user")
 api.add_resource(UserResource, "/user/<user:user>")
 api.add_resource(ApiKeyResource, "/user/update_api_key/<user:user>")
-
-@api_bp.route('/link_relation')
-def link_page():
-    return render_template('link_relation.html')

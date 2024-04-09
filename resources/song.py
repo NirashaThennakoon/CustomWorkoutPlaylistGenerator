@@ -79,7 +79,7 @@ class MasonBuilder(dict):
 class SongBuilder(MasonBuilder):
     def add_control_all_songs(self):
         self.add_control(
-            "custWorkoutPlaylistGen:song-all",
+            "custWorkoutPlaylistGen:collection",
             href="/api/song",
             method="GET",
             title="List All Songs"
@@ -87,25 +87,15 @@ class SongBuilder(MasonBuilder):
         
     def add_control_get_song(self, song_id):
         self.add_control(
-            "custWorkoutPlaylistGen:get-song",
+            "custWorkoutPlaylistGen:item",
             href=f"/api/song/{song_id}",
             method="GET",
             title="Get Song by song_id"
         )
         
-    def add_control_add_song(self):
-        self.add_control(
-            "custWorkoutPlaylistGen:add-song",
-            href="/api/song",
-            method="POST",
-            title="Add New Song",
-            encoding="json",
-            schema=Song.json_schema()
-        )
-        
     def add_control_edit_song(self, song_id):
         self.add_control(
-            "custWorkoutPlaylistGen:edit-song",
+            "custWorkoutPlaylistGen:edit",
             href=f"/api/song/{song_id}",
             method="PUT",
             title="Edit This Song",
@@ -115,7 +105,7 @@ class SongBuilder(MasonBuilder):
         
     def add_control_delete_song(self, song_id):
         self.add_control(
-            "custWorkoutPlaylistGen:delete-song",
+            "custWorkoutPlaylistGen:delete",
             href=f"/api/song/{song_id}",
             method="DELETE",
             title="Delete This Song"
@@ -151,7 +141,6 @@ class SongResource(Resource):
         
         song_builder = SongBuilder()
         song_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
-        song_builder.add_control_add_song()
         song_builder.add_control_all_songs()
         song_builder.add_control_edit_song(song.song_id)
         song_builder.add_control_delete_song(song.song_id)
