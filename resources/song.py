@@ -3,7 +3,7 @@
 """
 from jsonschema import validate, ValidationError, FormatChecker
 from flask_restful import Resource
-from data_models.models import Song
+from data_models.models import PlaylistItem, Song
 from extensions import db
 from extensions import cache
 from flask import Response, jsonify, request, url_for, g
@@ -77,14 +77,22 @@ class MasonBuilder(dict):
         self["@controls"][ctrl_name]["href"] = href
         
 class SongBuilder(MasonBuilder):
-    def add_control_all_songs(self):
+    def add_control_song_collection(self):
         self.add_control(
             "custWorkoutPlaylistGen:collection",
             href="/api/song",
             method="GET",
             title="List All Songs"
         )
-        
+   
+    def add_control_get_playlist(self, song_id):
+        self.add_control(
+            "custWorkoutPlaylistGen:song-all",
+            href=f"/api/allSong/{song_id}",
+            method="GET",
+            title="Get playlists for the song"
+        )
+             
     def add_control_get_song(self, song_id):
         self.add_control(
             "custWorkoutPlaylistGen:item",
@@ -141,7 +149,7 @@ class SongResource(Resource):
         
         song_builder = SongBuilder()
         song_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
-        song_builder.add_control_all_songs()
+        song_builder.add_control_song_collection()
         song_builder.add_control_edit_song(song.song_id)
         song_builder.add_control_delete_song(song.song_id)
         song_builder.add_control("profile", href=SONG_PROFILE)
@@ -310,3 +318,25 @@ class SongsCollection(Resource):
             return Response(json.dumps(song_builder), status=201, mimetype=MASON)
         except Exception as e: 
             return create_error_response(500, "Internal Server Error", str(e))
+        
+class AllSongsResource(Resource):
+    """
+        This resource includes the GET all songs endpoint.
+    """
+    @cache.cached(timeout=60)
+    def get(self, song_id):
+        allSongs_list = []
+        try:
+            allSongs = PlaylistItem.query.filter_by(song_id=song_id).all()
+            song_builder = SongBuilder()
+            for songItem in allSongs:
+                allSong_dict = {
+                    "song_id": songItem.song_id,
+                    "playlist_id": songItem.playlist_id                    
+                }
+                allSongs_list.append(allSong_dict)
+            song_builder["Playlists"] = allSongs_list
+            
+            return Response(json.dumps(song_builder), mimetype=MASON)
+        except KeyError:
+            return create_error_response(400, "Invalid input data") 

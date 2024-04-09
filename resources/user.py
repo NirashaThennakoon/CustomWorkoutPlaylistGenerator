@@ -85,25 +85,10 @@ class MasonBuilder(dict):
         self["@controls"][ctrl_name]["href"] = href
 
 class UserBuilder(MasonBuilder):
-    def add_control_login_user(self):
-        self.add_control(
-            "custWorkoutPlaylistGen:user-login",
-            href=f"/api/user/login",
-            method="POST",
-            title="Login registered User"
-        )
-
-    def add_control_get_user(self, user_id):
-        self.add_control(
-            "custWorkoutPlaylistGen:get-user",
-            href=f"/api/user/{user_id}",
-            method="GET",
-            title="Get User by ID"
-        )
 
     def add_control_edit_user(self, user_id):
         self.add_control(
-            "custWorkoutPlaylistGen:edit-user",
+            "custWorkoutPlaylistGen:edit",
             href=f"/api/users/{user_id}",
             method="PUT",
             title="Edit This User",
@@ -113,7 +98,7 @@ class UserBuilder(MasonBuilder):
 
     def add_control_delete_user(self, user_id):
         self.add_control(
-            "custWorkoutPlaylistGen:delete-user",
+            "custWorkoutPlaylistGen:delete",
             href=f"/api/user/{user_id}",
             method="DELETE",
             title="Delete This User"
@@ -193,7 +178,6 @@ class UserRegistration(Resource):
         response_builder = UserBuilder()
         response_builder["message"] = "User registered successfully"
         response_builder["user_id"] = user.id
-        response_builder.add_control_login_user()
 
         return Response(json.dumps(response_builder), 201, mimetype=MASON)
 
@@ -255,7 +239,6 @@ class UserResource(Resource):
         
         user_builder = UserBuilder()
         user_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
-        user_builder.add_control_get_user(user.id)
         user_builder.add_control_edit_user(user.id)
         user_builder.add_control_delete_user(user.id)
         user_builder.add_control("profile", href=USER_PROFILE)

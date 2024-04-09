@@ -80,7 +80,7 @@ class MasonBuilder(dict):
 class WorkoutBuilder(MasonBuilder):
     def add_control_get_all_workouts(self):
         self.add_control(
-            "custWorkoutPlaylistGen:workout-all",
+            "custWorkoutPlaylistGen:collection",
             href="/api/workout",
             method="GET",
             title="List All Workouts"
@@ -88,25 +88,15 @@ class WorkoutBuilder(MasonBuilder):
         
     def add_control_get_workout(self, workout_id):
         self.add_control(
-            "custWorkoutPlaylistGen:get-workout",
+            "custWorkoutPlaylistGen:item",
             href=f"/api/workout/{workout_id}",
             method="GET",
             title="Get Workout by workout_id"
         )
 
-    def add_control_add_workout(self):
-        self.add_control(
-            "custWorkoutPlaylistGen:add-workout",
-            href="/api/workout",
-            method="POST",
-            title="Add New Workout",
-            encoding="json",
-            schema=Workout.json_schema()
-        )
-
     def add_control_edit_workout(self, workout_id):
         self.add_control(
-            "custWorkoutPlaylistGen:edit-workout",
+            "custWorkoutPlaylistGen:edit",
             href=f"/api/workout/{workout_id}",
             method="PUT",
             title="Edit This Workout",
@@ -116,7 +106,7 @@ class WorkoutBuilder(MasonBuilder):
 
     def add_control_delete_workout(self, workout_id):
         self.add_control(
-            "custWorkoutPlaylistGen:delete-workout",
+            "custWorkoutPlaylistGen:delete",
             href=f"/api/workout/{workout_id}",
             method="DELETE",
             title="Delete This Workout"
@@ -156,7 +146,6 @@ class WorkoutResource(Resource):
         workout_builder = WorkoutBuilder()
         workout_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
         workout_builder.add_control_get_all_workouts()
-        workout_builder.add_control_add_workout()
         workout_builder.add_control_edit_workout(workout.workout_id)
         workout_builder.add_control_delete_workout(workout.workout_id)
         workout_builder.add_control("profile", href=WORKOUT_PROFILE)
