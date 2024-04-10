@@ -1,4 +1,7 @@
-from flask import Blueprint, render_template
+"""
+   This module responsible for all resources and route mapping
+"""
+from flask import Blueprint
 from flask_restful import Api
 from resources.workout import WorkoutResource,WorkoutsCollection, WorkoutItemResource
 from resources.workoutPlan import WorkoutPlanResource, WorkoutPlanCreator, WorkoutPlanItemResource

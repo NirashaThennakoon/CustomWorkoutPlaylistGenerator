@@ -169,8 +169,6 @@ class WorkoutPlanResource(Resource):
                   from the input workout plan object.
         """
         try:
-            if not workoutPlan:
-                return create_error_response(404, "Workout plan not found")
 
             workout_plan_builder = WorkoutPlanBuilder()
             workout_plan_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
@@ -191,8 +189,6 @@ class WorkoutPlanResource(Resource):
                 workout_plan_builder[key] = value
             return Response(json.dumps(workout_plan_builder), mimetype=MASON)
 
-        except ValidationError as e:
-            return create_error_response(400, "Invalid JSON document", str(e))
         except ValueError as e:
             return create_error_response(400, "Invalid input data", str(e))
 

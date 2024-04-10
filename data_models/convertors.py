@@ -19,12 +19,6 @@ class WorkoutConverter(BaseConverter):
             raise NotFound(f"Workout with id :{workout_id} not found.")
         return workout
 
-    def to_url(self, workout):
-        """
-        Convert Workout object to its ID.
-        """
-        return str(workout.workout_id)
-
 class SongConverter(BaseConverter):
     """
     Converter for mapping song IDs to Song objects and vice versa.
@@ -38,12 +32,6 @@ class SongConverter(BaseConverter):
         if song is None:
             raise NotFound(f"Song with id :{song_id} not found.")
         return song
-
-    def to_url(self, song):
-        """
-        Convert song object to its ID.
-        """
-        return str(song.song_id)
 
 class WorkoutPlanConverter(BaseConverter):
     """
@@ -59,12 +47,6 @@ class WorkoutPlanConverter(BaseConverter):
             raise NotFound(f"Workout Plan with id :{workout_plan_id} not found.")
         return workout_plan
 
-    def to_url(self, workout_plan):
-        """
-        Convert WorkoutPlan object to its ID.
-        """
-        return str(workout_plan.workout_plan_id)
-
 class PlaylistConverter(BaseConverter):
     """
     Converter for mapping playlist IDs to Playlist objects and vice versa.
@@ -79,12 +61,6 @@ class PlaylistConverter(BaseConverter):
             raise NotFound(f"Playlist with id :{playlist_id} not found.")
         return playlist
 
-    def to_url(self, playlist):
-        """
-        Convert playlist object to its ID.
-        """
-        return str(playlist.playlist_id)
-
 class UserConverter(BaseConverter):
     """
     Converter for mapping user IDs to User objects and vice versa.
@@ -98,9 +74,3 @@ class UserConverter(BaseConverter):
         if user is None:
             raise NotFound(f"User with id :{user_id} not found.")
         return user
-
-    def to_url(self, user):
-        """
-        Convert user object to its ID.
-        """
-        return str(user.id)

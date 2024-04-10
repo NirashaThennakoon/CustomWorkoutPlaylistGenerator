@@ -197,7 +197,7 @@ def _check_namespace(client, response):
     ns_href = response["@namespaces"]["custWorkoutPlaylistGen"]["name"]
     print(ns_href)
     resp = client.get(ns_href)
-    assert resp.status_code == 404
+    assert resp.status_code == 200
 
 def _check_control_get_method(ctrl, client, obj):
     """

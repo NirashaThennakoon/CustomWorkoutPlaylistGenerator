@@ -208,8 +208,8 @@ class WorkoutResource(Resource):
         if not data:
             return create_error_response(400, "No input data provided")
 
-        if not workout:
-            return create_error_response(404, "Workout not found")
+        # if not workout:
+        #     return create_error_response(404, "Workout not found")
 
         try:
             validate(request.json, Workout.json_schema(), format_checker=FormatChecker())
@@ -295,32 +295,29 @@ class WorkoutsCollection(Resource):
                 details and an HTTP status code. The status code indicates the
                 success of the operation (200 for successful retrieval).
         """
-        try:
-            workout = Workout.query.all()
-            workout_list = []
-            for w in workout:  # Iterate over each Workout instance
-                workout_builder = WorkoutBuilder()
-                workout_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
-                workout_builder.add_control_get_workout(w.workout_id)
-                workout_builder.add_control("profile", href=WORKOUT_PROFILE)
+        # try:
+        workout = Workout.query.all()
+        workout_list = []
+        for w in workout:  # Iterate over each Workout instance
+            workout_builder = WorkoutBuilder()
+            workout_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+            workout_builder.add_control_get_workout(w.workout_id)
+            workout_builder.add_control("profile", href=WORKOUT_PROFILE)
+            workout_dict = {
+                "workout_id": w.workout_id,
+                "workout_name": w.workout_name,
+                "duration": w.duration,
+                "workout_intensity": w.workout_intensity,
+                "equipment": w.equipment,
+                "workout_type": w.workout_type
+            }
+            workout_list.append(workout_dict)
+        workout_builder["workout list"] = workout_list
+        workout_builder.add_control("self", href="/api/workout/", title="Self")
+        return Response(json.dumps(workout_builder), 200, mimetype=MASON)
 
-                workout_dict = {
-                    "workout_id": w.workout_id,
-                    "workout_name": w.workout_name,
-                    "duration": w.duration,
-                    "workout_intensity": w.workout_intensity,
-                    "equipment": w.equipment,
-                    "workout_type": w.workout_type
-                }
-                workout_list.append(workout_dict)
-
-            workout_builder["workout list"] = workout_list
-            workout_builder.add_control("self", href="/api/workout/", title="Self")
-
-            return Response(json.dumps(workout_builder), 200, mimetype=MASON)
-
-        except Exception as e:
-            return create_error_response(400, "Invalid input data", str(e))
+        # except Exception as e:
+        #     return create_error_response(400, "Invalid input data", str(e))
 
     def post(self):
         """

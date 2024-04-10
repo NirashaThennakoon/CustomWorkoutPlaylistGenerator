@@ -1,14 +1,23 @@
-from http.client import FORBIDDEN
-import secrets
+"""
+   This module responsible for authentication of all incoming requests
+"""
 from flask import jsonify, request, g
-from extensions import db
 from data_models.models import ApiKey
 
 def authenticate():
+    """
+    Authenticates incoming reqeusts.
+    """
     # Allow unauthenticated access to Swagger UI documentation
-    if request.path.startswith('/apidocs/') or request.path.startswith('/flasgger_static/') or request.path.startswith('/apispec_1.json'):
+    if (request.path.startswith('/apidocs/') or
+        request.path.startswith('/flasgger_static/') or
+        request.path.startswith('/apispec_1.json')):
         return
-    if request.path.startswith('/playlist_link_relation') or request.path.startswith('/song_link_relation') or request.path.startswith('/user_link_relation') or request.path.startswith('/workout_link_relation') or request.path.startswith('/workout_plan_link_relation'):
+    if (request.path.startswith('/playlist_link_relation') or
+        request.path.startswith('/song_link_relation') or
+        request.path.startswith('/user_link_relation') or
+        request.path.startswith('/workout_link_relation') or
+        request.path.startswith('/workout_plan_link_relation')):
         return
     # Continue with your existing authentication logic for other endpoints
     if request.endpoint != 'static':
@@ -19,4 +28,3 @@ def authenticate():
         if not api_key_object:
             return jsonify({'error': 'Invalid API key'}), 401
         g.current_api_key = api_key_object
-        

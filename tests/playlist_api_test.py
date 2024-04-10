@@ -111,7 +111,7 @@ def _get_playlist_post_json():
     Creates a valid playlist JSON object to be used for PUT and POST tests.
     """
     return {
-        "playlist_name": "test-workout-plan-1 Playlist",
+        "playlist_name": "test-workout-plan-4 Playlist",
         "workout_ids": [1, 2 ,3, 4, 5, 6]
     }
 
@@ -134,7 +134,7 @@ def _check_namespace(client, response):
     ns_href = response["@namespaces"]["custWorkoutPlaylistGen"]["name"]
     print(ns_href)
     resp = client.get(ns_href)
-    assert resp.status_code == 404
+    assert resp.status_code == 200
 
 def _check_control_get_method(ctrl, client, obj):
     """
