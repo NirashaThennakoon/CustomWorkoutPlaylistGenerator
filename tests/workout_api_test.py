@@ -193,36 +193,36 @@ def _check_namespace(client, response):
     Checks that the "custWorkoutPlaylistGen" namespace is found from the response body, and
     that its "name" attribute is a URL that can be accessed.
     """
-    
+
     ns_href = response["@namespaces"]["custWorkoutPlaylistGen"]["name"]
     print(ns_href)
     resp = client.get(ns_href)
-    assert resp.status_code == 404 
+    assert resp.status_code == 404
 
 def _check_control_get_method(ctrl, client, obj):
     """
     Checks a GET type control from a JSON object be it root document or an item
     in a collection. Also checks that the URL of the control can be accessed.
     """
-    
+
     href = obj["@controls"][ctrl]["href"]
     resp = client.get(href)
     print(href)
     assert resp.status_code == 200
-    
+
 def _check_control_delete_method(ctrl, client, obj):
     """
     Checks a DELETE type control from a JSON object be it root document or an
     item in a collection. Checks the contrl's method in addition to its "href".
     Also checks that using the control results in the correct status code of 204.
     """
-    
+
     href = obj["@controls"][ctrl]["href"]
     method = obj["@controls"][ctrl]["method"].lower()
     assert method == "delete"
     resp = client.delete(href)
     assert resp.status_code == 200
-    
+
 def _check_control_put_method(ctrl, client, obj):
     """
     Checks a PUT type control from a JSON object be it root document or an item
@@ -232,7 +232,7 @@ def _check_control_put_method(ctrl, client, obj):
     they match. Finally checks that using the control results in the correct
     status code of 204.
     """
-    
+
     ctrl_obj = obj["@controls"][ctrl]
     href = ctrl_obj["href"]
     method = ctrl_obj["method"].lower()
@@ -245,7 +245,7 @@ def _check_control_put_method(ctrl, client, obj):
     validate(body, schema)
     resp = client.put(href, json=body)
     assert resp.status_code == 200
-    
+
 def _check_control_post_method(ctrl, client, obj):
     """
     Checks a POST type control from a JSON object be it root document or an item
@@ -255,7 +255,7 @@ def _check_control_post_method(ctrl, client, obj):
     they match. Finally checks that using the control results in the correct
     status code of 201.
     """
-    
+
     ctrl_obj = obj["@controls"][ctrl]
     href = ctrl_obj["href"]
     method = ctrl_obj["method"].lower()
