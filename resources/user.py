@@ -117,7 +117,7 @@ class UserBuilder(MasonBuilder):
 
 MASON = "application/vnd.mason+json"
 ERROR_PROFILE = "/profiles/error/"
-USER_PROFILE = "/profiles/user/"
+USER_PROFILE = "/profile"  
 LINK_RELATION = "/user_link_relation"
 
 def create_error_response(status_code, title, message=None):

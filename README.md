@@ -58,6 +58,13 @@ Mysqlclient is an interface to the MySQL database server that provides the Pytho
 pip install mysqlclient
 ```
 
+![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)
+
+[Swagger](https://swagger.io/docs/specification/2-0/what-is-swagger/) allows to describe the structure of the APIs so that machines can read them.
+
+```bash
+pip install flasgger
+```
 [![MySQL](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/downloads/)
 
 MySQL was chosen as a database for the project because it's free to use, widely used, and performs well with large amounts of data. It's easy to scale up as projects grow and works with many programming languages. Plus, it's secure and stable, making it a reliable option for important tasks.
@@ -65,6 +72,8 @@ MySQL was chosen as a database for the project because it's free to use, widely 
 - [x]  install MySQL communuty edition from [here](https://www.mysql.com/products/community/)
 - [x]  When prompted for the credentials duting the installation wizard, use the **username root  and password root.** if you wish to use a different credentials, make sure to update the modified credentials when runng the app.py in the next section. 
 - [x]  Configre the MySQL server to run on your OS with your credentials.
+
+
 
 ## install the follwoing libs to run Custom Workout Playlist Generator
 - ☑️ blinker==1.7.0
@@ -77,11 +86,8 @@ MySQL was chosen as a database for the project because it's free to use, widely 
 - ☑️ Jinja2==3.1.3
 - ☑️ MarkupSafe==2.1.5
 - ☑️ mysqlclient==2.2.3
-- ☑️ numpy==1.26.3
-- ☑️ pandas==2.2.0
 - ☑️ python-dateutil==2.8.2
 - ☑️ pytz==2023.3.post1
-- ☑️ scipy==1.12.0
 - ☑️ six==1.16.0
 - ☑️ SQLAlchemy==2.0.25
 - ☑️ typing_extensions==4.9.0
@@ -89,6 +95,7 @@ MySQL was chosen as a database for the project because it's free to use, widely 
 - ☑️ Werkzeug==3.0.1
 - ☑️ flask-jwt-extended==4.6.0
 - ☑️ pytest=8.1.1
+- ☑️ flasgger==0.9.5
 
 #Flask App and Environment Setup
 
@@ -135,4 +142,9 @@ Run “pytest” cmd in project folder
 To run specific test class 
 ```bash
 – Run pytest <path to test folder>/<testclassname>.py
+```
+## link to the API documentation
+
+```bash
+http://localhost:5000/apidocs/
 ```

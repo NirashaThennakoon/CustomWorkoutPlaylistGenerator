@@ -123,7 +123,7 @@ class PlaylistBuilder(MasonBuilder):
 
 MASON = "application/vnd.mason+json"
 ERROR_PROFILE = "/profiles/error/"
-PLAYLIST_PROFILE = "/profiles/playlist/"
+PLAYLIST_PROFILE = "/profile"  
 LINK_RELATION = "/playlist_link_relation"
 
 def create_error_response(status_code, title, message=None):
@@ -365,4 +365,4 @@ class PlaylistItemResource(Resource):
 
             return Response(json.dumps(playlist_builder), mimetype=MASON)
         except KeyError:
-            return create_error_response(400, "Invalid input data")
+            return create_error_response(400, "Invalid input data") 
