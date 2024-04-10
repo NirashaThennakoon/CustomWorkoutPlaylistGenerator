@@ -1,16 +1,14 @@
 """
     This module responsible for handling functions related to workout plan resource
 """
+import json
 from jsonschema import validate, ValidationError, FormatChecker
-from werkzeug.exceptions import BadRequest
-from flask import Response, jsonify, request, url_for, g
+from flask import Response, request, url_for, g
 from flask_restful import Resource
 import requests
+from werkzeug.exceptions import BadRequest
 from data_models.models import WorkoutPlan, WorkoutPlanItem, Workout
-from extensions import db
-from extensions import cache
-from werkzeug.exceptions import NotFound, Conflict, BadRequest, UnsupportedMediaType
-import json
+from extensions import db, cache
 
 class MasonBuilder(dict):
     """
@@ -77,8 +75,13 @@ class MasonBuilder(dict):
         self["@controls"][ctrl_name]["href"] = href
 
 class WorkoutPlanBuilder(MasonBuilder):
-    
+    """
+        A class for building workout plan-related MASON hypermedia representations.
+    """
     def add_control_get_playlist(self, playlist_id):
+        """
+            Adds a control to get a playlist by its ID.
+        """
         self.add_control(
             "custWorkoutPlaylistGen:playlist",
             href=f"/api/playlist/{playlist_id}",
@@ -87,6 +90,9 @@ class WorkoutPlanBuilder(MasonBuilder):
         )
 
     def add_control_get_user(self, user_id):
+        """
+            Adds a control to get a user by its ID.
+        """
         self.add_control(
             "custWorkoutPlaylistGen:author",
             href=f"/api/user/{user_id}",
@@ -95,16 +101,22 @@ class WorkoutPlanBuilder(MasonBuilder):
         )
 
     def add_control_edit_workout_plan(self, workout_plan_id):
+        """
+            Adds a control to edit a workout plan.
+        """
         self.add_control(
             "custWorkoutPlaylistGen:edit",
             href=f"/api/workoutPlan/{workout_plan_id}",
             method="PUT",
             title="Edit This Workout Plan",
             encoding="json",
-            schema=WorkoutPlan.json_schema()  
+            schema=WorkoutPlan.json_schema()
         )
 
     def add_control_delete_workout_plan(self, workout_plan_id):
+        """
+            Adds a control to delete a workout plan.
+        """
         self.add_control(
             "custWorkoutPlaylistGen:delete",
             href=f"/api/workoutPlan/{workout_plan_id}",
@@ -113,19 +125,25 @@ class WorkoutPlanBuilder(MasonBuilder):
         )
 
     def add_control_get_workouts(self, workout_plan_id):
+        """
+            Adds a control to get workouts for a workout plan.
+        """
         self.add_control(
             "custWorkoutPlaylistGen:item",
             href=f"/api/workoutPlanItem/{workout_plan_id}",
             method="GET",
             title="Get Workouts for the Plan"
         )
-        
+
 MASON = "application/vnd.mason+json"
 ERROR_PROFILE = "/profiles/error/"
-WORKOUT_PLAN_PROFILE = "/profiles/workoutplan/"  
+WORKOUT_PLAN_PROFILE = "/profiles/workoutplan/"
 LINK_RELATION = "/workout_plan_link_relation"
 
 def create_error_response(status_code, title, message=None):
+    """
+        Creates an error response with a MASON hypermedia representation for workout plans.
+    """
     body = WorkoutPlanBuilder()
     body.add_error(title, message if message else "")
     return Response(json.dumps(body), status_code, mimetype=MASON)
@@ -153,7 +171,7 @@ class WorkoutPlanResource(Resource):
         try:
             if not workoutPlan:
                 return create_error_response(404, "Workout plan not found")
-            
+
             workout_plan_builder = WorkoutPlanBuilder()
             workout_plan_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
             workout_plan_builder.add_control_edit_workout_plan(workoutPlan.workout_plan_id)
@@ -162,7 +180,7 @@ class WorkoutPlanResource(Resource):
             workout_plan_builder.add_control_get_user(workoutPlan.user_id)
             workout_plan_builder.add_control_get_workouts(workoutPlan.workout_plan_id)
             workout_plan_builder.add_control("profile", href=WORKOUT_PLAN_PROFILE)
-            
+
             workout_plan_dict = {
                 "workout_plan_id": workoutPlan.workout_plan_id,
                 "plan_name": workoutPlan.plan_name,
@@ -172,12 +190,12 @@ class WorkoutPlanResource(Resource):
             for key, value in workout_plan_dict.items():
                 workout_plan_builder[key] = value
             return Response(json.dumps(workout_plan_builder), mimetype=MASON)
-        
+
         except ValidationError as e:
             return create_error_response(400, "Invalid JSON document", str(e))
         except ValueError as e:
             return create_error_response(400, "Invalid input data", str(e))
-        
+
     def put(self, workoutPlan):
         """
             This method updates details about a given workout plan based on the provided data.
@@ -194,7 +212,7 @@ class WorkoutPlanResource(Resource):
             return create_error_response(403, "Unauthorized access")
 
         data = request.json
-        
+
         try:
             validate(request.json, WorkoutPlan.json_schema(), format_checker=FormatChecker())
 
@@ -209,12 +227,12 @@ class WorkoutPlanResource(Resource):
 
             db.session.commit()
             cache.clear()
-            
+
             workout_plan_builder = WorkoutPlanBuilder()
             workout_plan_builder["message"] = "Workout plan updated successfully"
-            
+
             return Response(json.dumps(workout_plan_builder), 200, mimetype=MASON)
-        
+
         except ValidationError as e:
             return create_error_response(400, "Invalid JSON document", str(e))
         except ValueError as e:
@@ -238,7 +256,7 @@ class WorkoutPlanResource(Resource):
 
         workout_plan_builder = WorkoutPlanBuilder()
         workout_plan_builder["message"] = "Workout plan deleted successfully"
-        
+
         return Response(json.dumps(workout_plan_builder), 200, mimetype=MASON)
 
 class WorkoutPlanCreator(Resource):
@@ -265,9 +283,9 @@ class WorkoutPlanCreator(Resource):
             raise BadRequest(description=str(e)) from e
 
         totalDuration = 0
-        
+
         plan_name = data["plan_name"]
-        
+
         workout_ids = data.get('workout_ids', [])
 
         data = {
@@ -282,7 +300,7 @@ class WorkoutPlanCreator(Resource):
         response = requests.post('http://127.0.0.1:5000/' + url_for('api.playlistcreation'),
                                  json=data, headers=headers)
         playlist_id = response.json()["playlist_id"]
-        
+
         # Create workout plan
         workoutPlan = WorkoutPlan(
             plan_name=plan_name,
@@ -315,7 +333,7 @@ class WorkoutPlanCreator(Resource):
 
         workout_plan_builder = WorkoutPlanBuilder()
         workout_plan_builder["message"] = "Workout plan created successfully"
-        
+
         return Response(json.dumps(workout_plan_builder), status=201, mimetype=MASON)
 
 class WorkoutPlanItemResource(Resource):
@@ -339,7 +357,8 @@ class WorkoutPlanItemResource(Resource):
         """
         workoutPlanItem_list = []
         try:
-            workoutPlansItem = WorkoutPlanItem.query.filter_by(workout_plan_id=workout_plan_id).all()
+            workoutPlansItem = WorkoutPlanItem.query.filter_by(
+                workout_plan_id=workout_plan_id).all()
             workout_plan_builder = WorkoutPlanBuilder()
             for workoutPlanItem in workoutPlansItem:
                 workout_dict = {
@@ -348,8 +367,7 @@ class WorkoutPlanItemResource(Resource):
                 }
                 workoutPlanItem_list.append(workout_dict)
                 workout_plan_builder["workout list"] = workoutPlanItem_list
-            
+
             return Response(json.dumps(workout_plan_builder), mimetype=MASON)
         except KeyError:
             return create_error_response(400, "Invalid input data")
-

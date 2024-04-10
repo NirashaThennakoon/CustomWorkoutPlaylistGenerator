@@ -2,16 +2,12 @@
    This module responsible for handling functions related to workout resource
 """
 from enum import Enum
-from jsonschema import validate, ValidationError, FormatChecker
-from werkzeug.exceptions import BadRequest
-from flask import request, g
-from flask_restful import Resource
-from data_models.models import Workout, WorkoutPlanItem
-from extensions import db
-from extensions import cache
-from flask import Response, jsonify, request, g, render_template
-from werkzeug.exceptions import NotFound, Conflict, BadRequest, UnsupportedMediaType
 import json
+from jsonschema import validate, ValidationError, FormatChecker
+from flask_restful import Resource
+from flask import Response, request, g
+from data_models.models import Workout, WorkoutPlanItem
+from extensions import db, cache
 
 class MasonBuilder(dict):
     """
@@ -78,7 +74,13 @@ class MasonBuilder(dict):
         self["@controls"][ctrl_name]["href"] = href
 
 class WorkoutBuilder(MasonBuilder):
+    """
+        A class for building workout-related MASON hypermedia representations.
+    """
     def add_control_get_workout_collection(self):
+        """
+            Adds a control to list all workouts.
+        """
         self.add_control(
             "custWorkoutPlaylistGen:collection",
             href="/api/workout",
@@ -87,14 +89,20 @@ class WorkoutBuilder(MasonBuilder):
         )
 
     def add_control_get_workout_plans(self, workout_id):
+        """
+            Adds a control to get workout plans for a workout.
+        """
         self.add_control(
             "custWorkoutPlaylistGen:up",
             href=f"/api/workoutItem/{workout_id}",
             method="GET",
             title="Get workout plans for the workout"
         )
-        
+
     def add_control_get_workout(self, workout_id):
+        """
+            Adds a control to get a workout by its ID.
+        """
         self.add_control(
             "custWorkoutPlaylistGen:item",
             href=f"/api/workout/{workout_id}",
@@ -103,6 +111,9 @@ class WorkoutBuilder(MasonBuilder):
         )
 
     def add_control_edit_workout(self, workout_id):
+        """
+            Adds a control to edit a workout.
+        """
         self.add_control(
             "custWorkoutPlaylistGen:edit",
             href=f"/api/workout/{workout_id}",
@@ -113,6 +124,9 @@ class WorkoutBuilder(MasonBuilder):
         )
 
     def add_control_delete_workout(self, workout_id):
+        """
+            Adds a control to delete a workout.
+        """
         self.add_control(
             "custWorkoutPlaylistGen:delete",
             href=f"/api/workout/{workout_id}",
@@ -122,10 +136,13 @@ class WorkoutBuilder(MasonBuilder):
 
 MASON = "application/vnd.mason+json"
 ERROR_PROFILE = "/profiles/error/"
-WORKOUT_PROFILE = "/profiles/workout/"  
+WORKOUT_PROFILE = "/profiles/workout/"
 LINK_RELATION = "/workout_link_relation"
 
 def create_error_response(status_code, title, message=None):
+    """
+        Creates an error response with a MASON hypermedia representation for workouts.
+    """
     body = WorkoutBuilder()
     body.add_error(title, message if message else "")
     return Response(json.dumps(body), status_code, mimetype=MASON)
@@ -150,7 +167,7 @@ class WorkoutResource(Resource):
         """
         if not workout:
             return create_error_response(400, "Invalid input data")
-        
+
         workout_builder = WorkoutBuilder()
         workout_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
         workout_builder.add_control_get_workout_collection()
@@ -159,7 +176,7 @@ class WorkoutResource(Resource):
         workout_builder.add_control_edit_workout(workout.workout_id)
         workout_builder.add_control_delete_workout(workout.workout_id)
         workout_builder.add_control("profile", href=WORKOUT_PROFILE)
-                
+
         workout_dict = {
             "workout_id": workout.workout_id,
             "workout_name": workout.workout_name,
@@ -216,7 +233,7 @@ class WorkoutResource(Resource):
                 workout.workout_type = data['workout_type']
             db.session.commit()
             cache.clear()
-            
+
             workout_builder = WorkoutBuilder()
             workout_builder["message"] = "Workout updated successfully"
 
@@ -296,10 +313,10 @@ class WorkoutsCollection(Resource):
                     "workout_type": w.workout_type
                 }
                 workout_list.append(workout_dict)
-                
+
             workout_builder["workout list"] = workout_list
             workout_builder.add_control("self", href="/api/workout/", title="Self")
-            
+
             return Response(json.dumps(workout_builder), 200, mimetype=MASON)
 
         except Exception as e:
@@ -348,7 +365,7 @@ class WorkoutsCollection(Resource):
             response_builder["message"] = "Workout added successfully"
 
             return Response(json.dumps(response_builder), status=201, mimetype=MASON)
-        except Exception as e: 
+        except Exception as e:
             return create_error_response(500, "Internal Server Error", str(e))
 
 class WorkoutItemResource(Resource):
@@ -357,18 +374,21 @@ class WorkoutItemResource(Resource):
     """
     @cache.cached(timeout=60)
     def get(self, workout_id):
+        """
+            Retrieve information about a specific workout.
+        """
         workoutItem_list = []
         try:
             workoutItem = WorkoutPlanItem.query.filter_by(workout_id= workout_id).all()
             workout_builder = WorkoutBuilder()
-            for workoutItem in workoutItem:
+            for workoutitem in workoutItem:
                 workout_dict = {
-                    "workout_id": workoutItem.workout_id,
-                    "workout_plan_id": workoutItem.workout_plan_id
+                    "workout_id": workoutitem.workout_id,
+                    "workout_plan_id": workoutitem.workout_plan_id
                 }
                 workoutItem_list.append(workout_dict)
                 workout_builder["workout list"] = workoutItem_list
-            
+
             return Response(json.dumps(workout_builder), mimetype=MASON)
         except KeyError:
             return create_error_response(400, "Invalid input data")

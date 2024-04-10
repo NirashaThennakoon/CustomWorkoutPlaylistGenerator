@@ -6,18 +6,20 @@ import hashlib
 import uuid
 from datetime import timedelta
 from copy import deepcopy
+import json
 from flask_jwt_extended import create_access_token
 from jsonschema import validate, ValidationError, FormatChecker
 from flask_restful import Resource
+from flask import Response, request, g
+from werkzeug.exceptions import BadRequest
 from data_models.models import ApiKey, User
 from extensions import db
 from extensions import cache
-from http.client import FORBIDDEN
-import json
-from flask import Response, jsonify, request, g
-from werkzeug.exceptions import NotFound, Conflict, BadRequest, UnsupportedMediaType
 
 def generate_api_key():
+    """
+        Generates a random API key using UUID version 4.
+    """
     return str(uuid.uuid4())
 
 class MasonBuilder(dict):
@@ -85,18 +87,27 @@ class MasonBuilder(dict):
         self["@controls"][ctrl_name]["href"] = href
 
 class UserBuilder(MasonBuilder):
+    """
+        A class for building user-related MASON hypermedia representations.
+    """
 
     def add_control_edit_user(self, user_id):
+        """
+            Adds a control to edit a user.
+        """
         self.add_control(
             "custWorkoutPlaylistGen:edit",
             href=f"/api/users/{user_id}",
             method="PUT",
             title="Edit This User",
             encoding="json",
-            schema=User.json_schema()  
+            schema=User.json_schema()
         )
 
     def add_control_delete_user(self, user_id):
+        """
+            Adds a control to delete a user.
+        """
         self.add_control(
             "custWorkoutPlaylistGen:delete",
             href=f"/api/user/{user_id}",
@@ -106,20 +117,23 @@ class UserBuilder(MasonBuilder):
 
 MASON = "application/vnd.mason+json"
 ERROR_PROFILE = "/profiles/error/"
-USER_PROFILE = "/profiles/user/"  
+USER_PROFILE = "/profiles/user/"
 LINK_RELATION = "/user_link_relation"
 
 def create_error_response(status_code, title, message=None):
+    """
+        Creates an error response with a MASON hypermedia representation for users.
+    """
     body = UserBuilder()
     body.add_error(title, message if message else "")
     body.add_namespace("user", USER_PROFILE)
     return Response(json.dumps(body), status_code, mimetype=MASON)
 
-def generate_api_key():
-    """
-        This function generates a unique API key using UUID version 4.
-    """
-    return str(uuid.uuid4())
+# def generate_api_key():
+#     """
+#         This function generates a unique API key using UUID version 4.
+#     """
+#     return str(uuid.uuid4())
 
 class UserRegistration(Resource):
     """
@@ -236,13 +250,13 @@ class UserResource(Resource):
         user_data = []
         if not user:
             return create_error_response(404, "User not found")
-        
+
         user_builder = UserBuilder()
         user_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
         user_builder.add_control_edit_user(user.id)
         user_builder.add_control_delete_user(user.id)
         user_builder.add_control("profile", href=USER_PROFILE)
-        
+
         user_data = {
             "email": user.email,
             "height": user.height,
@@ -271,7 +285,7 @@ class UserResource(Resource):
 
         db.session.delete(user)
         db.session.commit()
-        
+
         user_builder = UserBuilder()
         user_builder["message"] = "User deleted successfully"
 
@@ -309,18 +323,18 @@ class UserResource(Resource):
 
             db.session.commit()
             cache.clear()
-            
+
         except ValidationError as e:
-                return create_error_response(400, "Invalid JSON document", str(e))
+            return create_error_response(400, "Invalid JSON document", str(e))
         except Exception as e:
             db.session.rollback()
             return create_error_response(500, "Internal Server Error", str(e))
-        
+
         user_builder = UserBuilder()
         user_builder["message"] = "User updated successfully"
-        
+
         return Response(json.dumps(user_builder), mimetype=MASON)
-    
+
     def post(self, user):
         """
             This method authenticates a user based on the provided email and password.
@@ -349,9 +363,9 @@ class UserResource(Resource):
             return create_error_response(401, "Invalid password")
 
         access_token = create_access_token(identity=user.id, expires_delta=timedelta(days=1))
-        
+
         user_builder = UserBuilder()
-        user_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION) 
+        user_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
         user_builder.add_control_edit_user(user.id)
         user_builder.add_control_delete_user(user.id)
         user_builder.add_control("profile", href=USER_PROFILE)
@@ -394,7 +408,9 @@ class ApiKeyResource(Resource):
         api_key_builder.add_namespace("apikey", "/profiles/apikey/")
         api_key_builder["message"] = "API key updated successfully"
         api_key_builder["new_api_key"] = new_api_key
-        api_key_builder.add_control("self", href=f"/api/users/update_api_key/{user.id}", title="API Key")
+        api_key_builder.add_control("self",
+                                    href=f"/api/users/update_api_key/{user.id}",
+                                    title="API Key")
 
         return Response(json.dumps(api_key_builder), status=200, mimetype=MASON)
 
