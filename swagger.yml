@@ -697,20 +697,20 @@ definitions:
         description: ID of the playlist
         type: integer
         example: 4
-  AddWorkoutPlan:
-    type: object
-    required:
-      - workout_ids
-      - plan_name
-    properties:
-      workout_ids:
-        type: array
-        description: List of IDs of workouts included in the plan.
-        example: [5,6]
-      plan_name:
-        type: string
-        description: Name of the workout plan.  
-        example: "Summer Night Plan"
+  # AddWorkoutPlan:
+  #   type: object
+  #   required:
+  #     - workout_ids
+  #     - plan_name
+  #   properties:
+  #     workout_ids:
+  #       type: array
+  #       description: List of IDs of workouts included in the plan.
+  #       example: [5,6]
+  #     plan_name:
+  #       type: string
+  #       description: Name of the workout plan.  
+  #       example: "Summer Night Plan"
   Song:
     type: object
     required:
@@ -759,73 +759,6 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Song'
-  AddPlayList:
-    type: object
-    required:
-      - workout_ids
-      - playlist_duration
-      - playlist_name
-    properties:
-      workout_ids:
-        type: array
-        description: A list of workout IDs to base the playlist on.
-        example: [5,6]
-      playlist_duration:
-        type: float
-        description: Total duration of the playlist.
-        example: 11.2
-      playlist_name:
-        type: string
-        description: The name of the playlist to be created.
-        example: "Monday plan Playlist"
-  UserRegister:
-    type: object
-    required: 
-      - email
-      - password
-      - height
-      - weight
-      - user_type
-    properties:
-      email:
-        type: string
-        format: email
-        description: The user's email address.
-        example: "user@example.com"
-      password:
-        type: string
-        format: password
-        description: The user's password.
-        example: "Welcome@123"
-      height:
-        type: float
-        description: The user's height in centimeters.
-        example: 1.75
-      weight:
-        type: float
-        description: The user's weight in kilograms.
-        example: 75.0
-      user_type:
-        type: string
-        enum: [admin, user]
-        description: The type of user (admin or regular user).
-        example: "admin"
-  UserLogin:
-    type: object
-    required:
-      - email
-      - password
-    properties:
-      email:
-        type: string
-        format: email
-        description: The user's email address.
-        example: "user@example.com"
-      password:
-        type: string
-        format: password
-        description: The user's password.
-        example: "Welcome@123" 
   User:
     type: object
     required: 
@@ -858,3 +791,70 @@ definitions:
         enum: [admin, user]
         description: The type of user (admin or regular user).
         example: "admin"
+  # AddPlayList:
+  #   type: object
+  #   required:
+  #     - workout_ids
+  #     - playlist_duration
+  #     - playlist_name
+  #   properties:
+  #     workout_ids:
+  #       type: array
+  #       description: A list of workout IDs to base the playlist on.
+  #       example: [5,6]
+  #     playlist_duration:
+  #       type: float
+  #       description: Total duration of the playlist.
+  #       example: 11.2
+  #     playlist_name:
+  #       type: string
+  #       description: The name of the playlist to be created.
+  #       example: "Monday plan Playlist"
+  # UserRegister:
+  #   type: object
+  #   required: 
+  #     - email
+  #     - password
+  #     - height
+  #     - weight
+  #     - user_type
+  #   properties:
+  #     email:
+  #       type: string
+  #       format: email
+  #       description: The user's email address.
+  #       example: "user@example.com"
+  #     password:
+  #       type: string
+  #       format: password
+  #       description: The user's password.
+  #       example: "Welcome@123"
+  #     height:
+  #       type: float
+  #       description: The user's height in centimeters.
+  #       example: 1.75
+  #     weight:
+  #       type: float
+  #       description: The user's weight in kilograms.
+  #       example: 75.0
+  #     user_type:
+  #       type: string
+  #       enum: [admin, user]
+  #       description: The type of user (admin or regular user).
+  #       example: "admin"
+  # UserLogin:
+  #   type: object
+  #   required:
+  #     - email
+  #     - password
+  #   properties:
+  #     email:
+  #       type: string
+  #       format: email
+  #       description: The user's email address.
+  #       example: "user@example.com"
+  #     password:
+  #       type: string
+  #       format: password
+  #       description: The user's password.
+  #       example: "Welcome@123" 
