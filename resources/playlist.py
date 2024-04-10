@@ -1,14 +1,13 @@
 """
    This module responsible for handling functions of playlist resources
 """
+import json
 from jsonschema import validate, ValidationError, FormatChecker
-from flask import Response, jsonify, request, g
+from flask import Response, request, g
 from flask_restful import Resource
 from data_models.models import Playlist, PlaylistItem, Workout, Song
 from extensions import db
 from extensions import cache
-from werkzeug.exceptions import NotFound, Conflict, BadRequest, UnsupportedMediaType
-import json
 
 class MasonBuilder(dict):
     """
@@ -75,8 +74,14 @@ class MasonBuilder(dict):
         self["@controls"][ctrl_name]["href"] = href
 
 class PlaylistBuilder(MasonBuilder):
+    """
+        A class for building playlist-related MASON hypermedia representations.
+    """
 
     def add_control_get_song(self, playlist_id):
+        """
+            Adds a control to get songs for a playlist.
+        """
         self.add_control(
             "custWorkoutPlaylistGen:item",
             href=f"/api/playlistItem/{playlist_id}",
@@ -91,8 +96,11 @@ class PlaylistBuilder(MasonBuilder):
     #         method="GET",
     #         title="Get Workout plan by playlist"
     #     )
-        
+
     def add_control_edit_playlist(self, playlist_id):
+        """
+            Adds a control to edit songs in a playlist.
+        """
         self.add_control(
             "custWorkoutPlaylistGen:edit",
             href=f"/api/playlist/{playlist_id}",
@@ -103,6 +111,9 @@ class PlaylistBuilder(MasonBuilder):
         )
 
     def add_control_delete_playlist(self, playlist_id):
+        """
+            Adds a control to delete a playlist.
+        """
         self.add_control(
             "custWorkoutPlaylistGen:delete",
             href=f"/api/playlist/{playlist_id}",
@@ -112,10 +123,13 @@ class PlaylistBuilder(MasonBuilder):
 
 MASON = "application/vnd.mason+json"
 ERROR_PROFILE = "/profiles/error/"
-PLAYLIST_PROFILE = "/profiles/playlist/"  
+PLAYLIST_PROFILE = "/profiles/playlist/"
 LINK_RELATION = "/playlist_link_relation"
 
 def create_error_response(status_code, title, message=None):
+    """
+        Creates an error response with a MASON hypermedia representation.
+    """
     body = PlaylistBuilder()
     body.add_error(title, message if message else "")
     return Response(json.dumps(body), status_code, mimetype=MASON)
@@ -135,14 +149,14 @@ class PlaylistResource(Resource):
         """
         if not playlist:
             return create_error_response(404, "Playlist not found")
-        
+
         playlist_builder = PlaylistBuilder()
         playlist_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
         playlist_builder.add_control_get_song(playlist.playlist_id)
         playlist_builder.add_control_edit_playlist(playlist.playlist_id)
         playlist_builder.add_control_delete_playlist(playlist.playlist_id)
         playlist_builder.add_control("profile", href=PLAYLIST_PROFILE)
-        
+
         playlist_items = PlaylistItem.query.filter_by(playlist_id=playlist.playlist_id).all()
         songs_list = []
         for item in playlist_items:
@@ -167,9 +181,9 @@ class PlaylistResource(Resource):
             "songs_list": songs_list
             }
         for key, value in playlist_dict.items():
-                playlist_builder[key] = value
+            playlist_builder[key] = value
         return Response(json.dumps(playlist_builder), mimetype=MASON)
-        
+
     # user can change the playlist song order
     def put(self, playlist):
         """
@@ -213,7 +227,7 @@ class PlaylistResource(Resource):
             return create_error_response(400, "Invalid JSON document", str(e))
         except ValueError as e:
             return create_error_response(400, "Invalid input data", str(e))
-        
+
     def delete(self, playlist):
         """
             Delete a playlist and its associated items.
@@ -234,7 +248,7 @@ class PlaylistResource(Resource):
 
         playlist_builder = PlaylistBuilder()
         playlist_builder["message"] = "Workout deleted successfully"
-        
+
         return Response(json.dumps(playlist_builder), 200, mimetype=MASON)
 
 class PlaylistCreation(Resource):
@@ -255,8 +269,8 @@ class PlaylistCreation(Resource):
         """
         data = request.json
         if not data or 'workout_ids' not in data:
-            return create_error_response(400,"Invalid input data on CreatePlayList")  
-        
+            return create_error_response(400,"Invalid input data on CreatePlayList")
+
         playlist_name_rec = data['playlist_name']
         workout_ids = data['workout_ids']
 
@@ -348,7 +362,7 @@ class PlaylistItemResource(Resource):
                 }
                 playlistItem_list.append(playlist_dict)
             playlist_builder["Song list"] = playlistItem_list
-            
+
             return Response(json.dumps(playlist_builder), mimetype=MASON)
         except KeyError:
-            return create_error_response(400, "Invalid input data") 
+            return create_error_response(400, "Invalid input data")

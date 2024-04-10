@@ -1,16 +1,13 @@
 """
    This module responsible for handling functions related to song resource
 """
+import json
 from jsonschema import validate, ValidationError, FormatChecker
 from flask_restful import Resource
+from flask import Response, request, g
 from data_models.models import PlaylistItem, Song
 from extensions import db
 from extensions import cache
-from flask import Response, jsonify, request, url_for, g
-from sqlalchemy.exc import IntegrityError
-import requests
-from werkzeug.exceptions import NotFound, Conflict, BadRequest, UnsupportedMediaType
-import json
 
 class MasonBuilder(dict):
     """
@@ -75,16 +72,22 @@ class MasonBuilder(dict):
 
         self["@controls"][ctrl_name] = kwargs
         self["@controls"][ctrl_name]["href"] = href
-        
+
 class SongBuilder(MasonBuilder):
+    """
+        A class for building song-related MASON hypermedia representations.
+    """
     def add_control_song_collection(self):
+        """
+            Adds a control to list all songs.
+        """
         self.add_control(
             "custWorkoutPlaylistGen:collection",
             href="/api/song",
             method="GET",
             title="List All Songs"
         )
-   
+
     # def add_control_get_playlist(self, song_id):
     #     self.add_control(
     #         "custWorkoutPlaylistGen:song-all",
@@ -92,16 +95,22 @@ class SongBuilder(MasonBuilder):
     #         method="GET",
     #         title="Get playlists for the song"
     #     )
-             
+
     def add_control_get_song(self, song_id):
+        """
+            Adds a control to get a song by its ID.
+        """
         self.add_control(
             "custWorkoutPlaylistGen:item",
             href=f"/api/song/{song_id}",
             method="GET",
             title="Get Song by song_id"
         )
-        
+
     def add_control_edit_song(self, song_id):
+        """
+            Adds a control to edit a song.
+        """
         self.add_control(
             "custWorkoutPlaylistGen:edit",
             href=f"/api/song/{song_id}",
@@ -110,8 +119,11 @@ class SongBuilder(MasonBuilder):
             encoding="json",
             schema=Song.json_schema()
         )
-        
+
     def add_control_delete_song(self, song_id):
+        """
+            Adds a control to delete a song.
+        """
         self.add_control(
             "custWorkoutPlaylistGen:delete",
             href=f"/api/song/{song_id}",
@@ -120,10 +132,13 @@ class SongBuilder(MasonBuilder):
         )
 MASON = "application/vnd.mason+json"
 ERROR_PROFILE = "/profiles/error/"
-SONG_PROFILE = "/profiles/song/"  
+SONG_PROFILE = "/profiles/song/"
 LINK_RELATION = "/song_link_relation"
 
 def create_error_response(status_code, title, message=None):
+    """
+        Creates an error response with a MASON hypermedia representation for songs.
+    """
     body = SongBuilder()
     body.add_error(title, message if message else "")
     return Response(json.dumps(body), status_code, mimetype=MASON)
@@ -146,14 +161,14 @@ class SongResource(Resource):
         """
         if not song:
             return create_error_response(404, "Song not found")
-        
+
         song_builder = SongBuilder()
         song_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
         song_builder.add_control_song_collection()
         song_builder.add_control_edit_song(song.song_id)
         song_builder.add_control_delete_song(song.song_id)
         song_builder.add_control("profile", href=SONG_PROFILE)
-        
+
         song_dict = {
             "song_id": song.song_id,
             "song_name": song.song_name,
@@ -179,7 +194,7 @@ class SongResource(Resource):
         if g.current_api_key.user.user_type != 'admin':
             return create_error_response(403, "Unauthorized access")
         data = request.json
-        
+
         try:
             validate(request.json, Song.json_schema(), format_checker=FormatChecker())
             if 'song_name' in data:
@@ -193,7 +208,7 @@ class SongResource(Resource):
 
             db.session.commit()
             cache.clear()
-            
+
             song_builder = SongBuilder()
             song_builder["message"] = "Song updated successfully"
 
@@ -221,7 +236,7 @@ class SongResource(Resource):
         db.session.delete(song)
         db.session.commit()
         cache.clear()
-        
+
         song_builder = SongBuilder()
         song_builder["message"] = "Song deleted successfully"
 
@@ -248,12 +263,12 @@ class SongsCollection(Resource):
             songs = Song.query.all()
             songs_list = []
             for song in songs:
-                
+
                 song_builder = SongBuilder()
                 song_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
                 song_builder.add_control_get_song(song.song_id)
                 song_builder.add_control("profile", href=SONG_PROFILE)
-                
+
                 song_dict = {
                     "song_id": song.song_id,
                     "song_name": song.song_name,
@@ -265,11 +280,11 @@ class SongsCollection(Resource):
 
             song_builder["song list"] = songs_list
             song_builder.add_control("self", href="/api/song/", title="Self")
-            
+
             return Response(json.dumps(song_builder), 200, mimetype=MASON)
         except Exception as e:
             return create_error_response(400, "Invalid input data", str(e))
-        
+
     def post(self):
         """
             This method adds a new song to the system based on the provided data.
@@ -308,14 +323,14 @@ class SongsCollection(Resource):
             db.session.add(song)
             db.session.commit()
             cache.clear()
-            
+
             song_builder = SongBuilder()
             song_builder["message"] = "Song added successfully"
-            
+
             return Response(json.dumps(song_builder), status=201, mimetype=MASON)
-        except Exception as e: 
+        except Exception as e:
             return create_error_response(500, "Internal Server Error", str(e))
-        
+
 class AllSongsResource(Resource):
     """
         This resource includes the GET all songs endpoint.
@@ -333,7 +348,7 @@ class AllSongsResource(Resource):
                 }
                 allSongs_list.append(allSong_dict)
             song_builder["Playlists"] = allSongs_list
-            
+
             return Response(json.dumps(song_builder), mimetype=MASON)
         except KeyError:
-            return create_error_response(400, "Invalid input data") 
+            return create_error_response(400, "Invalid input data")
