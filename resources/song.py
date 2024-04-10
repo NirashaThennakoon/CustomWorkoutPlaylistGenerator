@@ -85,13 +85,13 @@ class SongBuilder(MasonBuilder):
             title="List All Songs"
         )
    
-    def add_control_get_playlist(self, song_id):
-        self.add_control(
-            "custWorkoutPlaylistGen:song-all",
-            href=f"/api/allSong/{song_id}",
-            method="GET",
-            title="Get playlists for the song"
-        )
+    # def add_control_get_playlist(self, song_id):
+    #     self.add_control(
+    #         "custWorkoutPlaylistGen:song-all",
+    #         href=f"/api/allSong/{song_id}",
+    #         method="GET",
+    #         title="Get playlists for the song"
+    #     )
              
     def add_control_get_song(self, song_id):
         self.add_control(
@@ -179,10 +179,7 @@ class SongResource(Resource):
         if g.current_api_key.user.user_type != 'admin':
             return create_error_response(403, "Unauthorized access")
         data = request.json
-        if not data:
-            return create_error_response(400, "No input data provided")
-        if not song:
-            return create_error_response(404, "Song not found")
+        
         try:
             validate(request.json, Song.json_schema(), format_checker=FormatChecker())
             if 'song_name' in data:

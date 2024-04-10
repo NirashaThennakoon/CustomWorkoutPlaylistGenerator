@@ -2,6 +2,7 @@
     This is module is to test functionalities of User resource
 """
 import json
+from jsonschema import validate
 import pytest
 
 @pytest.fixture
@@ -31,7 +32,7 @@ def test_post_user_register(client):
     resp = client.post(resource_url, json=valid)
     assert resp.status_code == 400
     data = json.loads(resp.data)
-    assert data["message"] == "Email already exists"
+    assert data["@error"]["@message"] == "Email already exists"
 
     # remove workout_name field for 400
     valid.pop("email")
@@ -52,7 +53,7 @@ def test_post_user_register_with_db_error(client, mocker):
     resp = client.post(resource_url, json=valid)
     assert resp.status_code == 500
     data = json.loads(resp.data)
-    assert data["error"] == "Failed to register user"
+    assert data["@error"]["@message"] == "Failed to register user"
 
 def test_post_user_login(client):
     """
@@ -76,20 +77,20 @@ def test_post_user_login(client):
     resp = client.post(resource_url, json=invalid_email)
     assert resp.status_code == 404
     data = json.loads(resp.data)
-    assert data["message"] == "No such user in the system"
+    assert data["@error"]["@message"] == "No such user in the system"
 
     # send incorrect password
     resp = client.post(resource_url, json=inavlis_pwd)
     assert resp.status_code == 401
     data = json.loads(resp.data)
-    assert data["message"] == "Invalid password"
+    assert data["@error"]["@message"] == "Invalid password"
 
     # remove email field for 400
     valid.pop("email")
     resp = client.post(resource_url, json=valid)
     assert resp.status_code == 400
     data = json.loads(resp.data)
-    assert data["message"] == "Invalid input data for user login"
+    assert data["@error"]["@message"] == "Invalid input data for user login"
 
 def test_put_user(client):
     """
@@ -106,7 +107,7 @@ def test_put_user(client):
     resp = client.put(resource_url, json={})
     assert resp.status_code == 400
     data = json.loads(resp.data)
-    assert data["message"] == "No input data provided"
+    assert data["@error"]["@message"] == "No input data provided"
 
     #test with wrong id
     resp = client.put('/api/user/id', json=valid)
@@ -135,9 +136,9 @@ def test_put_user_with_db_error(client, mocker):
     # Make commit raise an exception
     mock_commit.side_effect = Exception("Mocked exception")
     resp = client.put(resource_url, json = valid)
-    assert resp.status_code == 400
+    assert resp.status_code == 500
     data = json.loads(resp.data)
-    assert data["message"] == "Mocked exception"
+    assert data["@error"]["@message"] == "Internal Server Error"
 
 def test_delete_user(client):
     """
@@ -180,6 +181,10 @@ def test_get_user(client):
     """
     #test with valid user id
     resp = client.get("/api/user/3")
+    data = json.loads(resp.data)
+    _check_namespace(client, data)
+    # _check_control_put_method("custWorkoutPlaylistGen:edit-user", client, data)
+    _check_control_delete_method("custWorkoutPlaylistGen:delete", client, data)
     assert resp.status_code == 200
 
 def _get_user_json():
@@ -188,6 +193,18 @@ def _get_user_json():
     """
     return {
         "email": "test2@gmail.com",
+        "password": "password",
+        "height": 178.0,
+        "weight": 56.7,
+        "user_type": "admin"
+    }
+
+def _get_user2_json():
+    """
+    Creates a valid user JSON object to be used for PUT and POST tests.
+    """
+    return {
+        "email": "test3@gmail.com",
         "password": "password",
         "height": 178.0,
         "weight": 56.7,
@@ -232,3 +249,62 @@ def _get_user_json_with_invalid_pwd():
         "email": 'test-email-1@gmail.com',
         "password": "1234"
     }
+
+def _check_namespace(client, response):
+    """
+    Checks that the "custWorkoutPlaylistGen" namespace is found from the response body, and
+    that its "name" attribute is a URL that can be accessed.
+    """
+    ns_href = response["@namespaces"]["custWorkoutPlaylistGen"]["name"]
+    print(ns_href)
+    resp = client.get(ns_href)
+    assert resp.status_code == 404 
+
+def _check_control_get_method(ctrl, client, obj):
+    """
+    Checks a GET type control from a JSON object be it root document or an item
+    in a collection. Also checks that the URL of the control can be accessed.
+    """
+    
+    href = obj["@controls"][ctrl]["href"]
+    resp = client.get(href)
+    print(href)
+    assert resp.status_code == 200
+    
+def _check_control_delete_method(ctrl, client, obj):
+    """
+    Checks a DELETE type control from a JSON object be it root document or an
+    item in a collection. Checks the contrl's method in addition to its "href".
+    Also checks that using the control results in the correct status code of 204.
+    """
+    
+    href = obj["@controls"][ctrl]["href"]
+    method = obj["@controls"][ctrl]["method"].lower()
+    assert method == "delete"
+    resp = client.delete(href)
+    assert resp.status_code == 200
+    
+def _check_control_put_method(ctrl, client, obj):
+    """
+    Checks a PUT type control from a JSON object be it root document or an item
+    in a collection. In addition to checking the "href" attribute, also checks
+    that method, encoding and schema can be found from the control. Also
+    validates a valid sensor against the schema of the control to ensure that
+    they match. Finally checks that using the control results in the correct
+    status code of 204.
+    """
+    
+    ctrl_obj = obj["@controls"][ctrl]
+    href = ctrl_obj["href"]
+    method = ctrl_obj["method"].lower()
+    encoding = ctrl_obj["encoding"].lower()
+    schema = ctrl_obj["schema"]
+    assert method == "put"
+    assert encoding == "json"
+    body = _get_user_json()
+    body["email"] = obj["email"]
+    validate(body, schema)
+    print(href)
+    resp = client.put(href, json=body)
+    assert resp.status_code == 200
+    

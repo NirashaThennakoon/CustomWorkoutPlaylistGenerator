@@ -53,6 +53,9 @@ class AuthHeaderClient(FlaskClient):
         headers = kwargs.pop('headers', Headers())
         headers.extend(api_key_headers)
         kwargs['headers'] = headers
+
+        # Explicitly enable redirect following
+        kwargs['follow_redirects'] = True
         return super().open(*args, **kwargs)
 
 def _populate_db():
