@@ -120,7 +120,7 @@ class SongBuilder(MasonBuilder):
         )
 MASON = "application/vnd.mason+json"
 ERROR_PROFILE = "/profiles/error/"
-SONG_PROFILE = "/profiles/song/"  
+SONG_PROFILE = "/profile"  
 LINK_RELATION = "/song_link_relation"
 
 def create_error_response(status_code, title, message=None):

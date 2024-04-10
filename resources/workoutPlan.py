@@ -122,7 +122,7 @@ class WorkoutPlanBuilder(MasonBuilder):
         
 MASON = "application/vnd.mason+json"
 ERROR_PROFILE = "/profiles/error/"
-WORKOUT_PLAN_PROFILE = "/profiles/workoutplan/"  
+WORKOUT_PLAN_PROFILE = "/profile"  
 LINK_RELATION = "/workout_plan_link_relation"
 
 def create_error_response(status_code, title, message=None):

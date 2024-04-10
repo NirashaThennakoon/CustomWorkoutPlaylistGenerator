@@ -78,6 +78,10 @@ def create_app(test_config=None):
     @app.route('/workout_plan_link_relation')
     def workout_plan_link_relation():
         return render_template('workout_plan_link_relation.html')
+
+    @app.route('/profile')
+    def profile():
+        return render_template('profile.html')
     
     app.config.from_mapping(
         SQLALCHEMY_DATABASE_BASE_URI="mysql+mysqldb://admin:pwpdb7788@workoutplaylists.cpcoaea0i7dq.us-east-1.rds.amazonaws.com",
