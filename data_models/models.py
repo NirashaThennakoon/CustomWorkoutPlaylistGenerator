@@ -1,10 +1,15 @@
+"""
+   This module responsible for holding data models
+"""
 import hashlib
 import click
-
 from flask.cli import with_appcontext
 from extensions import db
 
 class User(db.Model):
+    """
+    Model representing a user.
+    """
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(64), nullable=False)
     password = db.Column(db.String(64), nullable=False)
@@ -13,19 +18,28 @@ class User(db.Model):
     user_type = db.Column(db.String(32), nullable=False)
     user_token = db.Column(db.String(64), nullable=False)
     token_expiration = db.Column(db.DateTime, nullable=False)
-    
+
     api_key = db.relationship("ApiKey", back_populates="user", cascade="all, delete-orphan")
     workout_plan = db.relationship("WorkoutPlan", back_populates="user")
 
     @staticmethod
     def password_hash(password):
+        """
+        Hashes the provided password using SHA-256.
+        """
         return hashlib.sha256(password.encode()).hexdigest()
-    
+
     def verify_password(self, password):
+        """
+        Verifies if the provided password matches the hashed password of the user.
+        """
         hashed_password = User.password_hash(password)
         return self.password == hashed_password
 
     def json_schema():
+        """
+        Defines the JSON schema for user data.
+        """
         schema = {
             "type": "object",
             "required": ["email", "password", "height", "weight", "user_type"]
@@ -54,6 +68,9 @@ class User(db.Model):
         return schema
 
 class Workout(db.Model):
+    """
+    Model representing a workout.
+    """
     workout_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     workout_name = db.Column(db.String(64), nullable=False)
     duration = db.Column(db.Float, nullable=False)
@@ -65,9 +82,13 @@ class Workout(db.Model):
 
     @staticmethod
     def json_schema():
+        """
+        Defines the JSON schema for workout data.
+        """
         schema = {
             "type": "object",
-            "required": ["workout_name", "duration", "workout_intensity", "equipment", "workout_type"]
+            "required": ["workout_name", "duration",
+                         "workout_intensity", "equipment", "workout_type"]
         }
         props = schema["properties"] = {}
         props["workout_name"] = {
@@ -93,6 +114,9 @@ class Workout(db.Model):
         return schema
 
 class WorkoutPlanItem(db.Model):
+    """
+    Model representing a single workout plan item.
+    """
     item_id = db.Column(db.Integer, primary_key=True)
     workout_plan_id = db.Column(db.Integer, db.ForeignKey("workout_plan.workout_plan_id"))
     workout_id = db.Column(db.Integer, db.ForeignKey("workout.workout_id"))
@@ -101,6 +125,9 @@ class WorkoutPlanItem(db.Model):
     workout = db.relationship("Workout", back_populates="workout_plan_item")
 
 class WorkoutPlan(db.Model):
+    """
+    Model representing a workout plan.
+    """
     workout_plan_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     plan_name = db.Column(db.String(64), nullable=False)
     duration = db.Column(db.Float, nullable=False)
@@ -113,6 +140,9 @@ class WorkoutPlan(db.Model):
 
     @staticmethod
     def json_schema():
+        """
+        Defines the JSON schema for workout plan data.
+        """
         schema = {
             "type": "object",
             "required": ["plan_name"]
@@ -125,15 +155,21 @@ class WorkoutPlan(db.Model):
         return schema
 
 class Playlist(db.Model):
+    """
+    Model representing a playlist.
+    """
     playlist_id = db.Column(db.Integer, primary_key=True)
     playlist_duration = db.Column(db.Float, nullable=False)
     playlist_name = db.Column(db.String(64), nullable=False)
 
     playlist_item = db.relationship("PlaylistItem", back_populates="playlist")
-    workout_plan = db.relationship("WorkoutPlan", back_populates="playlist") 
+    workout_plan = db.relationship("WorkoutPlan", back_populates="playlist")
 
     @staticmethod
     def json_schema():
+        """
+        Defines the JSON schema for playlist data.
+        """
         schema = {
             "type": "object",
             "required": ["playlist_name", "playlist_duration"]
@@ -147,9 +183,12 @@ class Playlist(db.Model):
             "description": "Duration of the playlist",
             "type": "number"
         }
-        return schema 
+        return schema
 
 class PlaylistItem(db.Model):
+    """
+    Model representing a single item in playlist item.
+    """
     item_id = db.Column(db.Integer, primary_key=True)
     song_id = db.Column(db.Integer, db.ForeignKey("song.song_id"))
     playlist_id = db.Column(db.Integer, db.ForeignKey("playlist.playlist_id"))
@@ -158,6 +197,9 @@ class PlaylistItem(db.Model):
     playlist = db.relationship("Playlist", back_populates="playlist_item")
 
 class Song(db.Model):
+    """
+    Model representing a song.
+    """
     song_id = db.Column(db.Integer, primary_key=True)
     song_name = db.Column(db.String(64), nullable=False)
     song_artist = db.Column(db.String(64), nullable=False)
@@ -168,6 +210,9 @@ class Song(db.Model):
 
     @staticmethod
     def json_schema():
+        """
+        Defines the JSON schema for song data.
+        """
         schema = {
             "type": "object",
             "required": ["song_name", "song_artist", "song_genre", "song_duration"]
@@ -189,21 +234,30 @@ class Song(db.Model):
             "description": "Duration of the song",
             "type": "number"
         }
-        return schema 
+        return schema
 
 class ApiKey(db.Model):
+    """
+    Model representing an API key.
+    """
     id = db.Column(db.Integer, primary_key=True)
     key = db.Column(db.String(32), nullable=False, unique=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
     admin =  db.Column(db.Boolean, default=False)
-    
+
     user = db.relationship("User", back_populates="api_key", uselist=False)
-    
+
     @staticmethod
     def key_hash(key):
+        """
+        Hashes the provided API key.
+        """
         return hashlib.sha256(key.encode()).digest()
-    
+
 @click.command("init-db")
 @with_appcontext
 def init_db_command():
+    """
+    Command to initialize the database.
+    """
     db.create_all()
