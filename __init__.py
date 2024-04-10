@@ -1,6 +1,6 @@
 import os
 import yaml
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, render_template, request
 from flask_restful import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
 import sqlalchemy
@@ -58,6 +58,27 @@ from flasgger import Swagger
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
+    
+    @app.route('/playlist_link_relation')
+    def playlist_link_relation():
+        return render_template('playlist_link_relation.html')
+
+    @app.route('/song_link_relation')
+    def song_link_relation():
+        return render_template('song_link_relation.html')
+
+    @app.route('/user_link_relation')
+    def user_link_relation():
+        return render_template('user_link_relation.html')
+    
+    @app.route('/workout_link_relation')
+    def workout_link_relation():
+        return render_template('workout_link_relation.html')
+    
+    @app.route('/workout_plan_link_relation')
+    def workout_plan_link_relation():
+        return render_template('workout_plan_link_relation.html')
+    
     app.config.from_mapping(
         SQLALCHEMY_DATABASE_BASE_URI="mysql+mysqldb://admin:pwpdb7788@workoutplaylists.cpcoaea0i7dq.us-east-1.rds.amazonaws.com",
         SQLALCHEMY_DATABASE_URI="mysql+mysqldb://admin:pwpdb7788@workoutplaylists.cpcoaea0i7dq.us-east-1.rds.amazonaws.com/workout_playlists",

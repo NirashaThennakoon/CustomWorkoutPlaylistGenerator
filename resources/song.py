@@ -121,7 +121,7 @@ class SongBuilder(MasonBuilder):
 MASON = "application/vnd.mason+json"
 ERROR_PROFILE = "/profiles/error/"
 SONG_PROFILE = "/profiles/song/"  
-LINK_RELATION = "http://127.0.0.1:5000/api/link-relations/"
+LINK_RELATION = "/song_link_relation"
 
 def create_error_response(status_code, title, message=None):
     body = SongBuilder()

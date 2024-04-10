@@ -113,7 +113,7 @@ class PlaylistBuilder(MasonBuilder):
 MASON = "application/vnd.mason+json"
 ERROR_PROFILE = "/profiles/error/"
 PLAYLIST_PROFILE = "/profiles/playlist/"  
-LINK_RELATION = "http://127.0.0.1:5000/api/link-relations/"
+LINK_RELATION = "/playlist_link_relation"
 
 def create_error_response(status_code, title, message=None):
     body = PlaylistBuilder()

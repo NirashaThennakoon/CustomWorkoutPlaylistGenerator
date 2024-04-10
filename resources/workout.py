@@ -86,12 +86,12 @@ class WorkoutBuilder(MasonBuilder):
             title="List All Workouts"
         )
 
-    def add_control_get_workout(self, workout_id):
+    def add_control_get_workout_plans(self, workout_id):
         self.add_control(
             "custWorkoutPlaylistGen:up",
             href=f"/api/workoutItem/{workout_id}",
             method="GET",
-            title="Get workouts for the workout plan"
+            title="Get workout plans for the workout"
         )
         
     def add_control_get_workout(self, workout_id):
@@ -123,7 +123,7 @@ class WorkoutBuilder(MasonBuilder):
 MASON = "application/vnd.mason+json"
 ERROR_PROFILE = "/profiles/error/"
 WORKOUT_PROFILE = "/profiles/workout/"  
-LINK_RELATION = "http://127.0.0.1:5000/api/link-relations/"
+LINK_RELATION = "/workout_link_relation"
 
 def create_error_response(status_code, title, message=None):
     body = WorkoutBuilder()
@@ -154,6 +154,7 @@ class WorkoutResource(Resource):
         workout_builder = WorkoutBuilder()
         workout_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
         workout_builder.add_control_get_workout_collection()
+        workout_builder.add_control_get_workout_plans(workout.workout_id)
         workout_builder.add_control_get_workout(workout.workout_id)
         workout_builder.add_control_edit_workout(workout.workout_id)
         workout_builder.add_control_delete_workout(workout.workout_id)
