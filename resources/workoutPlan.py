@@ -194,11 +194,6 @@ class WorkoutPlanResource(Resource):
             return create_error_response(403, "Unauthorized access")
 
         data = request.json
-        if not data:
-            return create_error_response(400, "No input data provided")
-        
-        if not workoutPlan:
-            return create_error_response(404, "Workout plan not found")
         
         try:
             validate(request.json, WorkoutPlan.json_schema(), format_checker=FormatChecker())
@@ -271,13 +266,7 @@ class WorkoutPlanCreator(Resource):
 
         totalDuration = 0
         
-        if not 'plan_name' in data:
-            return create_error_response(400, "Plan name not found")
-        
         plan_name = data["plan_name"]
-        
-        if not 'workout_ids' in data:
-            return create_error_response(400, "Workout ids not found")
         
         workout_ids = data.get('workout_ids', [])
 

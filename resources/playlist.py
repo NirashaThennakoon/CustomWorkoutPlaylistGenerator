@@ -161,6 +161,7 @@ class PlaylistResource(Resource):
 
         if playlist:
             playlist_dict = {
+            "playlist_name": playlist.playlist_name,
             "playlist_id": playlist.playlist_id,
             "playlist_duration": playlist.playlist_duration,
             "songs_list": songs_list
