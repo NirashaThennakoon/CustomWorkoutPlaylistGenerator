@@ -1,0 +1,860 @@
+swagger: '2.0'
+info:
+  title: Sample API
+  description: API description in Markdown.
+  version: "1.0.0"
+servers:
+  - url: http://localhost:5000/api/v1
+paths:
+  /api/workout/{workout_id}:
+    get:
+      tags:
+        - Workout
+      summary: Get a single workout by ID
+      parameters:
+        - in: path
+          name: workout_id
+          required: true
+          schema:
+            type: integer
+          description: Unique identifier of the workout
+      responses:
+        200:
+          description: A workout object
+          schema:
+            $ref: '#/definitions/Workout'
+        400:
+          description: Invalid input data
+        404:
+          description: Workout not found
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+    put:
+      tags:
+        - Workout
+      summary: Update a workout
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: workout_id
+          required: true
+          type: integer
+          description: Unique identifier of the workout to be updated
+        - in: body
+          name: workout
+          description: Workout data to be updated
+          required: true
+          schema:
+            $ref: '#/definitions/Workout'
+      responses:
+        200:
+          description: Workout updated successfully
+          schema:
+            $ref: '#/definitions/Workout'
+        400:
+          description: No input data provided or invalid input data
+        403:
+          description: Unauthorized access
+        404:
+          description: Workout not found
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+    delete:
+      tags:
+        - Workout
+      summary: Delete a workout
+      parameters:
+        - in: path
+          name: workout_id
+          required: true
+          schema:
+            type: integer
+          description: Unique identifier of the workout to be deleted
+      responses:
+        200:
+          description: Workout deleted successfully
+          schema:
+            $ref: '#/definitions/Workout'
+        403:
+          description: Unauthorized access
+        404:
+          description: Workout not found
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+  /api/workout:
+    get:
+      tags:
+        - Workouts Collection
+      summary: Get all workouts
+      responses:
+        200:
+          description: An array of workout objects
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Workout'
+        400:
+          description: Invalid input data
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+    post:
+      tags:
+        - Workouts Collection
+      summary: Add a new workout
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: workout
+          description: Workout object that needs to be added to the store
+          required: true
+          schema:
+            $ref: '#/definitions/Workout'
+      responses:
+        201:
+          description: Workout added successfully
+          schema:
+            $ref: '#/definitions/Workout'
+        400:
+          description: Invalid input data
+        403:
+          description: Unauthorized access
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+  /api/workoutPlan:
+    post:
+      tags:
+        - Create Workout Plan
+      summary: Add a new workout plan
+      description: Creates a new workout plan with a specified name and list of workout IDs.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: workoutPlan
+          description: Workout plan data that needs to be added
+          required: true
+          schema:
+            $ref: '#/definitions/AddWorkoutPlan'
+      responses:
+        201:
+          description: Workout plan created successfully
+          schema:
+            $ref: '#/definitions/AddWorkoutPlan'
+        400:
+          description: Invalid input data
+        403:
+          description: Unauthorized access
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+  /api/workoutPlan/{workout_plan_id}:
+    get:
+      tags:
+        - Workout Plan
+      summary: Get a workout plan by ID
+      description: Retrieves details of a specific workout plan.
+      operationId: getWorkoutPlanById
+      parameters:
+        - name: workout_plan_id
+          in: path
+          required: true
+          type: integer
+          description: Unique identifier of the workout plan
+      responses:
+        200:
+          description: A workout plan object
+          schema:
+            $ref: '#/definitions/WorkoutPlan'
+        400:
+          description: Invalid input data
+        404:
+          description: Workout plan not found
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+    put:
+      tags:
+        - Workout Plan
+      summary: Update a workout plan
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: workout_plan_id
+          in: path
+          required: true
+          type: integer
+          description: Unique identifier of the workout plan to be updated
+        - in: body
+          name: workoutPlan
+          description: Workout plan data to be updated
+          required: true
+          schema:
+            $ref: '#/definitions/WorkoutPlan'
+      responses:
+        200:
+          description: Workout plan updated successfully
+          schema:
+            $ref: '#/definitions/WorkoutPlan'
+        400:
+          description: No input data provided or invalid input data
+        403:
+          description: Unauthorized access
+        404:
+          description: Workout plan not found
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+    delete:
+      tags:
+        - Workout Plan
+      summary: Delete a workout plan
+      description: Deletes an existing workout plan.
+      operationId: deleteWorkoutPlan
+      parameters:
+        - name: workout_plan_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Unique identifier of the workout plan to be deleted
+      responses:
+        200:
+          description: Workout plan deleted successfully
+          schema:
+            $ref: '#/definitions/WorkoutPlan'
+        404:
+          description: Workout plan not found
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+  /api/song/{song_id}:
+    get:
+      tags:
+        - Song
+      summary: Get a single song by ID
+      parameters:
+        - in: path
+          name: song_id
+          required: true
+          schema:
+            type: integer
+          description: Unique identifier of the song
+      responses:
+        200:
+          description: A song object
+          schema:
+            $ref: '#/definitions/Song'
+        400:
+          description: Invalid input data
+        404:
+          description: Song not found
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+    put:
+      tags:
+        - Song
+      summary: Update a song
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: song_id
+          required: true
+          type: integer
+          description: Unique identifier of the song to be updated
+        - in: body
+          name: song
+          description: Song data to be updated
+          required: true
+          schema:
+            $ref: '#/definitions/Song'
+      responses:
+        200:
+          description: Song updated successfully
+          schema:
+            $ref: '#/definitions/Song'
+        400:
+          description: No input data provided or invalid input data
+        403:
+          description: Unauthorized access
+        404:
+          description: Song not found
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+    delete:
+      tags:
+        - Song
+      summary: Delete a song
+      parameters:
+        - in: path
+          name: song_id
+          required: true
+          schema:
+            type: integer
+          description: Unique identifier of the song to be deleted
+      responses:
+        200:
+          description: Song deleted successfully
+          schema:
+            $ref: '#/definitions/Song'
+        403:
+          description: Unauthorized access
+        404:
+          description: Song not found
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+  /api/song:
+    get:
+      tags:
+        - Songs Collection
+      summary: Get all songs
+      responses:
+        200:
+          description: An array of song objects
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Song'
+        400:
+          description: Invalid input data
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+    post:
+      tags:
+        - Songs Collection
+      summary: Add a new song
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: song
+          description: Song object that needs to be added to the store
+          required: true
+          schema:
+            $ref: '#/definitions/Song'
+      responses:
+        201:
+          description: Song added successfully
+          schema:
+            $ref: '#/definitions/Song'
+        400:
+          description: Invalid input data
+        403:
+          description: Unauthorized access
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+  /api/playlist/{playlist_id}:
+    get:
+      tags:
+        - Playlist
+      summary: Get a playlist by ID
+      description: Retrieves details of a specific playlist including its songs.
+      parameters:
+        - name: playlist_id
+          in: path
+          required: true
+          type: integer
+          description: Unique identifier of the playlist
+      responses:
+        200:
+          description: A playlist object with songs
+          schema:
+            $ref: '#/definitions/Playlist'
+        404:
+          description: Playlist not found
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+    put:
+      tags:
+        - Playlist
+      summary: Update a playlist
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: playlist_id
+          in: path
+          required: true
+          type: integer
+          description: Unique identifier of the playlist to be updated
+        - in: body
+          name: playlistUpdate
+          description: Playlist data to be updated
+          required: true
+          schema:
+            $ref: '#/definitions/Playlist'
+      responses:
+        200:
+          description: Playlist updated successfully
+          schema:
+            $ref: '#/definitions/Playlist'
+        400:
+          description: No input data provided or invalid input data
+        403:
+          description: Unauthorized access
+        404:
+          description: Playlist not found
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+    delete:
+      tags:
+        - Playlist
+      summary: Delete a playlist
+      description: Deletes an existing playlist and its associated items.
+      parameters:
+        - name: playlist_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Unique identifier of the playlist to be deleted
+      responses:
+        200:
+          description: Playlist deleted successfully
+          schema:
+            $ref: '#/definitions/Playlist'
+        404:
+          description: Playlist not found
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+  /api/playlist:
+    post:
+      tags:
+        - Create Playlist
+      summary: Create a new playlist
+      description: Creates a new playlist based on provided workout IDs, with a specific duration and name. 
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Playlist creation data
+          required: true
+          schema:
+            $ref: '#/definitions/AddPlayList'
+      responses:
+        201:
+          description: Playlist created successfully
+          schema:
+            $ref: '#/definitions/AddPlayList'
+        400:
+          description: Invalid input data
+        403:
+          description: Unauthorized access
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+  /api/user:
+    post:
+      tags:
+        - User Registration
+      summary: Register a new user
+      description: Creates a new user account with the provided details.
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: User registration data
+          required: true
+          schema:
+            $ref: '#/definitions/UserRegister'
+      responses:
+        201:
+          description: User registered successfully
+          schema:
+            $ref: '#/definitions/UserRegister'
+        400:
+          description: Invalid input data for user registration or email already exists
+        500:
+          description: Failed to register user or generate API key
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+  /api/user/{user_id}:
+    post:
+      tags:
+        - User Login
+      summary: User login
+      description: Authenticates a user and provides an access token upon successful authentication.
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: UserLogin
+          description: User login credentials
+          required: true
+          schema:
+            $ref: '#/definitions/UserLogin'
+      responses:
+        201:
+          description: Login successful
+          schema:
+            $ref: '#/definitions/UserLogin'
+        400:
+          description: Invalid input data for user login
+        401:
+          description: Invalid password
+        404:
+          description: No such user in the system
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+    get:
+      tags:
+        - User
+      summary: Get user details
+      description: Retrieves details of a specific user by user ID.
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          type: integer
+          description: Unique identifier of the user
+      responses:
+        200:
+          description: User details retrieved successfully
+          schema:
+            $ref: '#/definitions/User'
+        400:
+          description: Invalid input data
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+    delete:
+      tags:
+        - User
+      summary: Delete a user
+      description: Deletes a specific user by user ID. Requires admin privileges.
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          type: integer
+          description: Unique identifier of the user to be deleted
+      responses:
+        200:
+          description: User deleted successfully
+          schema:
+            $ref: '#/definitions/User'
+        403:
+          description: Unauthorized access
+        404:
+          description: User not found
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+    put:
+      tags:
+        - User
+      summary: Update a user
+      description: Updates details of a specific user by user ID. Requires admin privileges.
+      consumes:
+        - application/json
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          type: integer
+          description: Unique identifier of the user to be updated
+        - in: body
+          name: user
+          description: User data to be updated
+          required: true
+          schema:
+            $ref: '#/definitions/User'
+      responses:
+        200:
+          description: User updated successfully
+          schema:
+            $ref: '#/definitions/User'
+        400:
+          description: No input data provided or invalid input data
+        403:
+          description: Unauthorized access
+        404:
+          description: User not found
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+  /api/user/update_api_key/{user_id}:
+    put:
+      tags:
+        - Generate API Key
+      summary: Update a user's API key
+      description: Generates a new API key for the specified user and updates the existing one, using the Mason response format.
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          type: integer
+          description: Unique identifier of the user whose API key needs to be updated.
+      responses:
+        200:
+          description: API key updated successfully. 
+        404:
+          description: User not found or API key not found for the user.
+        500:
+          description: Failed to update API key. 
+      security:
+        - BearerAuth: []
+        - X-API-Key: []
+securityDefinitions:
+  BearerAuth:
+    type: apiKey
+    in: header
+    name: Authorization
+    description: Enter your bearer token in the format **Bearer <token>**
+  X-API-Key:
+    type: apiKey
+    in: header
+    name: X-API-Key
+    description: "Enter your API key in the X-API-Key header"
+definitions:
+  Workout:
+    type: object
+    required:
+      - workout_id
+      - workout_name
+      - duration
+      - workout_intensity
+      - equipment
+      - workout_type
+    properties:
+      workout_id:
+        type: integer
+        description: Unique identifier for the workout
+        example: 1
+      workout_name:
+        type: string
+        description: Name of the workout
+        example: "Cardio Blast"
+      duration:
+        type: float
+        description: Duration of the workout in minutes
+        example: 30.0
+      workout_intensity:
+        type: string
+        description: Intensity level of the workout (e.g., low, medium, high)
+        example: "high"
+      equipment:
+        type: string
+        description: Equipment required for the workout (e.g., treadmill, none)
+        example: "treadmill"
+      workout_type:
+        type: string
+        description: Type of the workout (e.g., Cardio, Strength)
+        example: "Cardio"
+  WorkoutPlan:
+    type: object
+    required:
+        - workout_plan_id
+        - plan_name
+        - user_id
+        - duration
+    properties:
+      plan_name:
+        type: string
+        description: Name of the workout plan
+        example: "Sunday plan"
+      user_id:
+        type: integer
+        description: ID of the user
+        example: 26
+      duration:
+        type: float
+        description: Total duration of the workout plan
+        example: 10
+      playlist_id:
+        description: ID of the playlist
+        type: integer
+        example: 4
+  # AddWorkoutPlan:
+  #   type: object
+  #   required:
+  #     - workout_ids
+  #     - plan_name
+  #   properties:
+  #     workout_ids:
+  #       type: array
+  #       description: List of IDs of workouts included in the plan.
+  #       example: [5,6]
+  #     plan_name:
+  #       type: string
+  #       description: Name of the workout plan.  
+  #       example: "Summer Night Plan"
+  Song:
+    type: object
+    required:
+      - song_id
+      - song_name
+      - song_artist
+      - song_genre
+      - song_duration
+    properties:
+      song_id:
+        type: integer
+        description: Unique identifier for the song
+        example: 1
+      song_name:
+        type: string
+        description: Name of the song
+        example: "Summer Nights"
+      song_artist:
+        type: string
+        description: Artist of the song
+        example: "John Doe"
+      song_genre:
+        type: string
+        description: Genre of the song
+        example: "Pop"
+      song_duration:
+        type: float
+        description: Duration of the song in minutes
+        example: 3.5
+  Playlist:
+    type: object
+    properties:
+      playlist_id:
+        type: integer
+        description: ID of the playlist
+        example: 6
+      playlist_duration:
+        type: float
+        description: Total duration of the playlist
+        example: 12.8
+      playlist_name:
+        type: string
+        description: Name of the playlist
+        example: "Summer Nights Playlist"
+      songs_list:
+        type: array
+        items:
+          $ref: '#/definitions/Song'
+  User:
+    type: object
+    required: 
+      - email
+      - password
+      - height
+      - weight
+      - user_type
+    properties:
+      email:
+        type: string
+        format: email
+        description: The user's email address.
+        example: "user@example.com"
+      password:
+        type: string
+        format: password
+        description: The user's password.
+        example: "Welcome@123"
+      height:
+        type: float
+        description: The user's height in centimeters.
+        example: 1.75
+      weight:
+        type: float
+        description: The user's weight in kilograms.
+        example: 75.0
+      user_type:
+        type: string
+        enum: [admin, user]
+        description: The type of user (admin or regular user).
+        example: "admin"
+  # AddPlayList:
+  #   type: object
+  #   required:
+  #     - workout_ids
+  #     - playlist_duration
+  #     - playlist_name
+  #   properties:
+  #     workout_ids:
+  #       type: array
+  #       description: A list of workout IDs to base the playlist on.
+  #       example: [5,6]
+  #     playlist_duration:
+  #       type: float
+  #       description: Total duration of the playlist.
+  #       example: 11.2
+  #     playlist_name:
+  #       type: string
+  #       description: The name of the playlist to be created.
+  #       example: "Monday plan Playlist"
+  # UserRegister:
+  #   type: object
+  #   required: 
+  #     - email
+  #     - password
+  #     - height
+  #     - weight
+  #     - user_type
+  #   properties:
+  #     email:
+  #       type: string
+  #       format: email
+  #       description: The user's email address.
+  #       example: "user@example.com"
+  #     password:
+  #       type: string
+  #       format: password
+  #       description: The user's password.
+  #       example: "Welcome@123"
+  #     height:
+  #       type: float
+  #       description: The user's height in centimeters.
+  #       example: 1.75
+  #     weight:
+  #       type: float
+  #       description: The user's weight in kilograms.
+  #       example: 75.0
+  #     user_type:
+  #       type: string
+  #       enum: [admin, user]
+  #       description: The type of user (admin or regular user).
+  #       example: "admin"
+  # UserLogin:
+  #   type: object
+  #   required:
+  #     - email
+  #     - password
+  #   properties:
+  #     email:
+  #       type: string
+  #       format: email
+  #       description: The user's email address.
+  #       example: "user@example.com"
+  #     password:
+  #       type: string
+  #       format: password
+  #       description: The user's password.
+  #       example: "Welcome@123" 

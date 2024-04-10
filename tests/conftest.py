@@ -6,16 +6,19 @@ import datetime
 import random
 import uuid
 import pytest
-from flask.testing import FlaskClient 
+from flask.testing import FlaskClient
 from werkzeug.datastructures import Headers
 from extensions import db
 from data_models.models import (
-    Workout, Playlist, Song, WorkoutPlan, User, 
+    Workout, Playlist, Song, WorkoutPlan, User,
     ApiKey, WorkoutPlanItem, PlaylistItem
 )
-from .. import create_app 
+from .. import create_app
 
 def generate_api_key():
+    """
+        Generates a random API key using UUID version 4.
+    """
     return str(uuid.uuid4())
 
 TEST_ADMIN_KEY = 'eaecf80e-3b2a-48b8-94c2-d754cf38'
@@ -23,6 +26,9 @@ TEST_USER_KEY = '1baf9207-4e72-4de8-b30b-fbbbbef5'
 
 @pytest.fixture(scope='session')
 def client():
+    """
+        Create a client with test configurations.
+    """
     config = {
         "SQLALCHEMY_DATABASE_URI": (
             "mysql+mysqldb://admin:pwpdb7788@"
@@ -33,29 +39,40 @@ def client():
         "TESTING": True
     }
 
-        
+
     app = create_app(config)
-    
+
     with app.app_context():
         db.drop_all()
         db.create_all()
         _populate_db()
-        
+
     app.test_client_class = AuthHeaderClient
     yield app.test_client()
-    
+
 class AuthHeaderClient(FlaskClient):
-    
+    """
+        Flask test client that automatically includes authentication headers.
+    """
     def open(self, *args, **kwargs):
+        """
+            Opens a request with authentication headers.
+        """
         api_key_headers = Headers({
             'X-API-Key': TEST_ADMIN_KEY
         })
         headers = kwargs.pop('headers', Headers())
         headers.extend(api_key_headers)
         kwargs['headers'] = headers
+
+        # Explicitly enable redirect following
+        kwargs['follow_redirects'] = True
         return super().open(*args, **kwargs)
 
 def _populate_db():
+    """
+    Populate the database with sample data for testing.
+    """
     populate_user_api_key_tables()
     populate_workout_table()
     for i in range(1, 6):
@@ -79,8 +96,8 @@ def _populate_db():
         db.session.add(s)
         db.session.add(p)
         db.session.add(playlist_item)
-    
-        
+
+
     wp1 = WorkoutPlan(
             plan_name="test-workout-plan-1",
             duration=random.random(),
@@ -117,7 +134,7 @@ def _populate_db():
     )
     db.session.add(wp3)
     db.session.add(wp_item3)
-    db.session.commit()   
+    db.session.commit()
 
 def populate_user_api_key_tables():
     """
@@ -164,6 +181,9 @@ def populate_user_api_key_tables():
     db.session.add(api_key3)
 
 def populate_workout_table():
+    """
+    Populate the workout table with sample data for testing.
+    """
     w1 = Workout(
         workout_name="test-workout-1",
         duration=10.36,

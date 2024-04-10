@@ -2,6 +2,7 @@
     This module is to test functionalities of workout resource
 """
 import json
+from jsonschema import validate
 from werkzeug.datastructures import Headers
 
 RESOURCE_URL = '/api/workout'
@@ -15,7 +16,23 @@ def test_get_workout(client):
     assert response.status_code == 200
 
     data = json.loads(response.data)
-    assert len(data) == 1
+    _check_namespace(client, data)
+    _check_control_get_method("custWorkoutPlaylistGen:collection", client, data)
+    _check_control_put_method("custWorkoutPlaylistGen:edit", client, data)
+    _check_control_delete_method("custWorkoutPlaylistGen:delete", client, data)
+    data["workout_id"] == 1
+
+def test_get_workoutItem(client):
+    """
+        test get workout item request
+    """
+    #get workout
+    response = client.get("/api/workoutItem/3")
+    assert response.status_code == 200
+
+    data = json.loads(response.data)
+    data["workout list"] == 1
+
 
 def test_get_workouts(client):
     """
@@ -25,7 +42,8 @@ def test_get_workouts(client):
     response = client.get(RESOURCE_URL)
     assert response.status_code == 200
     data = json.loads(response.data)
-    assert len(data) == 5
+    print(data)
+    assert len(data['workout list']) == 4
 
 def test_post_workout(client):
     """
@@ -51,7 +69,7 @@ def test_post_workout(client):
     resp = client.post(RESOURCE_URL, json=valid)
     assert resp.status_code == 400
     data = json.loads(resp.data)
-    assert data["message"] == "Workout duration must be a float"
+    assert data["@error"]["@message"] == "Workout duration must be a number"
     # remove workout_name field for 400
     valid.pop("workout_name")
     resp = client.post(RESOURCE_URL, json=valid)
@@ -68,10 +86,10 @@ def test_post_workout_with_db_error(client, mocker):
     mock_commit.side_effect = ValueError("Mocked exception")
 
     resp = client.post(RESOURCE_URL, json=valid)
-    assert resp.status_code == 400
+    assert resp.status_code == 500
 
     data = json.loads(resp.data)
-    assert data["message"] == "Mocked exception"
+    assert data["@error"]["@message"] == "Internal Server Error"
 
 def test_put_workout(client):
     """
@@ -81,15 +99,15 @@ def test_put_workout(client):
     invalid_json = _get_invalid_workout_json()
 
     # test with wrong content type
-    resp = client.put(f'{RESOURCE_URL}/1', data="notjson",
+    resp = client.put(f'{RESOURCE_URL}/3', data="notjson",
                        headers=Headers({"Content-Type": "text"}))
     assert resp.status_code in (400, 415)
 
     # test with wrong content type
-    resp = client.put(f'{RESOURCE_URL}/1', json = {})
+    resp = client.put(f'{RESOURCE_URL}/3', json = {})
     assert resp.status_code == 400
     data = json.loads(resp.data)
-    assert data["message"] == "No input data provided"
+    assert data["@error"]["@message"] == "No input data provided"
 
     #test with wrong id
     resp = client.put(f'{RESOURCE_URL}/id', json=valid)
@@ -98,17 +116,17 @@ def test_put_workout(client):
     resp = client.put(f'{RESOURCE_URL}/10000', json=valid)
     assert resp.status_code == 404
     # test with valid
-    resp = client.put(f'{RESOURCE_URL}/1', json=valid)
+    resp = client.put(f'{RESOURCE_URL}/3', json=valid)
     assert resp.status_code == 200
     data = json.loads(resp.data)
     assert data["message"] == "Workout updated successfully"
     # remove field
     valid.pop("workout_name")
-    resp = client.put(f'{RESOURCE_URL}/1', json=valid)
+    resp = client.put(f'{RESOURCE_URL}/3', json=valid)
     assert resp.status_code == 400
 
     #invalid intensity
-    resp = client.put(f'{RESOURCE_URL}/1', json=invalid_json)
+    resp = client.put(f'{RESOURCE_URL}/3', json=invalid_json)
     assert resp.status_code == 400
     data = json.loads(resp.data)
     assert data["message"] == "Invalid workout intensity"
@@ -122,11 +140,11 @@ def test_put_workout_with_db_error(client, mocker):
     # Make commit raise an exception
     mock_commit.side_effect = ValueError("Mocked exception")
 
-    resp = client.put(f'{RESOURCE_URL}/1', json=valid)
+    resp = client.put(f'{RESOURCE_URL}/3', json=valid)
     assert resp.status_code == 400
 
     data = json.loads(resp.data)
-    assert data["message"] == "Invalid input data: Mocked exception"
+    assert data["@error"]["@message"] == "Invalid input data"
 
 def test_delete_workout(client):
     """
@@ -169,3 +187,83 @@ def _get_invalid_workout_json():
         "equipment": "Dumbbells",
         "workout_type": "Strength"
     }
+
+def _check_namespace(client, response):
+    """
+    Checks that the "custWorkoutPlaylistGen" namespace is found from the response body, and
+    that its "name" attribute is a URL that can be accessed.
+    """
+
+    ns_href = response["@namespaces"]["custWorkoutPlaylistGen"]["name"]
+    print(ns_href)
+    resp = client.get(ns_href)
+    assert resp.status_code == 200
+
+def _check_control_get_method(ctrl, client, obj):
+    """
+    Checks a GET type control from a JSON object be it root document or an item
+    in a collection. Also checks that the URL of the control can be accessed.
+    """
+
+    href = obj["@controls"][ctrl]["href"]
+    resp = client.get(href)
+    print(href)
+    assert resp.status_code == 200
+
+def _check_control_delete_method(ctrl, client, obj):
+    """
+    Checks a DELETE type control from a JSON object be it root document or an
+    item in a collection. Checks the contrl's method in addition to its "href".
+    Also checks that using the control results in the correct status code of 204.
+    """
+
+    href = obj["@controls"][ctrl]["href"]
+    method = obj["@controls"][ctrl]["method"].lower()
+    assert method == "delete"
+    resp = client.delete(href)
+    assert resp.status_code == 200
+
+def _check_control_put_method(ctrl, client, obj):
+    """
+    Checks a PUT type control from a JSON object be it root document or an item
+    in a collection. In addition to checking the "href" attribute, also checks
+    that method, encoding and schema can be found from the control. Also
+    validates a valid sensor against the schema of the control to ensure that
+    they match. Finally checks that using the control results in the correct
+    status code of 204.
+    """
+
+    ctrl_obj = obj["@controls"][ctrl]
+    href = ctrl_obj["href"]
+    method = ctrl_obj["method"].lower()
+    encoding = ctrl_obj["encoding"].lower()
+    schema = ctrl_obj["schema"]
+    assert method == "put"
+    assert encoding == "json"
+    body = _get_workout_json()
+    body["workout_name"] = obj["workout_name"]
+    validate(body, schema)
+    resp = client.put(href, json=body)
+    assert resp.status_code == 200
+
+def _check_control_post_method(ctrl, client, obj):
+    """
+    Checks a POST type control from a JSON object be it root document or an item
+    in a collection. In addition to checking the "href" attribute, also checks
+    that method, encoding and schema can be found from the control. Also
+    validates a valid sensor against the schema of the control to ensure that
+    they match. Finally checks that using the control results in the correct
+    status code of 201.
+    """
+
+    ctrl_obj = obj["@controls"][ctrl]
+    href = ctrl_obj["href"]
+    method = ctrl_obj["method"].lower()
+    encoding = ctrl_obj["encoding"].lower()
+    schema = ctrl_obj["schema"]
+    assert method == "post"
+    assert encoding == "json"
+    body = _get_workout_json()
+    validate(body, schema)
+    resp = client.post(href, json=body)
+    assert resp.status_code == 201
