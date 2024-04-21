@@ -195,39 +195,48 @@ class UserRegistration(Resource):
 
         return Response(json.dumps(response_builder), 201, mimetype=MASON)
 
-# class UserLogin(Resource):
-#     """
-#         This resource includes the user login POST endpoint.
-#     """
-#     def post(self):
-#         """
-#             This method authenticates a user based on the provided email and password.
+# TODO need to check email validation
+class UserLogin(Resource):
+    """
+        This resource includes the user login POST endpoint.
+    """
+    def post(self, email):
+        """
+            This method authenticates a user based on the provided email and password.
 
-#             Returns:
-#                 A tuple containing a dictionary with a message indicating the
-#                 success of the operation, an access token for the authenticated user,
-#                 and an HTTP status code. If the operation is successful,
-#                 the status code is 200.
-#         """
-#         data = request.json
-#         if not data or not all(key in data for key in ['email', 'password']):
-#             return {"message": "Invalid input data for user login"}, 400
+            Returns:
+                A tuple containing a dictionary with a message indicating the
+                success of the operation, an access token for the authenticated user,
+                and an HTTP status code. If the operation is successful,
+                the status code is 200.
+        """
+        data = request.json
+        if not email or not data or 'password' not in data:
+            return create_error_response(400, "Invalid input data for user login")
 
-#         user_schema = User.json_schema()
-#         validate_request(data, user_schema)
+        user_schema = User.json_schema()
+        validate_request(data, user_schema)
 
-#         email = data['email']
-#         password = data['password']
+        password = data['password']
 
-#         user = User.query.filter_by(email=email).first()
-#         if not user:
-#             return {"message": "No such user in the system"}, 404
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            return create_error_response(404, "No such user in the system")
 
-#         if not user.verify_password(password):
-#             return {"message": "Invalid password"}, 401
+        if not user.verify_password(password):
+            return create_error_response(401, "Invalid password")
 
-#         access_token = create_access_token(identity=user.id, expires_delta=timedelta(days=1))
-#         return {"message": "Login successful", "access_token": access_token}, 200
+        access_token = create_access_token(identity=user.id, expires_delta=timedelta(days=1))
+        
+        user_builder = UserBuilder()
+        user_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+        user_builder.add_control_edit_user(user.id)
+        user_builder.add_control_delete_user(user.id)
+        user_builder.add_control("profile", href=USER_PROFILE)
+        user_builder["message"] = "Login successful"
+        user_builder["access_token"] = access_token
+
+        return Response(json.dumps(user_builder), status=200, mimetype=MASON)
 
 class UserResource(Resource):
     """
@@ -335,44 +344,44 @@ class UserResource(Resource):
 
         return Response(json.dumps(user_builder), mimetype=MASON)
 
-    def post(self, user):
-        """
-            This method authenticates a user based on the provided email and password.
+    # def post(self, user):
+    #     """
+    #         This method authenticates a user based on the provided email and password.
 
-            Returns:
-                A tuple containing a dictionary with a message indicating the
-                success of the operation, an access token for the authenticated user,
-                and an HTTP status code. If the operation is successful,
-                the status code is 200.
-        """
-        data = request.json
-        if not data or not all(key in data for key in ['email', 'password']):
-            return create_error_response(400, "Invalid input data for user login")
+    #         Returns:
+    #             A tuple containing a dictionary with a message indicating the
+    #             success of the operation, an access token for the authenticated user,
+    #             and an HTTP status code. If the operation is successful,
+    #             the status code is 200.
+    #     """
+    #     data = request.json
+    #     if not data or not all(key in data for key in ['email', 'password']):
+    #         return create_error_response(400, "Invalid input data for user login")
 
-        user_schema = User.json_schema()
-        validate_request(data, user_schema)
+    #     user_schema = User.json_schema()
+    #     validate_request(data, user_schema)
 
-        email = data['email']
-        password = data['password']
+    #     email = data['email']
+    #     password = data['password']
 
-        user = User.query.filter_by(email=email).first()
-        if not user:
-            return create_error_response(404, "No such user in the system")
+    #     user = User.query.filter_by(email=email).first()
+    #     if not user:
+    #         return create_error_response(404, "No such user in the system")
 
-        if not user.verify_password(password):
-            return create_error_response(401, "Invalid password")
+    #     if not user.verify_password(password):
+    #         return create_error_response(401, "Invalid password")
 
-        access_token = create_access_token(identity=user.id, expires_delta=timedelta(days=1))
+    #     access_token = create_access_token(identity=user.id, expires_delta=timedelta(days=1))
 
-        user_builder = UserBuilder()
-        user_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
-        user_builder.add_control_edit_user(user.id)
-        user_builder.add_control_delete_user(user.id)
-        user_builder.add_control("profile", href=USER_PROFILE)
-        user_builder["message"] = "Login successful"
-        user_builder["access_token"] = access_token
+    #     user_builder = UserBuilder()
+    #     user_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+    #     user_builder.add_control_edit_user(user.id)
+    #     user_builder.add_control_delete_user(user.id)
+    #     user_builder.add_control("profile", href=USER_PROFILE)
+    #     user_builder["message"] = "Login successful"
+    #     user_builder["access_token"] = access_token
 
-        return Response(json.dumps(user_builder), status=200, mimetype=MASON)
+    #     return Response(json.dumps(user_builder), status=200, mimetype=MASON)
 
 class ApiKeyResource(Resource):
     """

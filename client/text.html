@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <h2>Login</h2>
+    <form id="loginForm">
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email" required><br><br>
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password" required><br><br>
+        <button type="submit">Login</button>
+    </form>
+
+    <div id="message"></div>
+
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent the form from submitting normally
+            var formData = new FormData(this); // Create a new FormData object
+            var jsonData = {};
+            formData.forEach(function(value, key) {
+                jsonData[key] = value; // Convert FormData to JSON object
+            });
+
+            // Make a POST request to the server
+            fetch("/api/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(jsonData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Handle successful login
+                document.getElementById("message").innerText = data.message;
+
+                // Add hypermedia links
+                if (data["@controls"]) {
+                    var controls = data["@controls"];
+                    if (controls.profile && controls.profile.href) {
+                        var profileLink = document.createElement("a");
+                        profileLink.href = controls.profile.href;
+                        profileLink.textContent = "View Profile";
+                        document.getElementById("message").appendChild(profileLink);
+                        document.getElementById("message").appendChild(document.createElement("br"));
+                    }
+                }
+            })
+            .catch(error => {
+                // Handle errors
+                console.error('There was a problem with the login:', error);
+                document.getElementById("message").innerText = "Login failed. Please try again.";
+            });
+        });
+    </script>
+</body>
+</html>

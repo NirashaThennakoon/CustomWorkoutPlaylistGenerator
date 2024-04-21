@@ -7,7 +7,7 @@ from resources.workout import WorkoutResource,WorkoutsCollection, WorkoutItemRes
 from resources.workoutPlan import WorkoutPlanResource, WorkoutPlanCreator, WorkoutPlanItemResource
 from resources.song import SongResource, SongsCollection, AllSongsResource
 from resources.playlist import PlaylistResource, PlaylistCreation, PlaylistItemResource
-from resources.user import UserRegistration, UserResource, ApiKeyResource
+from resources.user import UserRegistration, UserResource, ApiKeyResource, UserLogin
 
 api_bp = Blueprint('api', __name__)
 api = Api(api_bp)
@@ -26,4 +26,5 @@ api.add_resource(PlaylistCreation, "/playlist/")
 api.add_resource(PlaylistItemResource, "/playlistItem/<playlist_id>")
 api.add_resource(UserRegistration, "/user")
 api.add_resource(UserResource, "/user/<user:user>")
+api.add_resource(UserLogin, "/user/<string:email>/")
 api.add_resource(ApiKeyResource, "/user/update_api_key/<user:user>")
