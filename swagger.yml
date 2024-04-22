@@ -23,6 +23,65 @@ paths:
           description: A workout object
           schema:
             $ref: '#/definitions/Workout'
+          examples:
+            application/json:
+              "@namespaces":
+                custWorkoutPlaylistGen:
+                  name: "/workout_link_relation"
+              "@controls":
+                collection:
+                  method: GET
+                  title: List All Workouts
+                  href: /api/workout
+                up:
+                  method: GET
+                  title: Get workout plans for the workout
+                  href: /api/workoutItem/38
+                item:
+                  method: GET
+                  title: Get Workout by workout_id
+                  href: /api/workout/38
+                edit:
+                  method: PUT
+                  title: Edit This Workout
+                  encoding: json
+                  schema:
+                    type: object
+                    required:
+                      - workout_name
+                      - duration
+                      - workout_intensity
+                      - equipment
+                      - workout_type
+                    properties:
+                      workout_name:
+                        description: Name of the workout
+                        type: string
+                      duration:
+                        description: Duration of the workout
+                        type: number
+                      workout_intensity:
+                        description: Intensity of the workout
+                        type: string
+                      equipment:
+                        description: Equipment needed for the workout
+                        type: string
+                      workout_type:
+                        description: Type of the workout
+                        type: string
+                  href: /api/workout/38
+                delete:
+                  method: DELETE
+                  title: Delete This Workout
+                  href: /api/workout/38
+                profile:
+                  href: /profile
+              workout_id: 38
+              workout_name: dancing
+              duration: 3.0
+              workout_intensity: mild
+              equipment: threadmill
+              workout_type: Cardio
         400:
           description: Invalid input data
         404:
@@ -54,7 +113,33 @@ paths:
         200:
           description: Workout updated successfully
           schema:
-            $ref: '#/definitions/Workout'
+            type: object
+            properties:
+              "@namespaces":
+                type: object
+                properties:
+                  custWorkoutPlaylistGen:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                example:
+                  custWorkoutPlaylistGen:
+                    name: "/workout_plan_link_relation"
+              "@controls":
+                type: object
+                properties:
+                  profile:
+                    type: object
+                    properties:
+                      href:
+                        type: string
+                example:
+                  profile:
+                    href: "/profile"
+              message:
+                type: string
+                example: "Workout updated successfully"
         400:
           description: No input data provided or invalid input data
         403:
@@ -76,10 +161,36 @@ paths:
             type: integer
           description: Unique identifier of the workout to be deleted
       responses:
-        200:
+        204:
           description: Workout deleted successfully
           schema:
-            $ref: '#/definitions/Workout'
+            type: object
+            properties:
+              "@namespaces":
+                type: object
+                properties:
+                  custWorkoutPlaylistGen:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                example:
+                  custWorkoutPlaylistGen:
+                    name: "/workout_plan_link_relation"
+              "@controls":
+                type: object
+                properties:
+                  profile:
+                    type: object
+                    properties:
+                      href:
+                        type: string
+                example:
+                  profile:
+                    href: "/profile"
+              message:
+                type: string
+                example: "Workout deleted successfully"
         403:
           description: Unauthorized access
         404:
@@ -99,6 +210,82 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Workout'
+          examples:
+            application/json:
+              "@namespaces":
+                custWorkoutPlaylistGen:
+                  name: "/workout_link_relation"
+              "@controls":
+                item:
+                  method: GET
+                  title: Get Workout by workout_id
+                  href: "/api/workout/43"
+                profile:
+                  href: "/profile"
+                self:
+                  title: Self
+                  href: "/api/workout/"
+              workout_list:
+                - workout_id: 1
+                  workout_name: Cardio Blast
+                  duration: 5.0
+                  workout_intensity: slow
+                  equipment: treadmill
+                  workout_type: Cardio
+                - workout_id: 5
+                  workout_name: running
+                  duration: 6.0
+                  workout_intensity: mild
+                  equipment: text
+                  workout_type: text
+                - workout_id: 35
+                  workout_name: walking
+                  duration: 1.5
+                  workout_intensity: mild
+                  equipment: text
+                  workout_type: text
+                - workout_id: 36
+                  workout_name: walking
+                  duration: 1.5
+                  workout_intensity: mild
+                  equipment: text
+                  workout_type: text
+                - workout_id: 37
+                  workout_name: walking
+                  duration: 1.5
+                  workout_intensity: mild
+                  equipment: text
+                  workout_type: text
+                - workout_id: 38
+                  workout_name: dancing
+                  duration: 3.0
+                  workout_intensity: mild
+                  equipment: threadmill
+                  workout_type: Cardio
+                - workout_id: 39
+                  workout_name: walking
+                  duration: 1.5
+                  workout_intensity: mild
+                  equipment: text
+                  workout_type: text
+                - workout_id: 41
+                  workout_name: Roll Ball v2
+                  duration: 6.0
+                  workout_intensity: fast
+                  equipment: Yoga Mat
+                  workout_type: Flexibility
+                - workout_id: 42
+                  workout_name: Roll Ball
+                  duration: 6.0
+                  workout_intensity: fast
+                  equipment: Yoga Mat
+                  workout_type: Flexibility
+                - workout_id: 43
+                  workout_name: Roll Ball
+                  duration: 6.0
+                  workout_intensity: fast
+                  equipment: Yoga Mat
+                  workout_type: Flexibility
         400:
           description: Invalid input data
       security:
@@ -123,7 +310,33 @@ paths:
         201:
           description: Workout added successfully
           schema:
-            $ref: '#/definitions/Workout'
+            type: object
+            properties:
+              "@namespaces":
+                type: object
+                properties:
+                  custWorkoutPlaylistGen:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                example:
+                  custWorkoutPlaylistGen:
+                    name: "/workout_link_relation"
+              "@controls":
+                type: object
+                properties:
+                  profile:
+                    type: object
+                    properties:
+                      href:
+                        type: string
+                example:
+                  profile:
+                    href: "/profile"
+              message:
+                type: string
+                example: "Workout created successfully"
         400:
           description: Invalid input data
         403:
@@ -147,12 +360,50 @@ paths:
           description: Workout plan data that needs to be added
           required: true
           schema:
-            $ref: '#/definitions/AddWorkoutPlan'
+            type: object
+            required:
+              - workout_ids
+              - plan_name
+            properties:
+              workout_ids:
+                type: array
+                description: List of IDs of workouts included in the plan.
+                example: [5,6]
+              plan_name:
+                type: string
+                description: Name of the workout plan.
+                example: "Summer Night Plan"
       responses:
         201:
           description: Workout plan created successfully
           schema:
-            $ref: '#/definitions/AddWorkoutPlan'
+            type: object
+            properties:
+              "@namespaces":
+                type: object
+                properties:
+                  custWorkoutPlaylistGen:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                example:
+                  custWorkoutPlaylistGen:
+                    name: "/workout_plan_link_relation"
+              "@controls":
+                type: object
+                properties:
+                  profile:
+                    type: object
+                    properties:
+                      href:
+                        type: string
+                example:
+                  profile:
+                    href: "/profile"
+              message:
+                type: string
+                example: "Workout plan created successfully"
         400:
           description: Invalid input data
         403:
@@ -204,12 +455,55 @@ paths:
           description: Workout plan data to be updated
           required: true
           schema:
-            $ref: '#/definitions/WorkoutPlan'
+            type: object
+            properties:
+              plan_name:
+                type: string
+                description: Name of the workout plan.
+                example: "Morning Routine"
+              duration:
+                type: integer
+                description: Total duration of the workout plan.
+                example: 12
+              user_id:
+                type: integer
+                description: ID of the user.
+                example: 26
+              playlist_id:
+                type: integer
+                description: ID of the playlist.
+                example: 4
       responses:
         200:
           description: Workout plan updated successfully
           schema:
-            $ref: '#/definitions/WorkoutPlan'
+            type: object
+            properties:
+              "@namespaces":
+                type: object
+                properties:
+                  custWorkoutPlaylistGen:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                example:
+                  custWorkoutPlaylistGen:
+                    name: "/workout_plan_link_relation"
+              "@controls":
+                type: object
+                properties:
+                  profile:
+                    type: object
+                    properties:
+                      href:
+                        type: string
+                example:
+                  profile:
+                    href: "/profile"
+              message:
+                type: string
+                example: "Workout plan updated successfully"
         400:
           description: No input data provided or invalid input data
         403:
@@ -236,7 +530,33 @@ paths:
         200:
           description: Workout plan deleted successfully
           schema:
-            $ref: '#/definitions/WorkoutPlan'
+            type: object
+            properties:
+              "@namespaces":
+                type: object
+                properties:
+                  custWorkoutPlaylistGen:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                example:
+                  custWorkoutPlaylistGen:
+                    name: "/workout_plan_link_relation"
+              "@controls":
+                type: object
+                properties:
+                  profile:
+                    type: object
+                    properties:
+                      href:
+                        type: string
+                example:
+                  profile:
+                    href: "/profile"
+              message:
+                type: string
+                example: "Workout plan deleted successfully"
         404:
           description: Workout plan not found
       security:
@@ -259,6 +579,52 @@ paths:
           description: A song object
           schema:
             $ref: '#/definitions/Song'
+          examples:
+            application/json:
+              "@namespaces":
+                custWorkoutPlaylistGen:
+                  name: "/song_link_relation"
+              "@controls":
+                collection:
+                  method: GET
+                  title: List All Songs
+                  href: /api/song
+                edit:
+                  method: PUT
+                  title: Edit This Song
+                  encoding: json
+                  schema:
+                    type: object
+                    required:
+                      - song_name
+                      - song_artist
+                      - song_genre
+                      - song_duration
+                    properties:
+                      song_name:
+                        description: Name of the song
+                        type: string
+                      song_artist:
+                        description: Artist of the song
+                        type: string
+                      song_genre:
+                        description: Genre of the song
+                        type: string
+                      song_duration:
+                        description: Duration of the song
+                        type: number
+                  href: /api/song/4
+                delete:
+                  method: DELETE
+                  title: Delete This Song
+                  href: /api/song/4
+                profile:
+                  href: /profile
+              song_id: 4
+              song_name: Pop5
+              song_artist: lilMozart
+              song_genre: Pop
+              song_duration: 4.52
         400:
           description: Invalid input data
         404:
@@ -290,7 +656,33 @@ paths:
         200:
           description: Song updated successfully
           schema:
-            $ref: '#/definitions/Song'
+            type: object
+            properties:
+              "@namespaces":
+                type: object
+                properties:
+                  custWorkoutPlaylistGen:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                example:
+                  custWorkoutPlaylistGen:
+                    name: "/song_link_relation"
+              "@controls":
+                type: object
+                properties:
+                  profile:
+                    type: object
+                    properties:
+                      href:
+                        type: string
+                example:
+                  profile:
+                    href: "/profile"
+              message:
+                type: string
+                example: "Song updated successfully"
         400:
           description: No input data provided or invalid input data
         403:
@@ -315,7 +707,33 @@ paths:
         200:
           description: Song deleted successfully
           schema:
-            $ref: '#/definitions/Song'
+            type: object
+            properties:
+              "@namespaces":
+                type: object
+                properties:
+                  custWorkoutPlaylistGen:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                example:
+                  custWorkoutPlaylistGen:
+                    name: "/song_link_relation"
+              "@controls":
+                type: object
+                properties:
+                  profile:
+                    type: object
+                    properties:
+                      href:
+                        type: string
+                example:
+                  profile:
+                    href: "/profile"
+              message:
+                type: string
+                example: "Song deleted successfully"
         403:
           description: Unauthorized access
         404:
@@ -335,6 +753,92 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Song'
+          examples: 
+            application/json:
+              "@namespaces":
+                custWorkoutPlaylistGen:
+                  name: "/song_link_relation"
+              "@controls":
+                item:
+                  method: GET
+                  title: Get Song by song_id
+                  href: "/api/song/17"
+                profile:
+                  href: "/profile"
+                self:
+                  title: Self
+                  href: "/api/song/"
+              song_list:
+                - song_id: 1
+                  song_name: Classic35
+                  song_artist: lilMozart
+                  song_genre: Classical
+                  song_duration: 3.52
+                - song_id: 2
+                  song_name: Pop1
+                  song_artist: lilMozart
+                  song_genre: Pop
+                  song_duration: 3.52
+                - song_id: 3
+                  song_name: Pop2
+                  song_artist: lilMozart
+                  song_genre: Pop
+                  song_duration: 2.52
+                - song_id: 4
+                  song_name: Pop5
+                  song_artist: lilMozart
+                  song_genre: Pop
+                  song_duration: 4.52
+                - song_id: 5
+                  song_name: Indie3000
+                  song_artist: lilMozart
+                  song_genre: Indie
+                  song_duration: 2.52
+                - song_id: 6
+                  song_name: Indie2
+                  song_artist: lilMozart
+                  song_genre: Indie
+                  song_duration: 3.52
+                - song_id: 7
+                  song_name: Classic4
+                  song_artist: lilMozart
+                  song_genre: Classical
+                  song_duration: 3.52
+                - song_id: 8
+                  song_name: Indie45
+                  song_artist: lilMozart
+                  song_genre: Indie
+                  song_duration: 2.52
+                - song_id: 9
+                  song_name: Classic5
+                  song_artist: lilMozart
+                  song_genre: Classical
+                  song_duration: 3.52
+                - song_id: 10
+                  song_name: Classic7
+                  song_artist: lilMozart
+                  song_genre: Classical
+                  song_duration: 3.52
+                - song_id: 12
+                  song_name: kan kaan
+                  song_artist: abcdefsdad
+                  song_genre: pop
+                  song_duration: 5.32
+                - song_id: 13
+                  song_name: Classic9
+                  song_artist: lilMozart
+                  song_genre: R&B
+                  song_duration: 3.52
+                - song_id: 16
+                  song_name: Indie3
+                  song_artist: lilMozart
+                  song_genre: Indie
+                  song_duration: 4.52
+                - song_id: 17
+                  song_name: Indie31
+                  song_artist: lilMozart
+                  song_genre: Indie
+                  song_duration: 4.52
         400:
           description: Invalid input data
       security:
@@ -359,7 +863,33 @@ paths:
         201:
           description: Song added successfully
           schema:
-            $ref: '#/definitions/Song'
+            type: object
+            properties:
+              "@namespaces":
+                type: object
+                properties:
+                  custWorkoutPlaylistGen:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                example:
+                  custWorkoutPlaylistGen:
+                    name: "/song_link_relation"
+              "@controls":
+                type: object
+                properties:
+                  profile:
+                    type: object
+                    properties:
+                      href:
+                        type: string
+                example:
+                  profile:
+                    href: "/profile"
+              message:
+                type: string
+                example: "Song added successfully"
         400:
           description: Invalid input data
         403:
@@ -384,6 +914,58 @@ paths:
           description: A playlist object with songs
           schema:
             $ref: '#/definitions/Playlist'
+          examples: 
+            application/json:
+              "@namespaces":
+                  custWorkoutPlaylistGen:
+                      name: "/playlist_link_relation"
+              "@controls":
+                  item:
+                      method: GET
+                      title: Get songs for the playlist
+                      href: "/api/playlistItem/1"
+                  edit:
+                      method: PUT
+                      title: Edit This Playlist
+                      encoding: json
+                      schema:
+                          type: object
+                          required:
+                              - playlist_name
+                              - playlist_duration
+                          properties:
+                              playlist_name:
+                                  description: Name of the playlist
+                                  type: string
+                              playlist_duration:
+                                  description: Duration of the playlist
+                                  type: number
+                      href: "/api/playlist/1"
+                  delete:
+                      method: DELETE
+                      title: Delete This Playlist
+                      href: "/api/playlist/1"
+                  profile:
+                      href: "/profile"
+              playlist_name: alex2
+              playlist_id: 1
+              playlist_duration: 12.08
+              songs_list:
+                  - song_id: 3
+                    song_name: Pop2
+                    artist: lilMozart
+                    genre: Pop
+                    duration: 2.52
+                  - song_id: 4
+                    song_name: Pop5
+                    artist: lilMozart
+                    genre: Pop
+                    duration: 4.52
+                  - song_id: 5
+                    song_name: Indie3000
+                    artist: lilMozart
+                    genre: Indie
+                    duration: 2.52
         404:
           description: Playlist not found
       security:
@@ -398,22 +980,47 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: playlist_id
-          in: path
-          required: true
-          type: integer
-          description: Unique identifier of the playlist to be updated
         - in: body
           name: playlistUpdate
           description: Playlist data to be updated
           required: true
           schema:
-            $ref: '#/definitions/Playlist'
+            properties:
+              playlist_name:
+                type: string
+                description: Name of the playlist.
+                example: "Summer night plan Playlist"
       responses:
         200:
           description: Playlist updated successfully
           schema:
-            $ref: '#/definitions/Playlist'
+            type: object
+            properties:
+              "@namespaces":
+                type: object
+                properties:
+                  custWorkoutPlaylistGen:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                example:
+                  custWorkoutPlaylistGen:
+                    name: "/playlist_link_relation"
+              "@controls":
+                type: object
+                properties:
+                  profile:
+                    type: object
+                    properties:
+                      href:
+                        type: string
+                example:
+                  profile:
+                    href: "/profile"
+              message:
+                type: string
+                example: "Playlist updated successfully"
         400:
           description: No input data provided or invalid input data
         403:
@@ -439,7 +1046,33 @@ paths:
         200:
           description: Playlist deleted successfully
           schema:
-            $ref: '#/definitions/Playlist'
+            type: object
+            properties:
+              "@namespaces":
+                type: object
+                properties:
+                  custWorkoutPlaylistGen:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                example:
+                  custWorkoutPlaylistGen:
+                    name: "/playlist_link_relation"
+              "@controls":
+                type: object
+                properties:
+                  profile:
+                    type: object
+                    properties:
+                      href:
+                        type: string
+                example:
+                  profile:
+                    href: "/profile"
+              message:
+                type: string
+                example: "Playlist deleted successfully"
         404:
           description: Playlist not found
       security:
@@ -459,12 +1092,38 @@ paths:
           description: Playlist creation data
           required: true
           schema:
-            $ref: '#/definitions/AddPlayList'
+            $ref: '#/definitions/Playlist'
       responses:
         201:
           description: Playlist created successfully
           schema:
-            $ref: '#/definitions/AddPlayList'
+            type: object
+            properties:
+              "@namespaces":
+                type: object
+                properties:
+                  custWorkoutPlaylistGen:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                example:
+                  custWorkoutPlaylistGen:
+                    name: "/playlist_link_relation"
+              "@controls":
+                type: object
+                properties:
+                  profile:
+                    type: object
+                    properties:
+                      href:
+                        type: string
+                example:
+                  profile:
+                    href: "/profile"
+              message:
+                type: string
+                example: "Playlist created successfully"
         400:
           description: Invalid input data
         403:
@@ -486,12 +1145,38 @@ paths:
           description: User registration data
           required: true
           schema:
-            $ref: '#/definitions/UserRegister'
+            $ref: '#/definitions/User'
       responses:
         201:
           description: User registered successfully
           schema:
-            $ref: '#/definitions/UserRegister'
+            type: object
+            properties:
+              "@namespaces":
+                type: object
+                properties:
+                  custWorkoutPlaylistGen:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                example:
+                  custWorkoutPlaylistGen:
+                    name: "/user_link_relation"
+              "@controls":
+                type: object
+                properties:
+                  profile:
+                    type: object
+                    properties:
+                      href:
+                        type: string
+                example:
+                  profile:
+                    href: "/profile"
+              message:
+                type: string
+                example: "User registered successfully"
         400:
           description: Invalid input data for user registration or email already exists
         500:
@@ -499,7 +1184,7 @@ paths:
       security:
         - BearerAuth: []
         - X-API-Key: []
-  /api/user/{user_id}:
+  /api/user/{email}:
     post:
       tags:
         - User Login
@@ -513,12 +1198,54 @@ paths:
           description: User login credentials
           required: true
           schema:
-            $ref: '#/definitions/UserLogin'
+            required:
+              - email
+              - password
+            properties:
+              email:
+                type: string
+                format: email
+                description: The user's email address.
+                example: "abc@example.com"
+              password:
+                type: string
+                format: password
+                description: The user's password.
+                example: "Welcome@123"
       responses:
         201:
           description: Login successful
           schema:
-            $ref: '#/definitions/UserLogin'
+            type: object
+            properties:
+              "@namespaces":
+                type: object
+                properties:
+                  custWorkoutPlaylistGen:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                example:
+                  custWorkoutPlaylistGen:
+                    name: "/user_link_relation"
+              "@controls":
+                type: object
+                properties:
+                  profile:
+                    type: object
+                    properties:
+                      href:
+                        type: string
+                example:
+                  profile:
+                    href: "/profile"
+              message:
+                type: string
+                example: "Login successful"
+              access_token:
+                type: string
+                example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTcxMzc4MDc3MSwianRpIjoiM2NlMDI2MWItNTRlNi00YTliLWE3ODgtNDg3MTQyMDczNzljIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6NDIsIm5iZiI6MTcxMzc4MDc3MSwiY3NyZiI6IjNlNTkzOTA3LTI4ZmUtNDViOC05ZDE2LTQ5ZTAxOThkZDBiYiIsImV4cCI6jTcxMzg2NzE3MX0.OBxYvq1CGRI1tyGUF7IEnuQ9fAgUh6MRGM6eNNr77RE"
         400:
           description: Invalid input data for user login
         401:
@@ -528,6 +1255,8 @@ paths:
       security:
         - BearerAuth: []
         - X-API-Key: []
+
+  /api/user/{user_id}:
     get:
       tags:
         - User
@@ -544,6 +1273,51 @@ paths:
           description: User details retrieved successfully
           schema:
             $ref: '#/definitions/User'
+          examples: 
+            application/json:
+              "@namespaces":
+                  custWorkoutPlaylistGen:
+                      name: "/user_link_relation"
+              "@controls":
+                  custWorkoutPlaylistGen:edit:
+                      method: PUT
+                      title: Edit This User
+                      encoding: json
+                      schema:
+                          type: object
+                          required:
+                              - email
+                              - password
+                              - height
+                              - weight
+                              - user_type
+                          properties:
+                              email:
+                                  description: Users email
+                                  type: string
+                              password:
+                                  description: Users password
+                                  type: string
+                              height:
+                                  description: Users height
+                                  type: number
+                              weight:
+                                  description: Users weight
+                                  type: number
+                              user_type:
+                                  description: Users type
+                                  type: string
+                      href: "/api/users/39"
+                  custWorkoutPlaylistGen:delete:
+                      method: DELETE
+                      title: Delete This User
+                      href: "/api/user/39"
+                  profile:
+                      href: "/profile"
+              email: nirashaT@gmail.com
+              height: 199.0
+              weight: 70.0
+              user_type: admin
         400:
           description: Invalid input data
       security:
@@ -564,7 +1338,33 @@ paths:
         200:
           description: User deleted successfully
           schema:
-            $ref: '#/definitions/User'
+            type: object
+            properties:
+              "@namespaces":
+                type: object
+                properties:
+                  custWorkoutPlaylistGen:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                example:
+                  custWorkoutPlaylistGen:
+                    name: "/user_link_relation"
+              "@controls":
+                type: object
+                properties:
+                  profile:
+                    type: object
+                    properties:
+                      href:
+                        type: string
+                example:
+                  profile:
+                    href: "/profile"
+              message:
+                type: string
+                example: "User deleted successfully"
         403:
           description: Unauthorized access
         404:
@@ -595,7 +1395,33 @@ paths:
         200:
           description: User updated successfully
           schema:
-            $ref: '#/definitions/User'
+            type: object
+            properties:
+              "@namespaces":
+                type: object
+                properties:
+                  custWorkoutPlaylistGen:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                example:
+                  custWorkoutPlaylistGen:
+                    name: "/user_link_relation"
+              "@controls":
+                type: object
+                properties:
+                  profile:
+                    type: object
+                    properties:
+                      href:
+                        type: string
+                example:
+                  profile:
+                    href: "/profile"
+              message:
+                type: string
+                example: "User updated successfully"
         400:
           description: No input data provided or invalid input data
         403:
@@ -620,6 +1446,37 @@ paths:
       responses:
         200:
           description: API key updated successfully. 
+          schema:
+            type: object
+            properties:
+              "@namespaces":
+                type: object
+                properties:
+                  custWorkoutPlaylistGen:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                example:
+                  custWorkoutPlaylistGen:
+                    name: "/user_link_relation"
+              "@controls":
+                type: object
+                properties:
+                  profile:
+                    type: object
+                    properties:
+                      href:
+                        type: string
+                example:
+                  profile:
+                    href: "/profile"
+              message:
+                type: string
+                example: "API key updated successfully"
+              new_api_key:
+                type: string
+                example: "7c9861d3-2ec2-495a-bd33-7f864104bde4"
         404:
           description: User not found or API key not found for the user.
         500:
@@ -642,33 +1499,29 @@ definitions:
   Workout:
     type: object
     required:
-      - workout_id
       - workout_name
-      - duration
       - workout_intensity
       - equipment
+      - duration
       - workout_type
     properties:
-      workout_id:
-        type: integer
-        description: Unique identifier for the workout
-        example: 1
       workout_name:
         type: string
         description: Name of the workout
-        example: "Cardio Blast"
+        example: "dancing"
       duration:
-        type: float
+        type: number
+        format: float
         description: Duration of the workout in minutes
-        example: 30.0
+        example: 3.0
       workout_intensity:
         type: string
         description: Intensity level of the workout (e.g., low, medium, high)
-        example: "high"
+        example: "mild"
       equipment:
         type: string
         description: Equipment required for the workout (e.g., treadmill, none)
-        example: "treadmill"
+        example: "threadmill"
       workout_type:
         type: string
         description: Type of the workout (e.g., Cardio, Strength)
@@ -676,11 +1529,15 @@ definitions:
   WorkoutPlan:
     type: object
     required:
-        - workout_plan_id
-        - plan_name
-        - user_id
-        - duration
+      - workout_plan_id
+      - plan_name
+      - user_id
+      - duration
     properties:
+      workout_plan_id:
+        type: integer
+        description: Unique identifier for the workout plan
+        example: 11
       plan_name:
         type: string
         description: Name of the workout plan
@@ -692,38 +1549,72 @@ definitions:
       duration:
         type: float
         description: Total duration of the workout plan
-        example: 10
+        example: 10.0
       playlist_id:
         description: ID of the playlist
         type: integer
         example: 4
-  # AddWorkoutPlan:
-  #   type: object
-  #   required:
-  #     - workout_ids
-  #     - plan_name
-  #   properties:
-  #     workout_ids:
-  #       type: array
-  #       description: List of IDs of workouts included in the plan.
-  #       example: [5,6]
-  #     plan_name:
-  #       type: string
-  #       description: Name of the workout plan.  
-  #       example: "Summer Night Plan"
+    example: |
+      {
+        "@namespaces": {
+          "custWorkoutPlaylistGen": {
+            "name": "/workout_plan_link_relation"
+          }
+        },
+        "@controls": {
+          "edit": {
+            "method": "PUT",
+            "title": "Edit This Workout Plan",
+            "encoding": "json",
+            "schema": {
+              "type": "object",
+              "required": ["plan_name"],
+              "properties": {
+                "plan_name": {
+                  "description": "Name of the workout plan",
+                  "type": "string"
+                }
+              }
+            },
+            "href": "/api/workoutPlan/11"
+          },
+          "delete": {
+            "method": "DELETE",
+            "title": "Delete This Workout Plan",
+            "href": "/api/workoutPlan/11"
+          },
+          "custWorkoutPlaylistGen:playlist": {
+            "method": "GET",
+            "title": "Get Playlist by ID",
+            "href": "/api/playlist/3"
+          },
+          "author": {
+            "method": "GET",
+            "title": "Get User by ID",
+            "href": "/api/user/26"
+          },
+          "item": {
+            "method": "GET",
+            "title": "Get Workouts for the Plan",
+            "href": "/api/workoutPlanItem/11"
+          },
+          "profile": {
+            "href": "/profile"
+          }
+        },
+        "workout_plan_id": 11,
+        "plan_name": "Sunday plan",
+        "user_id": 26,
+        "duration": 10.0
+      }
   Song:
     type: object
     required:
-      - song_id
       - song_name
       - song_artist
       - song_genre
       - song_duration
     properties:
-      song_id:
-        type: integer
-        description: Unique identifier for the song
-        example: 1
       song_name:
         type: string
         description: Name of the song
@@ -742,23 +1633,18 @@ definitions:
         example: 3.5
   Playlist:
     type: object
+    required: 
+      - playlist_name
+      - workout_ids
     properties:
-      playlist_id:
-        type: integer
-        description: ID of the playlist
-        example: 6
-      playlist_duration:
-        type: float
-        description: Total duration of the playlist
-        example: 12.8
+      workout_ids:
+        type: array
+        description: Workout IDs of the playlist
+        example: [5,6]
       playlist_name:
         type: string
         description: Name of the playlist
         example: "Summer Nights Playlist"
-      songs_list:
-        type: array
-        items:
-          $ref: '#/definitions/Song'
   User:
     type: object
     required: 
@@ -791,70 +1677,3 @@ definitions:
         enum: [admin, user]
         description: The type of user (admin or regular user).
         example: "admin"
-  # AddPlayList:
-  #   type: object
-  #   required:
-  #     - workout_ids
-  #     - playlist_duration
-  #     - playlist_name
-  #   properties:
-  #     workout_ids:
-  #       type: array
-  #       description: A list of workout IDs to base the playlist on.
-  #       example: [5,6]
-  #     playlist_duration:
-  #       type: float
-  #       description: Total duration of the playlist.
-  #       example: 11.2
-  #     playlist_name:
-  #       type: string
-  #       description: The name of the playlist to be created.
-  #       example: "Monday plan Playlist"
-  # UserRegister:
-  #   type: object
-  #   required: 
-  #     - email
-  #     - password
-  #     - height
-  #     - weight
-  #     - user_type
-  #   properties:
-  #     email:
-  #       type: string
-  #       format: email
-  #       description: The user's email address.
-  #       example: "user@example.com"
-  #     password:
-  #       type: string
-  #       format: password
-  #       description: The user's password.
-  #       example: "Welcome@123"
-  #     height:
-  #       type: float
-  #       description: The user's height in centimeters.
-  #       example: 1.75
-  #     weight:
-  #       type: float
-  #       description: The user's weight in kilograms.
-  #       example: 75.0
-  #     user_type:
-  #       type: string
-  #       enum: [admin, user]
-  #       description: The type of user (admin or regular user).
-  #       example: "admin"
-  # UserLogin:
-  #   type: object
-  #   required:
-  #     - email
-  #     - password
-  #   properties:
-  #     email:
-  #       type: string
-  #       format: email
-  #       description: The user's email address.
-  #       example: "user@example.com"
-  #     password:
-  #       type: string
-  #       format: password
-  #       description: The user's password.
-  #       example: "Welcome@123" 

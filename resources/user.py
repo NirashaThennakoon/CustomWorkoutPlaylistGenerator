@@ -230,8 +230,8 @@ class UserLogin(Resource):
         
         user_builder = UserBuilder()
         user_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
-        user_builder.add_control_edit_user(user.id)
-        user_builder.add_control_delete_user(user.id)
+        # user_builder.add_control_edit_user(user.id)
+        # user_builder.add_control_delete_user(user.id)
         user_builder.add_control("profile", href=USER_PROFILE)
         user_builder["message"] = "Login successful"
         user_builder["access_token"] = access_token
@@ -296,6 +296,8 @@ class UserResource(Resource):
         db.session.commit()
 
         user_builder = UserBuilder()
+        user_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+        user_builder.add_control("profile", href=USER_PROFILE)
         user_builder["message"] = "User deleted successfully"
 
         return Response(json.dumps(user_builder), mimetype=MASON)
@@ -340,6 +342,8 @@ class UserResource(Resource):
             return create_error_response(500, "Internal Server Error", str(e))
 
         user_builder = UserBuilder()
+        user_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+        user_builder.add_control("profile", href=USER_PROFILE)
         user_builder["message"] = "User updated successfully"
 
         return Response(json.dumps(user_builder), mimetype=MASON)
@@ -414,12 +418,10 @@ class ApiKeyResource(Resource):
             return create_error_response(500, "Failed to update API key", str(e))
 
         api_key_builder = MasonBuilder()
-        api_key_builder.add_namespace("apikey", "/profiles/apikey/")
+        api_key_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
         api_key_builder["message"] = "API key updated successfully"
         api_key_builder["new_api_key"] = new_api_key
-        api_key_builder.add_control("self",
-                                    href=f"/api/users/update_api_key/{user.id}",
-                                    title="API Key")
+        api_key_builder.add_control("profile", href=USER_PROFILE)
 
         return Response(json.dumps(api_key_builder), status=200, mimetype=MASON)
 

@@ -82,7 +82,7 @@ class WorkoutBuilder(MasonBuilder):
             Adds a control to list all workouts.
         """
         self.add_control(
-            "custWorkoutPlaylistGen:collection",
+            "collection",
             href="/api/workout",
             method="GET",
             title="List All Workouts"
@@ -93,7 +93,7 @@ class WorkoutBuilder(MasonBuilder):
             Adds a control to get workout plans for a workout.
         """
         self.add_control(
-            "custWorkoutPlaylistGen:up",
+            "up",
             href=f"/api/workoutItem/{workout_id}",
             method="GET",
             title="Get workout plans for the workout"
@@ -104,7 +104,7 @@ class WorkoutBuilder(MasonBuilder):
             Adds a control to get a workout by its ID.
         """
         self.add_control(
-            "custWorkoutPlaylistGen:item",
+            "item",
             href=f"/api/workout/{workout_id}",
             method="GET",
             title="Get Workout by workout_id"
@@ -115,7 +115,7 @@ class WorkoutBuilder(MasonBuilder):
             Adds a control to edit a workout.
         """
         self.add_control(
-            "custWorkoutPlaylistGen:edit",
+            "edit",
             href=f"/api/workout/{workout_id}",
             method="PUT",
             title="Edit This Workout",
@@ -128,7 +128,7 @@ class WorkoutBuilder(MasonBuilder):
             Adds a control to delete a workout.
         """
         self.add_control(
-            "custWorkoutPlaylistGen:delete",
+            "delete",
             href=f"/api/workout/{workout_id}",
             method="DELETE",
             title="Delete This Workout"
@@ -235,6 +235,8 @@ class WorkoutResource(Resource):
             cache.clear()
 
             workout_builder = WorkoutBuilder()
+            workout_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+            workout_builder.add_control("profile", href=WORKOUT_PROFILE)
             workout_builder["message"] = "Workout updated successfully"
 
             return Response(json.dumps(workout_builder), 200, mimetype=MASON)
@@ -267,6 +269,8 @@ class WorkoutResource(Resource):
         cache.clear()
 
         workout_builder = WorkoutBuilder()
+        workout_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+        workout_builder.add_control("profile", href=WORKOUT_PROFILE)
         workout_builder["message"] = "Workout deleted successfully"
 
         return Response(json.dumps(workout_builder), 200, mimetype=MASON)
@@ -359,6 +363,8 @@ class WorkoutsCollection(Resource):
             cache.clear()
 
             response_builder = WorkoutBuilder()
+            response_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+            response_builder.add_control("profile", href=WORKOUT_PROFILE)
             response_builder["message"] = "Workout added successfully"
 
             return Response(json.dumps(response_builder), status=201, mimetype=MASON)

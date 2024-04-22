@@ -94,7 +94,7 @@ class WorkoutPlanBuilder(MasonBuilder):
             Adds a control to get a user by its ID.
         """
         self.add_control(
-            "custWorkoutPlaylistGen:author",
+            "author",
             href=f"/api/user/{user_id}",
             method="GET",
             title="Get User by ID"
@@ -105,7 +105,7 @@ class WorkoutPlanBuilder(MasonBuilder):
             Adds a control to edit a workout plan.
         """
         self.add_control(
-            "custWorkoutPlaylistGen:edit",
+            "edit",
             href=f"/api/workoutPlan/{workout_plan_id}",
             method="PUT",
             title="Edit This Workout Plan",
@@ -118,7 +118,7 @@ class WorkoutPlanBuilder(MasonBuilder):
             Adds a control to delete a workout plan.
         """
         self.add_control(
-            "custWorkoutPlaylistGen:delete",
+            "delete",
             href=f"/api/workoutPlan/{workout_plan_id}",
             method="DELETE",
             title="Delete This Workout Plan"
@@ -129,7 +129,7 @@ class WorkoutPlanBuilder(MasonBuilder):
             Adds a control to get workouts for a workout plan.
         """
         self.add_control(
-            "custWorkoutPlaylistGen:item",
+            "item",
             href=f"/api/workoutPlanItem/{workout_plan_id}",
             method="GET",
             title="Get Workouts for the Plan"
@@ -225,6 +225,8 @@ class WorkoutPlanResource(Resource):
             cache.clear()
 
             workout_plan_builder = WorkoutPlanBuilder()
+            workout_plan_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+            workout_plan_builder.add_control("profile", href=WORKOUT_PLAN_PROFILE)
             workout_plan_builder["message"] = "Workout plan updated successfully"
 
             return Response(json.dumps(workout_plan_builder), 200, mimetype=MASON)
@@ -251,6 +253,8 @@ class WorkoutPlanResource(Resource):
         cache.clear()
 
         workout_plan_builder = WorkoutPlanBuilder()
+        workout_plan_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+        workout_plan_builder.add_control("profile", href=WORKOUT_PLAN_PROFILE)
         workout_plan_builder["message"] = "Workout plan deleted successfully"
 
         return Response(json.dumps(workout_plan_builder), 200, mimetype=MASON)
@@ -328,6 +332,8 @@ class WorkoutPlanCreator(Resource):
         cache.clear()
 
         workout_plan_builder = WorkoutPlanBuilder()
+        workout_plan_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+        workout_plan_builder.add_control("profile", href=WORKOUT_PLAN_PROFILE)
         workout_plan_builder["message"] = "Workout plan created successfully"
 
         return Response(json.dumps(workout_plan_builder), status=201, mimetype=MASON)
@@ -363,6 +369,8 @@ class WorkoutPlanItemResource(Resource):
                 }
                 workoutPlanItem_list.append(workout_dict)
                 workout_plan_builder["workout list"] = workoutPlanItem_list
+                workout_plan_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+                workout_plan_builder.add_control("profile", href=WORKOUT_PLAN_PROFILE)
 
             return Response(json.dumps(workout_plan_builder), mimetype=MASON)
         except KeyError:

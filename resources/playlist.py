@@ -83,7 +83,7 @@ class PlaylistBuilder(MasonBuilder):
             Adds a control to get songs for a playlist.
         """
         self.add_control(
-            "custWorkoutPlaylistGen:item",
+            "item",
             href=f"/api/playlistItem/{playlist_id}",
             method="GET",
             title="Get songs for the playlist"
@@ -102,7 +102,7 @@ class PlaylistBuilder(MasonBuilder):
             Adds a control to edit songs in a playlist.
         """
         self.add_control(
-            "custWorkoutPlaylistGen:edit",
+            "edit",
             href=f"/api/playlist/{playlist_id}",
             method="PUT",
             title="Edit This Playlist",
@@ -115,7 +115,7 @@ class PlaylistBuilder(MasonBuilder):
             Adds a control to delete a playlist.
         """
         self.add_control(
-            "custWorkoutPlaylistGen:delete",
+            "delete",
             href=f"/api/playlist/{playlist_id}",
             method="DELETE",
             title="Delete This Playlist"
@@ -219,6 +219,8 @@ class PlaylistResource(Resource):
             cache.clear()
 
             playlist_builder = PlaylistBuilder()
+            playlist_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+            playlist_builder.add_control("profile", href=PLAYLIST_PROFILE)
             playlist_builder["message"] = "Workout updated successfully"
 
             return Response(json.dumps(playlist_builder), 200, mimetype=MASON)
@@ -247,6 +249,8 @@ class PlaylistResource(Resource):
         cache.clear()
 
         playlist_builder = PlaylistBuilder()
+        playlist_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+        playlist_builder.add_control("profile", href=PLAYLIST_PROFILE)
         playlist_builder["message"] = "Workout deleted successfully"
 
         return Response(json.dumps(playlist_builder), 200, mimetype=MASON)
@@ -327,6 +331,8 @@ class PlaylistCreation(Resource):
         cache.clear()
 
         playlist_builder = PlaylistBuilder()
+        playlist_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+        playlist_builder.add_control("profile", href=PLAYLIST_PROFILE)
         playlist_builder["message"] = "Playlist created successfully"
         playlist_builder["playlist_id"] = playlist.playlist_id
 

@@ -82,7 +82,7 @@ class SongBuilder(MasonBuilder):
             Adds a control to list all songs.
         """
         self.add_control(
-            "custWorkoutPlaylistGen:collection",
+            "collection",
             href="/api/song",
             method="GET",
             title="List All Songs"
@@ -101,7 +101,7 @@ class SongBuilder(MasonBuilder):
             Adds a control to get a song by its ID.
         """
         self.add_control(
-            "custWorkoutPlaylistGen:item",
+            "item",
             href=f"/api/song/{song_id}",
             method="GET",
             title="Get Song by song_id"
@@ -112,7 +112,7 @@ class SongBuilder(MasonBuilder):
             Adds a control to edit a song.
         """
         self.add_control(
-            "custWorkoutPlaylistGen:edit",
+            "edit",
             href=f"/api/song/{song_id}",
             method="PUT",
             title="Edit This Song",
@@ -125,7 +125,7 @@ class SongBuilder(MasonBuilder):
             Adds a control to delete a song.
         """
         self.add_control(
-            "custWorkoutPlaylistGen:delete",
+            "delete",
             href=f"/api/song/{song_id}",
             method="DELETE",
             title="Delete This Song"
@@ -210,6 +210,8 @@ class SongResource(Resource):
             cache.clear()
 
             song_builder = SongBuilder()
+            song_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+            song_builder.add_control("profile", href=SONG_PROFILE)
             song_builder["message"] = "Song updated successfully"
 
             return Response(json.dumps(song_builder), 200, mimetype=MASON)
@@ -238,6 +240,8 @@ class SongResource(Resource):
         cache.clear()
 
         song_builder = SongBuilder()
+        song_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+        song_builder.add_control("profile", href=SONG_PROFILE)
         song_builder["message"] = "Song deleted successfully"
 
         return Response(json.dumps(song_builder), 200, mimetype=MASON)
@@ -325,6 +329,8 @@ class SongsCollection(Resource):
             cache.clear()
 
             song_builder = SongBuilder()
+            song_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+            song_builder.add_control("profile", href=SONG_PROFILE)
             song_builder["message"] = "Song added successfully"
 
             return Response(json.dumps(song_builder), status=201, mimetype=MASON)
