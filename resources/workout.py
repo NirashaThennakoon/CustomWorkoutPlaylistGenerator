@@ -305,16 +305,26 @@ class WorkoutsCollection(Resource):
         for w in workout:  # Iterate over each Workout instance
             workout_builder = WorkoutBuilder()
             workout_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
-            workout_builder.add_control_get_workout(w.workout_id)
-            workout_builder.add_control("profile", href=WORKOUT_PROFILE)
-            workout_dict = {
-                "workout_id": w.workout_id,
-                "workout_name": w.workout_name,
-                "duration": w.duration,
-                "workout_intensity": w.workout_intensity,
-                "equipment": w.equipment,
-                "workout_type": w.workout_type
-            }
+            # workout_builder.add_control_get_workout(w.workout_id)
+            # workout_builder.add_control("profile", href=WORKOUT_PROFILE)
+            # workout_dict = {
+            #     "workout_id": w.workout_id,
+            #     "workout_name": w.workout_name,
+            #     "duration": w.duration,
+            #     "workout_intensity": w.workout_intensity,
+            #     "equipment": w.equipment,
+            #     "workout_type": w.workout_type
+            # }
+            workout_dict = WorkoutBuilder(
+                workout_id = w.workout_id,
+                workout_name = w.workout_name,
+                duration = w.duration,
+                workout_intensity = w.workout_intensity,
+                equipment = w.equipment,
+                workout_type = w.workout_type
+            )
+            workout_dict.add_control_get_workout(w.workout_id)
+            workout_dict.add_control("profile", href=WORKOUT_PROFILE)
             workout_list.append(workout_dict)
         workout_builder["workout list"] = workout_list
         workout_builder.add_control("self", href="/api/workout/", title="Self")

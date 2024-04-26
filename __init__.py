@@ -13,13 +13,14 @@ from extensions import db, cache
 from api import api_bp
 from middleware_Auth import authenticate
 from data_models.convertors import WorkoutConverter, SongConverter, WorkoutPlanConverter, PlaylistConverter, UserConverter
+from flask_cors import CORS
 
 def create_app(test_config=None):
     """
         Create and configure the Flask application.
     """
     app = Flask(__name__, instance_relative_config=True)
-
+    CORS(app, resources={r"/api/*": {"origins": "*", "allow_headers": ["Content-Type", "Authorization", "X-API-Key"], "supports_credentials": True}})
     @app.route('/playlist_link_relation')
     def playlist_link_relation():
         return render_template('playlist_link_relation.html')
