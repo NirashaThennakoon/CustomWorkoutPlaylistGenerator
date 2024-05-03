@@ -324,6 +324,8 @@ class WorkoutsCollection(Resource):
                 workout_type = w.workout_type
             )
             workout_dict.add_control_get_workout(w.workout_id)
+            workout_dict.add_control_edit_workout(w.workout_id)
+            workout_dict.add_control_delete_workout(w.workout_id)
             workout_dict.add_control("profile", href=WORKOUT_PROFILE)
             workout_list.append(workout_dict)
         workout_builder["workout list"] = workout_list
