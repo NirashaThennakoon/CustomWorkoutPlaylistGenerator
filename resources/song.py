@@ -274,6 +274,7 @@ class SongsCollection(Resource):
         try:
             songs = Song.query.all()
             songs_list = []
+            playlistItem_list = []
             for song in songs:
 
                 song_builder = SongBuilder()
@@ -295,10 +296,25 @@ class SongsCollection(Resource):
                     song_genre= song.song_genre,
                     song_duration= song.song_duration
                 )
-                if(song.playlist_item is not None):
+                # if(song.playlist_item is not None):
+                #     for playlistItem in song.playlist_item:
+                #        playlistId = playlistItem.playlist_id
+                #        song_dict.add_control_get_playlist(playlistId)  
+                
+                if song.playlist_item:
+                    playlists_controls = []
                     for playlistItem in song.playlist_item:
-                       playlistId = playlistItem.playlist_id
-                       song_dict.add_control_get_playlist(playlistId)  
+                        playlistId = playlistItem.playlist_id
+                        playlist_control = {
+                            "method": "GET",
+                            "title": f"Get playlist {playlistId} for the song",
+                            "href": f"/api/playlist/{playlistId}/"
+                        }
+                        playlists_controls.append(playlist_control)
+
+                    if playlists_controls:
+                        song_dict.add_control("playlists", playlists_controls)
+        
                 song_dict.add_control_get_playlistid(song.song_id)
                 song_dict.add_control_get_song(song.song_id)
                 song_dict.add_control_edit_song(song.song_id)
