@@ -323,6 +323,7 @@ class WorkoutsCollection(Resource):
                 equipment = w.equipment,
                 workout_type = w.workout_type
             )
+            workout_dict.add_control_get_workout_plans(w.workout_id)
             workout_dict.add_control_get_workout(w.workout_id)
             workout_dict.add_control_edit_workout(w.workout_id)
             workout_dict.add_control_delete_workout(w.workout_id)

@@ -220,6 +220,11 @@ class UserLogin(Resource):
         password = data['password']
 
         user = User.query.filter_by(email=email).first()
+        user_dict = {
+            "email": email,
+            "user_type": user.user_type
+        }
+        
         if not user:
             return create_error_response(404, "No such user in the system")
 
@@ -235,6 +240,8 @@ class UserLogin(Resource):
         user_builder.add_control("profile", href=USER_PROFILE)
         user_builder["message"] = "Login successful"
         user_builder["access_token"] = access_token
+        for key, value in user_dict.items():
+            user_builder[key] = value
 
         return Response(json.dumps(user_builder), status=200, mimetype=MASON)
 

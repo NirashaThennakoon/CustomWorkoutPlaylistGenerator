@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Playlists</title>
+    <link rel="stylesheet" href="../css/playlist.css">
+    <link rel="stylesheet" href="../css/dialogbox.css">
+</head>
+<body>
+
+    <h1>Playlist Management</h1>
+    <div class="notification"></div>
+    <form id="playlistForm">
+        <input type="hidden" id="playlistId" value="">
+        <label for="playlistName">Playlist Name:</label>
+        <input type="text" id="playlistName" required>
+        <label for="playlistDuration">Duration:</label>
+        <input type="text" id="playlistDuration" required>
+        <button type="button" id="createBtn" onclick="submitPlaylist(event)">Create</button>
+        <button type="button" id="editBtn" onclick="submitPlaylist(event)" disabled>Edit</button>
+        <button type="button" onclick="resetForm()">Cancel</button>
+    </form>
+    
+    <table id="playlistTable">
+        <thead>
+            <tr>
+                <th>Playlist Name</th>
+                <th>Duration</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Playlists will be dynamically added here -->
+        </tbody>
+    </table>
+
+    <div id="myModal" class="modal">
+      <div class="modal-content">
+          <span class="close">&times;</span>
+          <p id="modalMessage"></p>
+      </div>
+    </div>
+
+    <div id="confirmationModal" class="modal">
+      <div class="modal-content">
+          <p id="confirmationMessage"></p>
+          <button id="confirmBtn">Confirm</button>
+          <button id="cancelBtn">Cancel</button>
+      </div>
+    </div>
+
+    <div id="songsModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Songs in Playlist</h2>
+            <table class="songs-table">
+                <thead>
+                    <tr>
+                        <th>Song Name</th>
+                        <th>Artist</th>
+                        <th>Genre</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody id="songsTableBody">
+                    <!-- Songs will be dynamically added here -->
+                </tbody>
+            </table>
+        </div>
+      </div>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="../script/playlists.js"></script>
+</body>
+</html>

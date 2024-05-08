@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit and Display Songs</title>
+    <link rel="stylesheet" href="../css/song.css">
+    <link rel="stylesheet" href="../css/dialogbox.css">
+</head>
+<body>
+
+    <h1>Song Management</h1>
+    <div class="notification"></div>
+    <form id="songForm">
+        <input type="hidden" id="songId" value="">
+        <label for="songName">Song Name:</label>
+        <input type="text" id="songName" required>
+        <label for="songArtist">Artist:</label>
+        <input type="text" id="songArtist" required>
+        <label for="songGenre">Genre:</label>
+        <input type="text" id="songGenre" required>
+        <label for="songDuration">Duration:</label>
+        <input type="text" id="songDuration" required>
+        <button type="button" id="createBtn" onclick="submitSong(event)">Create</button>
+        <button type="button" id="editBtn" onclick="submitSong(event)" disabled>Edit</button>
+        <button type="button" onclick="resetForm()">Cancel</button>
+    </form>
+    
+    <table id="songTable">
+        <thead>
+            <tr>
+                <th>Song Name</th>
+                <th>Artist</th>
+                <th>Genre</th>
+                <th>Duration</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Songs will be dynamically added here -->
+        </tbody>
+    </table>
+
+    <div id="myModal" class="modal">
+      <div class="modal-content">
+          <span class="close">&times;</span>
+          <p id="modalMessage"></p>
+      </div>
+    </div>
+
+    <div id="confirmationModal" class="modal">
+      <div class="modal-content">
+          <p id="confirmationMessage"></p>
+          <button id="confirmBtn">Confirm</button>
+          <button id="cancelBtn">Cancel</button>
+      </div>
+    </div>
+
+    <div id="playlistsModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Playlists</h2>
+            <table class="playlists-table">
+                <thead>
+                    <tr>
+                        <th>Playlist Id</th>
+                    </tr>
+                </thead>
+                <tbody id="playlistsTableBody">
+                    <!-- Playlists will be dynamically added here -->
+                </tbody>
+            </table>
+        </div>
+      </div>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="../script/songs.js"></script>
+</body>
+</html>

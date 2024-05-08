@@ -88,13 +88,21 @@ class SongBuilder(MasonBuilder):
             title="List All Songs"
         )
 
-    # def add_control_get_playlist(self, song_id):
-    #     self.add_control(
-    #         "custWorkoutPlaylistGen:song-all",
-    #         href=f"/api/allSong/{song_id}",
-    #         method="GET",
-    #         title="Get playlists for the song"
-    #     )
+    def add_control_get_playlistid(self, song_id):
+        self.add_control(
+            "up",
+            href=f"/api/allSong/{song_id}",
+            method="GET",
+            title="Get playlists ids for the song"
+        )
+
+    def add_control_get_playlist(self, playlist_id):
+        self.add_control(
+            "playlist",
+            href=f"/api/playlist/{playlist_id}/",
+            method="GET",
+            title="Get playlists for the song"
+        )
 
     def add_control_get_song(self, song_id):
         """
@@ -270,16 +278,32 @@ class SongsCollection(Resource):
 
                 song_builder = SongBuilder()
                 song_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
-                song_builder.add_control_get_song(song.song_id)
-                song_builder.add_control("profile", href=SONG_PROFILE)
+                # song_builder.add_control_get_song(song.song_id)
+                # song_builder.add_control("profile", href=SONG_PROFILE)
 
-                song_dict = {
-                    "song_id": song.song_id,
-                    "song_name": song.song_name,
-                    "song_artist": song.song_artist,
-                    "song_genre": song.song_genre,
-                    "song_duration": song.song_duration,
-                }
+                # song_dict = {
+                #     "song_id": song.song_id,
+                #     "song_name": song.song_name,
+                #     "song_artist": song.song_artist,
+                #     "song_genre": song.song_genre,
+                #     "song_duration": song.song_duration,
+                # }
+                song_dict = SongBuilder(
+                    song_id=song.song_id,
+                    song_name= song.song_name,
+                    song_artist= song.song_artist,
+                    song_genre= song.song_genre,
+                    song_duration= song.song_duration
+                )
+                if(song.playlist_item is not None):
+                    for playlistItem in song.playlist_item:
+                       playlistId = playlistItem.playlist_id
+                       song_dict.add_control_get_playlist(playlistId)  
+                song_dict.add_control_get_playlistid(song.song_id)
+                song_dict.add_control_get_song(song.song_id)
+                song_dict.add_control_edit_song(song.song_id)
+                song_dict.add_control_delete_song(song.song_id)
+                song_dict.add_control("profile", href=SONG_PROFILE)
                 songs_list.append(song_dict)
 
             song_builder["song list"] = songs_list

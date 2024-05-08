@@ -6,6 +6,7 @@ import yaml
 from flask import Flask, jsonify, render_template, request
 from flask_restful import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 from sqlalchemy import text
 from flask_jwt_extended import JWTManager
 from flasgger import Swagger
@@ -45,6 +46,16 @@ def create_app(test_config=None):
     def profile():
         return render_template('profile.html')
     
+    @app.before_request
+    def handle_options():
+        if request.method == 'OPTIONS':
+            # Add CORS headers to the response
+            response = app.make_default_options_response()
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+            return response
+    
     app.config.from_mapping(
         SQLALCHEMY_DATABASE_BASE_URI=
         "mysql+mysqldb://admin:pwpdb7788@workoutplaylists.cpcoaea0i7dq.us-east-1.rds.amazonaws.com",
@@ -75,6 +86,7 @@ def create_app(test_config=None):
     app.before_request(authenticate)
     db.init_app(app)
     cache.init_app(app)
+    CORS(app)
 
     # Load and parse the external YAML file for Swagger
     template_file_path = os.path.join(os.getcwd(), 'swagger.yml')

@@ -15,7 +15,7 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
       password: password
     };
   
-    fetch('http://127.0.0.1:5000/api/user/login/', {
+    fetch('http://127.0.0.1:5000/api/user/'+email, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -29,9 +29,16 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
       return response.json();
     })
     .then(data => {
-      // Handle successful login
-      console.log(data);
-      document.getElementById('message').textContent = "Login successful!";
+      // Assuming server returns user role
+      console.log(data)
+      if (data.user_type === 'admin') {
+        // Redirect to admin dashboard
+        window.location.href = 'adminDashboard.html';
+      } else {
+        // Handle successful login for other users
+        console.log(data);
+        document.getElementById('message').textContent = "Login successful!";
+      }
     })
     .catch(error => {
       // Handle login error
