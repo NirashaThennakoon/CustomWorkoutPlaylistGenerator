@@ -112,6 +112,17 @@ class WorkoutPlanBuilder(MasonBuilder):
             encoding="json",
             schema=WorkoutPlan.json_schema()
         )
+    
+    def add_control_get_workout_plan(self, workout_plan_id):
+        """
+            Adds a control to get a workout plan by its ID.
+        """
+        self.add_control(
+            "item",
+            href=f"/api/workoutPlan/{workout_plan_id}",
+            method="GET",
+            title="Get Workout plan by workout_plan_id"
+        )
 
     def add_control_delete_workout_plan(self, workout_plan_id):
         """
@@ -191,7 +202,7 @@ class WorkoutPlanResource(Resource):
                         "duration": workout.duration,
                         "workout_intensity": workout.workout_intensity,
                         "equipment": workout.equipment,
-                        "workout_type": workout.workout_type
+                        "workout_type": workout.workout_type,
                     }
                 workouts_list.append(workout_dict)
 
@@ -199,6 +210,7 @@ class WorkoutPlanResource(Resource):
                 "workout_plan_id": workoutPlan.workout_plan_id,
                 "plan_name": workoutPlan.plan_name,
                 "user_id": workoutPlan.user_id,
+                "playlist_id": workoutPlan.playlist_id,
                 "duration": workoutPlan.duration,
                 "workouts_list": workouts_list
             }
@@ -312,12 +324,12 @@ class WorkoutPlanByUserResource(Resource):
             for workoutPlan in workoutPlans:
                 
                 workout_plan_builder = WorkoutPlanBuilder()
-                workout_plan_builder.add_control_edit_workout_plan(workoutPlan.workout_plan_id)
-                workout_plan_builder.add_control_delete_workout_plan(workoutPlan.workout_plan_id)
-                workout_plan_builder.add_control_get_playlist(workoutPlan.playlist_id)
-                workout_plan_builder.add_control_get_user(workoutPlan.user_id)
-                workout_plan_builder.add_control_get_workouts(workoutPlan.workout_plan_id)
-                workout_plan_builder.add_control("profile", href=WORKOUT_PLAN_PROFILE)
+                workout_plan_builder.add_control_get_workout_plan(workoutPlan.workout_plan_id)
+                # workout_plan_builder.add_control_delete_workout_plan(workoutPlan.workout_plan_id)
+                # workout_plan_builder.add_control_get_playlist(workoutPlan.playlist_id)
+                # workout_plan_builder.add_control_get_user(workoutPlan.user_id)
+                # workout_plan_builder.add_control_get_workouts(workoutPlan.workout_plan_id)
+                # workout_plan_builder.add_control("profile", href=WORKOUT_PLAN_PROFILE)
 
                 workoutplan_items = WorkoutPlanItem.query.filter_by(workout_plan_id=workoutPlan.workout_plan_id).all()
 
@@ -339,6 +351,7 @@ class WorkoutPlanByUserResource(Resource):
                     "workout_plan_id": workoutPlan.workout_plan_id,
                     "plan_name": workoutPlan.plan_name,
                     "user_id": workoutPlan.user_id,
+                    "playlist_id": workoutPlan.playlist_id,
                     "duration": workoutPlan.duration,
                     "workouts_list": workouts_list
                 }

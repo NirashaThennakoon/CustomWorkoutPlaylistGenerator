@@ -3,29 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Workout Plans</title>
+    <title>Submit and Display Workouts</title>
     <link rel="stylesheet" href="../../css/regularUser/workoutplans.css">
-    <!-- Add any additional CSS files if necessary -->
+    <link rel="stylesheet" href="../../css/dialogbox.css">
 </head>
 <body>
-    <header>
-        <h1>Workout Plans</h1>
-    </header>
-    <main>
-        <section id="workoutPlans">
-            <h2>Choose a Workout Plan</h2>
-            <ul id="workoutPlanList"></ul>
-        </section>
-    </main>
 
-    <div id="notification"></div>
+    <h1>Workout Management</h1>
+    <div class="notification"></div>
+    <form id="workoutPlanForm">
+        <input type="hidden" id="workoutPlanId" value="">
+        <label for="workoutPlanName">Workout Plan Name:</label>
+        <input type="text" id="workoutPlanName" required>
+        <label for="duration">Duration:</label>
+        <input type="text" id="duration" required>
+        <label for="playlist">Playlist:</label>
+        <input type="text" id="playlist" required>
+        <button type="button" id="createBtn" onclick="submitWorkoutPlan(event)">Create</button>
+        <button type="button" id="editBtn" onclick="submitWorkoutPlan(event)" disabled>Edit</button>
+        <button type="button" onclick="resetForm()">Cancel</button>
+    </form>
+    
+    <table id ="workoutPlanTable">
+        <thead>
+            <tr>
+                <th>Workout Plan Name</th>
+                <th>Duration</th>
+                <th>Playlist</th>
+                <th>Workouts</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Workouts will be dynamically added here -->
+        </tbody>
+    </table>
 
-    <footer>
-        <!-- Add footer content if necessary -->
-    </footer>
+    <div id="myModal" class="modal">
+      <div class="modal-content">
+          <span class="close">&times;</span>
+          <p id="modalMessage"></p>
+      </div>
+    </div>
 
-    <script src="../../script/config.js"></script>
+  <!-- Custom Confirmation Dialog -->
+    <div id="confirmationModal" class="modal">
+      <div class="modal-content">
+          <p id="confirmationMessage"></p>
+          <button id="confirmBtn">Confirm</button>
+          <button id="cancelBtn">Cancel</button>
+      </div>
+    </div>
+
+    <div id="workoutPlansModal" class="modal">
+      <div class="modal-content">
+          <span class="close">&times;</span>
+          <h2>Workout Plans</h2>
+          <table class="plans-table">
+              <thead>
+                <tr>
+                    <th>Workout Plan ID</th>
+                    <th>Workout Plan Name</th>
+                    <th>All Workouts</th>
+                </tr>
+              </thead>
+              <tbody id="plansTableBody">
+                  <!-- Plans will be dynamically added here -->
+              </tbody>
+          </table>
+      </div>
+    </div>
+  
+
+  
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="../../script/config.js"></script>
     <script src="../../script/regularUser/workoutPlans.js"></script>
 </body>
 </html>
