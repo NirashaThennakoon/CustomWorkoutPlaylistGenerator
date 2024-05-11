@@ -1,6 +1,6 @@
 const MASONJSON = "application/vnd.mason+json";
 const PLAINJSON = "application/json";
-const baseURL = "http://127.0.0.1:5000";
+const baseURL = config.baseUrl;
 
 $(document).ready(function() {
     getResource("/api/playlist", renderPlaylists, baseURL);

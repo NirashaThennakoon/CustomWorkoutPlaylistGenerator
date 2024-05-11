@@ -1,6 +1,6 @@
 document.getElementById('register-form').addEventListener('submit', function(e) {
     e.preventDefault();
-  
+    const baseURL = config.baseUrl;
     var email = document.getElementById('email').value;
     var password = document.getElementById('password').value;
     var height = parseFloat(document.getElementById('height').value);
@@ -21,7 +21,7 @@ document.getElementById('register-form').addEventListener('submit', function(e) 
       user_type: userType
     };
   
-    fetch('http://127.0.0.1:5000/api/user', {
+    fetch(baseURL +'/api/user', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

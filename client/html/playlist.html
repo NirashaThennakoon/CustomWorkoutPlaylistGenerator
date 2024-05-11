@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playlist Management</title>
+</head>
+<body>
+
+    <div id="playlistsModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Playlists</h2>
+            <table class="playlists-table">
+                <thead>
+                    <tr>
+                        <th>Playlist Id</th>
+                    </tr>
+                </thead>
+                <tbody id="playlistsTableBody">
+                    <!-- Playlists will be dynamically added here -->
+                </tbody>
+            </table>
+        </div>
+      </div>
+      <div id="playlistDetailContainer">
+        <table id="playlistTable">
+            <thead>
+                <tr>
+                    <th>Playlist ID</th>
+                    <th>Playlist Name</th>
+                    <th>Go to Playlist</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Songs will be dynamically added here -->
+            </tbody>
+        </table>
+      </div>
+      <div id="detailedPlaylist">
+        <table id="detailedPlaylistTable">
+            <thead>
+                <tr>
+                    <th>Playlist ID</th>
+                    <th>Playlist Name</th>
+                    <th>All Songs</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Songs will be dynamically added here -->
+            </tbody>
+        </table>
+      </div>
+      <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+      <script src="../script/config.js"></script>
+      <script src="../script/songs.js"></script>
+      <script>
+        // Call getPlaylists function to fetch and update playlists
+        $(document).ready(function() {
+            getPlaylists(event, song);
+        });
+      </script>
+
+</body>
+</html>

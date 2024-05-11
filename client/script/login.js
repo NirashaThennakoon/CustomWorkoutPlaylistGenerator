@@ -1,4 +1,5 @@
 document.getElementById('login-form').addEventListener('submit', function(e) {
+    const baseURL = config.baseUrl;
     e.preventDefault();
   
     var email = document.getElementById('email').value;
@@ -15,7 +16,7 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
       password: password
     };
   
-    fetch('http://127.0.0.1:5000/api/user/'+email, {
+    fetch(baseURL+'/api/user/'+email, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

@@ -263,6 +263,12 @@ class WorkoutResource(Resource):
 
         if not workout:
             return create_error_response(404, "Workout not found")
+        
+        workoutplan_items = WorkoutPlanItem.query.filter_by(workout_id=workout.workout_id).all()
+
+        # Delete workoutplan items
+        for item in workoutplan_items:
+            db.session.delete(item)
 
         db.session.delete(workout)
         db.session.commit()
@@ -323,6 +329,20 @@ class WorkoutsCollection(Resource):
                 equipment = w.equipment,
                 workout_type = w.workout_type
             )
+            if w.workout_plan_item:
+                    workoutplan_controls = []
+                    for workoutPlanItem in w.workout_plan_item:
+                        workoutPlanId = workoutPlanItem.workout_plan_id
+                        workoutplan_control = {
+                            "method": "GET",
+                            "title": f"Get workoutplan {workoutPlanId} for the workout",
+                            "href": f"/api/workoutPlan/{workoutPlanId}"
+                        }
+                        workoutplan_controls.append(workoutplan_control)
+
+                    if workoutplan_controls:
+                        workout_dict.add_control("workoutplans", workoutplan_controls)
+
             workout_dict.add_control_get_workout_plans(w.workout_id)
             workout_dict.add_control_get_workout(w.workout_id)
             workout_dict.add_control_edit_workout(w.workout_id)
