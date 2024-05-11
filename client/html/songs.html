@@ -60,20 +60,23 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2>Playlists</h2>
-            <table class="playlists-table">
+            <table class="playlists-table" id="detailedPlaylistTable">
                 <thead>
                     <tr>
-                        <th>Playlist Id</th>
+                        <th>Playlist ID</th>
+                        <th>Playlist Name</th>
+                        <th>All Songs</th>
                     </tr>
                 </thead>
-                <tbody id="playlistsTableBody">
-                    <!-- Playlists will be dynamically added here -->
+                <tbody>
+                    <!-- Songs will be dynamically added here -->
                 </tbody>
             </table>
         </div>
       </div>
-
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="../script/config.js"></script>
     <script src="../script/songs.js"></script>
+    
 </body>
 </html>

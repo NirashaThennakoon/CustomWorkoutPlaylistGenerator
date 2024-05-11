@@ -1,7 +1,7 @@
 const MASONJSON = "application/vnd.mason+json";
 const PLAINJSON = "application/json";
-baseURL = "http://127.0.0.1:5000";
-songURL= "/api/song"
+var baseURL = config.baseUrl;
+const songURL= "api/song"
 
 $(document).ready(function() {
     getResource(songURL, renderSongs, baseURL);
@@ -15,12 +15,7 @@ function getResource(href, renderer, baseURL) {
     });
 }
 
-function followLink(event, a, renderer) {
-    event.preventDefault();
-    getResource($(a).attr("href"), renderer, baseURL);
-}
-
-function buttonAction(event, href, renderer) {
+function editButtonAction(event, href, renderer) {
     event.preventDefault();
     getResource(href, renderer, baseURL);
 }
@@ -153,37 +148,30 @@ function renderSongs(body) {
         tbody.append(songRow(item));
     });
 }
-// Define getPlaylists function
+
+function playlistRow(link) {
+    console.log(link)
+    getResource(link.href, renderPlaylists, baseURL)
+}
+
 function getPlaylists(event, song) {
     event.preventDefault();
-    let playlistLink = song["@controls"].up.href;
-  
-    $.ajax({
-        url: baseURL + playlistLink,
-        success: function(playlists) {
-            showPlaylists(playlists);
-        },
-        error: renderError
-    });
-  }
-  
-  // Function to display playlists in a popup table
-  function showPlaylists(playlists) {
-    let playlistsTableBody = $("#playlistsTableBody");
-    playlistsTableBody.empty();
-  
-    if ($.isEmptyObject(playlists["Playlists"])) {
-        playlistsTableBody.append(
-          "<tr><td colspan='2'>No playlists available for this song</td></tr>"
-      );
-    } else {
-        playlists["Playlists"].forEach(function(playlist) {
-        playlistsTableBody.append(
-              "<tr><td>" + playlist.playlist_id + "</td></tr>"
-          );
-      });
+    let playlistsLinks = (song["@controls"] && song["@controls"].playlists) ? song["@controls"].playlists.href : null;
+    let playlistBody = $("#detailedPlaylistTable tbody");
+    playlistBody.empty();
+    if (!playlistsLinks) {
+        showModal("No playlist available for this song");
+    }else{
+        playlistsLinks.forEach(function(link) {
+            playlistBody.append(playlistRow(link))
+        });
     }
-  
+}
+
+function renderPlaylists(body) {
+    $("div.navigation").empty();
+    let tbody = $("#detailedPlaylistTable tbody");
+    tbody.append(detailedPlaylistRow(body))
     let playlistsModal = document.getElementById("playlistsModal");
     playlistsModal.style.display = "block";
   
@@ -199,7 +187,14 @@ function getPlaylists(event, song) {
             playlistsModal.style.display = "none";
         }
     };
-  }
+}
+
+function detailedPlaylistRow(playlist) {
+    return "<tr><td>" + playlist.playlist_id +
+        "</td><td>" + playlist.playlist_name +
+        "</td><td>" + playlist.songs_list.map(song => song.song_name).join(', ') +
+        "</tr>";
+}
 
 function songRow(item) {
     let link = item["@controls"].item.href;
@@ -209,7 +204,7 @@ function songRow(item) {
         "</td><td>" + item.song_genre +
         "</td><td>" + item.song_duration +
         "</td><td>" +
-        "<button onclick='buttonAction(event, \"" + link + "\", editSong)'>Edit</button>" +
+        "<button onclick='editButtonAction(event, \"" + link + "\", editSong)'>Edit</button>" +
         "<button onclick='deleteConfirmation(event, " + JSON.stringify(item) + ")'>Delete</button>" +
         "<button onclick='getPlaylists(event, " + JSON.stringify(item) + ")'>View Playlists</button>" +
         "</td></tr>";

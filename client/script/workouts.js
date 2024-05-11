@@ -1,10 +1,10 @@
 const MASONJSON = "application/vnd.mason+json";
 const PLAINJSON = "application/json";
-baseURL = "http://127.0.0.1:5000"
+var baseURL = config.baseUrl;
 
 $(document).ready(function() {
     // Your jQuery-dependent code here
-    getResource("/api/workout", renderWorkouts, baseURL);
+    getResource("api/workout", renderWorkouts, baseURL);
 });
 
 // Define getResource function
@@ -16,14 +16,8 @@ function getResource(href, renderer, baseURL) {
     });
 }
 
-// Define followLink function
-function followLink(event, a, renderer) {
-    event.preventDefault();
-    getResource($(a).attr("href"), renderer, baseURL);
-}
-
 // Define button action function
-function buttonAction(event, href, renderer) {
+function editButtonAction(event, href, renderer) {
     event.preventDefault();
     getResource(href, renderer, baseURL);
 }
@@ -49,6 +43,7 @@ function renderError(jqxhr) {
   $("div.notification").html("<p class='error-message'>" + msg + "</p>");
 }
 
+
 // Define renderMsg function
 function renderMsg(msg) {
     $("div.notification").html("<p class='msg'>" + msg + "</p>");
@@ -67,14 +62,6 @@ function sendData(href, method, item, postProcessor) {
     });
 }
 
-// Define getSubmittedWorkout function
-function getSubmittedWorkout(data, status, jqxhr) {
-    renderMsg("Successfully updated workout");
-    // let href = jqxhr.getResponseHeader("Location");
-    // if (href) {
-    //     getResource(href, appendSensorRow);
-    // }
-}
 
 // Define submitWorkout function
 function submitWorkout(event) {
@@ -191,52 +178,51 @@ function deleteWorkout(body) {
 // Define getWorkoutPlans function
 function getWorkoutPlans(event, workout) {
   event.preventDefault();
-  let plansLink = workout["@controls"].up.href;
+  let plansLinks = (workout["@controls"] && workout["@controls"].workoutplans) ? workout["@controls"].workoutplans.href : null;
 
-  $.ajax({
-      url: baseURL + plansLink,
-      success: function(plans) {
-          showWorkoutPlans(plans);
-      },
-      error: renderError
-  });
-}
-
-// Function to display workout plans in a popup table
-function showWorkoutPlans(plans) {
-  let plansTableBody = $("#plansTableBody");
-  plansTableBody.empty();
-
-  if ($.isEmptyObject(plans)) {
-    plansTableBody.append(
-        "<tr><td colspan='2'>No workout plans available for this workout</td></tr>"
-    );
-  } else {
-    plans["workout list"].forEach(function(plan) {
-        plansTableBody.append(
-            "<tr><td>" + plan.workout_plan_id + "</td></tr>"
-        );
-    });
+  let plansBody = $("#plansTableBody");
+  plansBody.empty();
+  if (!plansLinks) {
+      showModal("No workout plans available for this workout");
+  }else{
+    plansLinks.forEach(function(link) {
+        plansBody.append(workoutPlanRow(link))
+      });
   }
-
-  let workoutPlansModal = document.getElementById("workoutPlansModal");
-  workoutPlansModal.style.display = "block";
-
-  // Close the modal when clicking on the close button
-  let closeButton = workoutPlansModal.querySelector(".close");
-  closeButton.onclick = function() {
-      workoutPlansModal.style.display = "none";
-  };
-
-  // Close the modal when clicking anywhere outside of it
-  window.onclick = function(event) {
-      if (event.target == workoutPlansModal) {
-          workoutPlansModal.style.display = "none";
-      }
-  };
 }
 
+function workoutPlanRow(link) {
+    getResource(link.href, renderWorkoutPlans, baseURL)
+}
 
+function renderWorkoutPlans(body) {
+    $("div.navigation").empty();
+    let tbody = $("#plansTableBody");
+    tbody.append(detailedWorkoutPlanRow(body))
+    let workoutPlansModal = document.getElementById("workoutPlansModal");
+    workoutPlansModal.style.display = "block";
+  
+    // Close the modal when clicking on the close button
+    let closeButton = workoutPlansModal.querySelector(".close");
+    closeButton.onclick = function() {
+        workoutPlansModal.style.display = "none";
+    };
+  
+    // Close the modal when clicking anywhere outside of it
+    window.onclick = function(event) {
+        if (event.target == workoutPlansModal) {
+            workoutPlansModal.style.display = "none";
+        }
+    };
+}
+
+function detailedWorkoutPlanRow(workoutplan) {
+    console.log(workoutplan)
+    return "<tr><td>" + workoutplan.workout_plan_id    +
+        "</td><td>" + workoutplan.plan_name +
+        "</td><td>" + workoutplan.workouts_list.map(workout => workout.workout_name).join(', ') +
+        "</tr>";
+}
 
 // Modify workoutRow function to include the deleteConfirmation function
 function workoutRow(item) {
@@ -248,7 +234,7 @@ function workoutRow(item) {
           "</td><td>" + item.equipment +
           "</td><td>" + item.workout_type +
           "</td><td>" +
-              "<button onclick='buttonAction(event, \"" + link + "\", editWorkout)'>Edit</button>" +
+              "<button onclick='editButtonAction(event, \"" + link + "\", editWorkout)'>Edit</button>" +
               "<button onclick='deleteConfirmation(event, " + JSON.stringify(item) + ")'>Delete</button>" +
               "<button onclick='getWorkoutPlans(event, " + JSON.stringify(item) + ")'>View Plans</button>" +
           "</td></tr>"; 
@@ -284,7 +270,6 @@ function renderWorkouts(body) {
     body["workout list"].forEach(function (item) {
         tbody.append(workoutRow(item));
     });
-    // renderWorkoutForm(body["@controls"]["edit"]);
 }
 
 

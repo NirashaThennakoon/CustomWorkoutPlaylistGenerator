@@ -242,6 +242,12 @@ class SongResource(Resource):
         """
         if g.current_api_key.user.user_type != 'admin':
             return create_error_response(403, "Unauthorized access")
+        
+        song_items = PlaylistItem.query.filter_by(song_id=song.song_id).all()
+
+        # Delete playlist items
+        for item in song_items:
+            db.session.delete(item)
 
         db.session.delete(song)
         db.session.commit()

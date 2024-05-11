@@ -179,11 +179,28 @@ class WorkoutPlanResource(Resource):
             workout_plan_builder.add_control_get_workouts(workoutPlan.workout_plan_id)
             workout_plan_builder.add_control("profile", href=WORKOUT_PLAN_PROFILE)
 
+            workoutplan_items = WorkoutPlanItem.query.filter_by(workout_plan_id=workoutPlan.workout_plan_id).all()
+
+            workouts_list = []
+            for item in workoutplan_items:
+                workout = Workout.query.get(item.workout_id)
+                if workout:
+                    workout_dict = {
+                        "workout_id": workout.workout_id,
+                        "workout_name": workout.workout_name,
+                        "duration": workout.duration,
+                        "workout_intensity": workout.workout_intensity,
+                        "equipment": workout.equipment,
+                        "workout_type": workout.workout_type
+                    }
+                workouts_list.append(workout_dict)
+
             workout_plan_dict = {
                 "workout_plan_id": workoutPlan.workout_plan_id,
                 "plan_name": workoutPlan.plan_name,
                 "user_id": workoutPlan.user_id,
-                "duration": workoutPlan.duration
+                "duration": workoutPlan.duration,
+                "workouts_list": workouts_list
             }
             for key, value in workout_plan_dict.items():
                 workout_plan_builder[key] = value
@@ -248,6 +265,12 @@ class WorkoutPlanResource(Resource):
                 and an HTTP status code. The status code indicates the success of
                 the operation (200 for successful deletion).
         """
+        workoutplan_items = WorkoutPlanItem.query.filter_by(workout_plan_id=workoutPlan.workout_plan_id).all()
+
+        # Delete workoutplan items
+        for item in workoutplan_items:
+            db.session.delete(item)
+
         db.session.delete(workoutPlan)
         db.session.commit()
         cache.clear()
