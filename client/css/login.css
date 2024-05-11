@@ -1,4 +1,4 @@
-body {
+/* body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
@@ -51,5 +51,30 @@ body {
     margin-top: 15px;
     text-align: center;
     color: red;
-  }
-  
+  } */
+
+/* .login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+} */
+
+.login {
+  min-height: 100vh;
+}
+
+.bg-image {
+  background-image: url("../assets/workout-image.jpg");
+  background-size: cover;
+  background-position: center;
+}
+
+.login-heading {
+  font-weight: 300;
+}
+
+.btn-login {
+  font-size: 0.9rem;
+  letter-spacing: 0.05rem;
+  padding: 0.75rem 1rem;
+}
