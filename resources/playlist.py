@@ -5,7 +5,7 @@ import json
 from jsonschema import validate, ValidationError, FormatChecker
 from flask import Response, request, g
 from flask_restful import Resource
-from data_models.models import Playlist, PlaylistItem, Workout, Song
+from data_models.models import Playlist, PlaylistItem, Workout, Song, WorkoutPlan
 from extensions import db
 from extensions import cache
 
@@ -237,6 +237,10 @@ class PlaylistResource(Resource):
             This method deletes the specified playlist along with all its associated items.
 
         """
+        workoutplan = WorkoutPlan.query.filter_by(playlist_id=playlist.playlist_id).all()
+        if workoutplan:
+            return create_error_response(403, "This playlist belongs to a workout plan")
+        
         playlist_items = PlaylistItem.query.filter_by(playlist_id=playlist.playlist_id).all()
 
         # Delete playlist items

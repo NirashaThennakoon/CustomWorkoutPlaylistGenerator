@@ -6,7 +6,7 @@ from jsonschema import validate, ValidationError, FormatChecker
 from flask import Response, request, url_for, g
 from flask_restful import Resource
 import requests
-from werkzeug.exceptions import BadRequest
+from werkzeug.exceptions import BadRequest, NotFound
 from data_models.models import WorkoutPlan, WorkoutPlanItem, Workout
 from extensions import db, cache
 
@@ -281,6 +281,75 @@ class WorkoutPlanResource(Resource):
         workout_plan_builder["message"] = "Workout plan deleted successfully"
 
         return Response(json.dumps(workout_plan_builder), 200, mimetype=MASON)
+
+class WorkoutPlanByUserResource(Resource):
+    """
+        This resource includes the user workout plan GET endpoint.
+    """
+    @cache.cached(timeout=60)
+    def get(self, user):
+        """
+            This method fetches details about a workout plan belongs to given user and returns
+            them in a list format.
+
+            Args:
+                userid: An id representing the workout plan for which
+                information is to be retrieved.
+
+            Returns:
+                A tuple containing a list of dictionaries representing workout plan details and
+                an HTTP status code. Each dictionary in the list contains keys 'workout_plan_id',
+                  'plan_name', 'user_id', and 'duration', populated with corresponding values
+                  from the input workout plan object.
+        """
+        try:
+            workoutPlans = WorkoutPlan.query.filter_by(user_id=user.id).all()
+            if workoutPlans is None:
+                raise NotFound(f"Workout Plan for the user with id :{user} not found.")
+            workout_plans_builder = WorkoutPlanBuilder()
+            workout_plans_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+            workout_plans_list = []
+            for workoutPlan in workoutPlans:
+                
+                workout_plan_builder = WorkoutPlanBuilder()
+                workout_plan_builder.add_control_edit_workout_plan(workoutPlan.workout_plan_id)
+                workout_plan_builder.add_control_delete_workout_plan(workoutPlan.workout_plan_id)
+                workout_plan_builder.add_control_get_playlist(workoutPlan.playlist_id)
+                workout_plan_builder.add_control_get_user(workoutPlan.user_id)
+                workout_plan_builder.add_control_get_workouts(workoutPlan.workout_plan_id)
+                workout_plan_builder.add_control("profile", href=WORKOUT_PLAN_PROFILE)
+
+                workoutplan_items = WorkoutPlanItem.query.filter_by(workout_plan_id=workoutPlan.workout_plan_id).all()
+
+                workouts_list = []
+                for item in workoutplan_items:
+                    workout = Workout.query.get(item.workout_id)
+                    if workout:
+                        workout_dict = {
+                            "workout_id": workout.workout_id,
+                            "workout_name": workout.workout_name,
+                            "duration": workout.duration,
+                            "workout_intensity": workout.workout_intensity,
+                            "equipment": workout.equipment,
+                            "workout_type": workout.workout_type
+                        }
+                    workouts_list.append(workout_dict)
+                    print(workouts_list)
+                workout_plan_dict = {
+                    "workout_plan_id": workoutPlan.workout_plan_id,
+                    "plan_name": workoutPlan.plan_name,
+                    "user_id": workoutPlan.user_id,
+                    "duration": workoutPlan.duration,
+                    "workouts_list": workouts_list
+                }
+                for key, value in workout_plan_dict.items():
+                    workout_plan_builder[key] = value
+                workout_plans_list.append(workout_plan_builder)
+                
+            workout_plans_builder["workout_plans_list"] = workout_plans_list   
+            return Response(json.dumps(workout_plans_builder), mimetype=MASON)
+        except ValueError as e:
+            return create_error_response(400, "Invalid input data", str(e))
 
 class WorkoutPlanCreator(Resource):
     """

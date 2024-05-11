@@ -222,7 +222,8 @@ class UserLogin(Resource):
         user = User.query.filter_by(email=email).first()
         user_dict = {
             "email": email,
-            "user_type": user.user_type
+            "user_type": user.user_type,
+            "user_id": user.id
         }
         
         if not user:

@@ -3,7 +3,6 @@ const PLAINJSON = "application/json";
 var baseURL = config.baseUrl;
 
 $(document).ready(function() {
-    // Your jQuery-dependent code here
     getResource("api/workout", renderWorkouts, baseURL);
 });
 
