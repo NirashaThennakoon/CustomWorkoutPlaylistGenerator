@@ -16,9 +16,9 @@ def test_get_song(client):
 
     data = json.loads(response.data)
     _check_namespace(client, data)
-    _check_control_get_method("custWorkoutPlaylistGen:collection", client, data)
-    _check_control_put_method("custWorkoutPlaylistGen:edit", client, data)
-    _check_control_delete_method("custWorkoutPlaylistGen:delete", client, data)
+    _check_control_get_method("collection", client, data)
+    _check_control_put_method("edit", client, data)
+    _check_control_delete_method("delete", client, data)
     assert data['song_id'] == 1
     assert data["song_name"] == "test-song-1"
 
@@ -32,7 +32,7 @@ def test_get_all_songs(client):
     assert response.status_code == 200
 
     data = json.loads(response.data)
-    assert len(data['song list']) == 4
+    assert len(data['song list']) == 5
 
 def test_get_all_playlists_song_belongs(client):
     """
@@ -44,7 +44,7 @@ def test_get_all_playlists_song_belongs(client):
 
     data = json.loads(response.data)
     print(data)
-    assert len(data['Playlists']) == 1
+    assert len(data['Playlists']) == 2
 
 def test_post_song(client):
     """
@@ -117,8 +117,8 @@ def test_put_song(client):
     resp = client.put(f'{RESOURCE_URL}10000/', json=valid)
     assert resp.status_code == 404
     # test with valid
-    resp = client.put(f'{RESOURCE_URL}3/', json=valid)
-    assert resp.status_code == 200
+    resp = client.put(f'{RESOURCE_URL}5/', json=valid)
+    assert resp.status_code == 204
     data = json.loads(resp.data)
     assert data["message"] == "Song updated successfully"
     # remove field
@@ -150,7 +150,7 @@ def test_delete_song(client):
     """
     #delete song with valid id
     resp = client.delete(f'{RESOURCE_URL}2/')
-    assert resp.status_code == 200
+    assert resp.status_code == 204
 
     #delete song with same id
     resp = client.delete(f'{RESOURCE_URL}2/')

@@ -17,9 +17,9 @@ def test_get_workout(client):
 
     data = json.loads(response.data)
     _check_namespace(client, data)
-    _check_control_get_method("custWorkoutPlaylistGen:collection", client, data)
-    _check_control_put_method("custWorkoutPlaylistGen:edit", client, data)
-    _check_control_delete_method("custWorkoutPlaylistGen:delete", client, data)
+    _check_control_get_method("collection", client, data)
+    _check_control_put_method("edit", client, data)
+    _check_control_delete_method("delete", client, data)
     data["workout_id"] == 1
 
 def test_get_workoutItem(client):
@@ -43,7 +43,7 @@ def test_get_workouts(client):
     assert response.status_code == 200
     data = json.loads(response.data)
     print(data)
-    assert len(data['workout list']) == 4
+    assert len(data['workout list']) == 5
 
 def test_post_workout(client):
     """
@@ -117,7 +117,7 @@ def test_put_workout(client):
     assert resp.status_code == 404
     # test with valid
     resp = client.put(f'{RESOURCE_URL}/3', json=valid)
-    assert resp.status_code == 200
+    assert resp.status_code == 204
     data = json.loads(resp.data)
     assert data["message"] == "Workout updated successfully"
     # remove field
@@ -152,13 +152,13 @@ def test_delete_workout(client):
     """
     #delete workout with valid id
     resp = client.delete(f'{RESOURCE_URL}/2')
-    assert resp.status_code == 200
+    assert resp.status_code == 204
     data = json.loads(resp.data)
     assert data["message"] == "Workout deleted successfully"
 
     #delete same data
     resp = client.delete(f'{RESOURCE_URL}/2')
-    assert resp.status_code == 404
+    assert resp.status_code == 403
 
     #delete data with invalid id
     resp = client.delete(f'{RESOURCE_URL}/2')

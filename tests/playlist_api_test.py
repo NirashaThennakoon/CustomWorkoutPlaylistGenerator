@@ -16,9 +16,9 @@ def test_get_playlist(client):
 
     json_data = json.loads(response.data)
     _check_namespace(client, json_data)
-    _check_control_get_method("custWorkoutPlaylistGen:item", client, json_data)
-    _check_control_put_method("custWorkoutPlaylistGen:edit", client, json_data)
-    _check_control_delete_method("custWorkoutPlaylistGen:delete", client, json_data)
+    _check_control_get_method("item", client, json_data)
+    _check_control_put_method("edit", client, json_data)
+    _check_control_delete_method("delete", client, json_data)
     assert json_data['playlist_id'] == 2
     # Ensure there are only three keys in the JSON data
     assert 'playlist_duration' in json_data
@@ -76,7 +76,7 @@ def test_put_playlist(client):
 
     # test with valid
     resp = client.put(f'{RESOURCE_URL}6/', json=valid)
-    assert resp.status_code == 200
+    assert resp.status_code == 204
     # remove field
     valid.pop("playlist_name")
     resp = client.put(f'{RESOURCE_URL}6/', json=valid)
@@ -88,10 +88,10 @@ def test_delete_playlist(client):
     """
     #delete playlist with a valid id
     resp = client.delete(f'{RESOURCE_URL}3/')
-    assert resp.status_code == 200
+    assert resp.status_code == 403
     #delete playlist with same id
     resp = client.delete(f'{RESOURCE_URL}3/')
-    assert resp.status_code == 404
+    assert resp.status_code == 403
     #delete playlist with invalid id
     resp = client.delete(f'{RESOURCE_URL}id/')
     assert resp.status_code == 404

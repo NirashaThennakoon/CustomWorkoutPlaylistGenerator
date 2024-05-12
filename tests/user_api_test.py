@@ -117,7 +117,7 @@ def test_put_user(client):
     assert resp.status_code == 404
     # test with valid
     resp = client.put(resource_url, json=valid)
-    assert resp.status_code == 200
+    assert resp.status_code == 204
     data = json.loads(resp.data)
     assert data["message"] == "User updated successfully"
     # remove field

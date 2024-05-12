@@ -25,10 +25,10 @@ def test_get_workoutplan(client, mock_post):
 
     data = json.loads(response.data)
     _check_namespace(client, data)
-    _check_control_get_method("custWorkoutPlaylistGen:author", client, data)
-    _check_control_get_method("custWorkoutPlaylistGen:item", client, data)
-    _check_control_put_method("custWorkoutPlaylistGen:edit", client, data)
-    _check_control_delete_method("custWorkoutPlaylistGen:delete", client, data)
+    _check_control_get_method("author", client, data)
+    _check_control_get_method("item", client, data)
+    _check_control_put_method("edit", client, data)
+    _check_control_delete_method("delete", client, data)
     assert data['workout_plan_id'] == 1
 
 def test_post_workout_plan(client, mock_post):
