@@ -61,29 +61,56 @@
 
 
 ## Meeting 3.
-* **DATE:**
-* **ASSISTANTS:**
+* **25th March 2024/ 02:00 PM:**
+* **Iván Sánchez Milara**
+
+### Attendies
+
+1.	Kavindu Wijesinghe
+2.	Nirasha Thennakoon
+3.	Sonali Liyana Badalge
+4.	Iresh Bandara
 
 ### Minutes
-*Summary of what was discussed during the meeting*
+
+- [x]  Clarified the concept of statelessness and its implications on server maintenance
+- [x]  Reviewed the code structure, distribution of work, and the utilization of comments
+- [x]  Inquired about the use of tools or planning integration.
+- [x]  Checked test coverage and identified areas for improvement, particularly in converters.
+
 
 ### Action points
-*List here the actions points discussed with assistants*
-
-
+- [x]  Implement an authentication API
+- [x]  Ensure adherence to Python naming conventions in the codebase
+- [x]  Explore options for enhancing error handling, particularly in handling API requests
 
 
 ## Meeting 4.
-* **DATE:**
-* **ASSISTANTS:**
+* **10th April 2024/ 10:00 AM:**
+* **Iván Sánchez Milara:**
+
+### Attendies
+
+1.	Kavindu Wijesinghe
+2.	Nirasha Thennakoon
+3.	Sonali Liyana Badalge
+4.	Iresh Bandara
 
 ### Minutes
-*Summary of what was discussed during the meeting*
+
+- [x]  Discussed the entry point for clients accessing the API and the importance of clarity in resource hierarchy
+- [x]  Reviewed the relationship between user, workout plans, playlists, and songs, identifying areas for improvement in naming conventions and link relations.
+- [x]  Implementation of hypermedia and its documentation, highlighting the need for consistency and clarity in response codes and link relations
+- [x]  Reviewed Swagger/OpenAPI version compatibility
+- [x]  Evaluated test coverage and encouraged running tests to ensure comprehensive coverage of all resources and endpoints development.
+- [x]  Provided guidance on final deliverable preparation, emphasizing the need for a well-documented reflection and consideration of resource allocation.
+
 
 ### Action points
-*List here the actions points discussed with assistants*
-
-
+- [x]  Refine link relations and namespace usage
+- [x]  Restructure schemas to enhance reusability and maintainability
+- [x]  Prepare a thorough reflection for the final deliverable
+- [x]  Plan for final deliverable preparation
 
 
 ## Midterm meeting
