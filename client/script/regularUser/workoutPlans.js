@@ -71,8 +71,6 @@ function submitWorkoutPlan(event) {
   let form = $('#workoutPlanForm');
   let data = {
       plan_name: $('#workoutPlanName').val(),
-      duration: parseFloat($('#duration').val()),
-      playlist_id: $('#playlist').val(),
       workout_ids : getSelectedWorkouts()
   };
 
@@ -101,7 +99,7 @@ function submitWorkoutPlan(event) {
           } else if (method === "PUT") {
               renderMsg("Successfully updated workout");
           }
-          getResource("/api/workoutPlan", renderWorkoutPlans, baseURL); // Refresh table after creation or update
+          getResource("/api/workoutPlan/", renderWorkoutPlans, baseURL); // Refresh table after creation or update
           resetForm(); // Reset the form after submission
       },
       error: renderError
@@ -112,7 +110,6 @@ function resetForm() {
   document.getElementById('workoutPlanForm').reset();
   document.getElementById('createBtn').removeAttribute('disabled'); // Enable Create button
   document.getElementById('editBtn').setAttribute('disabled', true); // Disable Edit button
-  document.getElementById('playlist').setAttribute('disabled', true);
   // Additional reset logic if needed
 }
 
@@ -127,13 +124,27 @@ function editWorkoutPlanForm(ctrl) {
 }
 
 function editWorkoutPlan(body) {
+    console.log(body)
     editWorkoutPlanForm(body["@controls"].edit);
     document.getElementById('workoutPlanName').value = body.plan_name;
-    document.getElementById('duration').value = body.duration;
-    document.getElementById('playlist').value = body.playlist_id;
-    document.getElementById('playlist').removeAttribute('disabled');
     document.getElementById('createBtn').setAttribute('disabled', true);
     document.getElementById('editBtn').removeAttribute('disabled');
+    let selectedWorkouts = [];
+    body["workouts_list"].forEach(function(workout){
+        selectedWorkouts.push(workout.workout_id);
+
+    });
+
+    // Iterate through each checkbox and mark it as checked if its value is in the selectedWorkouts array
+    $('.workoutCheckbox').each(function() {
+        let checkboxValue = $(this).val();
+        let workoutId = parseInt(checkboxValue.match(/\d+/)[0]);
+        if (selectedWorkouts.includes(workoutId)) {
+            $(this).prop('checked', true);
+        } else {
+            $(this).prop('checked', false);
+        }
+    });
 }
 
 // Function to display custom confirmation dialog

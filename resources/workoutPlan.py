@@ -244,23 +244,58 @@ class WorkoutPlanResource(Resource):
                 and an HTTP status code. The status code indicates the success of the
                 operation (200 for successful update).
         """
-        if g.current_api_key.user.user_type != 'admin':
-            return create_error_response(403, "Unauthorized access")
-
         data = request.json
 
         try:
             validate(request.json, WorkoutPlan.json_schema(), format_checker=FormatChecker())
+            workoutplan_items = WorkoutPlanItem.query.filter_by(workout_plan_id=workoutPlan.workout_plan_id).all()
 
-            if 'plan_name' in data:
-                workoutPlan.plan_name = data['plan_name']
-            if 'duration' in data:
-                workoutPlan.duration = data['duration']
-            if 'user_id' in data:
-                workoutPlan.user_id = data['user_id']
-            if 'playlist_id' in data:
-                workoutPlan.playlist_id = data['playlist_id']
+            # Delete workoutplan items
+            for item in workoutplan_items:
+                db.session.delete(item)
+            totalDuration = 0
 
+            plan_name = data["plan_name"]
+
+            workout_ids = data.get('workout_ids', [])
+
+            data = {
+                "playlist_name": f"{plan_name} Playlist",
+                "workout_ids": workout_ids
+            }
+            headers = {
+                "Content-Type": "application/json",
+                "X-API-Key": g.current_api_key.key
+            }
+
+            response = requests.post('http://127.0.0.1:5000/' + url_for('api.playlistcreation'),
+                                    json=data, headers=headers)
+            playlist_id = response.json()["playlist_id"]
+                
+            workoutPlan.plan_name = plan_name
+            workoutPlan.playlist_id = playlist_id
+            # Create workout plan
+
+            # db.session.add(workoutPlan)
+            # db.session.commit()
+
+            for workout_id in workout_ids:
+                # calculate total duration of the workout plan
+                print(workout_id)
+                workout = Workout.query.get(workout_id)
+                totalDuration = totalDuration + workout.duration
+
+                # update workout_id and workout_plan_id in WorkoutPlanItem table
+                workout_plan_item = WorkoutPlanItem(
+                    workout_plan_id=workoutPlan.workout_plan_id,
+                    workout_id=workout_id
+                )
+                db.session.add(workout_plan_item)
+            db.session.commit()
+
+            # update total duration of the workout plan
+            # workoutPlan = WorkoutPlan.query.get(workoutPlan.workout_plan_id)
+            workoutPlan.duration = totalDuration
             db.session.commit()
             cache.clear()
 
@@ -358,7 +393,6 @@ class WorkoutPlanByUserResource(Resource):
                             "workout_type": workout.workout_type
                         }
                     workouts_list.append(workout_dict)
-                    print(workouts_list)
                 workout_plan_dict = {
                     "workout_plan_id": workoutPlan.workout_plan_id,
                     "plan_name": workoutPlan.plan_name,
