@@ -165,9 +165,7 @@ class WorkoutResource(Resource):
                 details and an HTTP status code. The status code indicates the
                 success of the operation (200 for successful retrieval).
         """
-        if not workout:
-            return create_error_response(400, "Invalid input data")
-
+        
         workout_builder = WorkoutBuilder()
         workout_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
         workout_builder.add_control_get_workout_collection()
@@ -187,7 +185,7 @@ class WorkoutResource(Resource):
         }
         for key, value in workout_dict.items():
             workout_builder[key] = value
-        return Response(json.dumps(workout_builder), mimetype=MASON)
+        return Response(json.dumps(workout_builder), 200, mimetype=MASON)
 
     def put(self, workout):
         """
@@ -204,6 +202,9 @@ class WorkoutResource(Resource):
         if g.current_api_key.user.user_type != 'admin':
             return create_error_response(403, "Unauthorized access")
 
+        if MASON != "application/vnd.mason+json":
+            return create_error_response(415, "Unsupported Media Type", "This service accept JSON input.")
+        
         data = request.json
         if not data:
             return create_error_response(400, "No input data provided")
@@ -239,7 +240,7 @@ class WorkoutResource(Resource):
             workout_builder.add_control("profile", href=WORKOUT_PROFILE)
             workout_builder["message"] = "Workout updated successfully"
 
-            return Response(json.dumps(workout_builder), 200, mimetype=MASON)
+            return Response(json.dumps(workout_builder), 204, mimetype=MASON)
 
         except ValidationError as e:
             return create_error_response(400, "Invalid JSON document", str(e))
@@ -278,7 +279,7 @@ class WorkoutResource(Resource):
         workout_builder.add_control("profile", href=WORKOUT_PROFILE)
         workout_builder["message"] = "Workout deleted successfully"
 
-        return Response(json.dumps(workout_builder), 200, mimetype=MASON)
+        return Response(json.dumps(workout_builder), 204, mimetype=MASON)
 
 class WorkoutIntensity(Enum):
     """
@@ -304,56 +305,48 @@ class WorkoutsCollection(Resource):
                 details and an HTTP status code. The status code indicates the
                 success of the operation (200 for successful retrieval).
         """
-        # try:
-        workout = Workout.query.all()
-        workout_list = []
-        for w in workout:  # Iterate over each Workout instance
-            workout_builder = WorkoutBuilder()
-            workout_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
-            # workout_builder.add_control_get_workout(w.workout_id)
-            # workout_builder.add_control("profile", href=WORKOUT_PROFILE)
-            # workout_dict = {
-            #     "workout_id": w.workout_id,
-            #     "workout_name": w.workout_name,
-            #     "duration": w.duration,
-            #     "workout_intensity": w.workout_intensity,
-            #     "equipment": w.equipment,
-            #     "workout_type": w.workout_type
-            # }
-            workout_dict = WorkoutBuilder(
-                workout_id = w.workout_id,
-                workout_name = w.workout_name,
-                duration = w.duration,
-                workout_intensity = w.workout_intensity,
-                equipment = w.equipment,
-                workout_type = w.workout_type
-            )
-            if w.workout_plan_item:
-                    workoutplan_controls = []
-                    for workoutPlanItem in w.workout_plan_item:
-                        workoutPlanId = workoutPlanItem.workout_plan_id
-                        workoutplan_control = {
-                            "method": "GET",
-                            "title": f"Get workoutplan {workoutPlanId} for the workout",
-                            "href": f"/api/workoutPlan/{workoutPlanId}"
-                        }
-                        workoutplan_controls.append(workoutplan_control)
+        try:
+            workout = Workout.query.all()
+            workout_list = []
+            for w in workout:  
+                workout_builder = WorkoutBuilder()
+                workout_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+                workout_dict = WorkoutBuilder(
+                    workout_id = w.workout_id,
+                    workout_name = w.workout_name,
+                    duration = w.duration,
+                    workout_intensity = w.workout_intensity,
+                    equipment = w.equipment,
+                    workout_type = w.workout_type
+                )
+                if w.workout_plan_item:
+                        workoutplan_controls = []
+                        for workoutPlanItem in w.workout_plan_item:
+                            workoutPlanId = workoutPlanItem.workout_plan_id
+                            workoutplan_control = {
+                                "method": "GET",
+                                "title": f"Get workoutplan {workoutPlanId} for the workout",
+                                "href": f"/api/workoutPlan/{workoutPlanId}"
+                            }
+                            workoutplan_controls.append(workoutplan_control)
 
-                    if workoutplan_controls:
-                        workout_dict.add_control("workoutplans", workoutplan_controls)
+                        if workoutplan_controls:
+                            workout_dict.add_control("workoutplans", workoutplan_controls)
 
-            workout_dict.add_control_get_workout_plans(w.workout_id)
-            workout_dict.add_control_get_workout(w.workout_id)
-            workout_dict.add_control_edit_workout(w.workout_id)
-            workout_dict.add_control_delete_workout(w.workout_id)
-            workout_dict.add_control("profile", href=WORKOUT_PROFILE)
-            workout_list.append(workout_dict)
-        workout_builder["workout list"] = workout_list
-        workout_builder.add_control("self", href="/api/workout/", title="Self")
-        return Response(json.dumps(workout_builder), 200, mimetype=MASON)
+                workout_dict.add_control_get_workout_plans(w.workout_id)
+                workout_dict.add_control_get_workout(w.workout_id)
+                workout_dict.add_control_edit_workout(w.workout_id)
+                workout_dict.add_control_delete_workout(w.workout_id)
+                workout_dict.add_control("profile", href=WORKOUT_PROFILE)
+                workout_list.append(workout_dict)
+                
+            workout_builder["workout list"] = workout_list
+            workout_builder.add_control("self", href="/api/workout/", title="Self")
+            
+            return Response(json.dumps(workout_builder), 200, mimetype=MASON)
 
-        # except Exception as e:
-        #     return create_error_response(400, "Invalid input data", str(e))
+        except Exception as e:
+            return create_error_response(500, "Internal Server Error", str(e))
 
     def post(self):
         """
@@ -366,7 +359,10 @@ class WorkoutsCollection(Resource):
         """
         if g.current_api_key.user.user_type != 'admin':
             return create_error_response(403, "Unauthorized access")
-
+        
+        if MASON != "application/vnd.mason+json":
+            return create_error_response(415, "Unsupported Media Type", "This service accept JSON input.")
+        
         data = request.json
         try:
             validate(request.json, Workout.json_schema(), format_checker=FormatChecker())

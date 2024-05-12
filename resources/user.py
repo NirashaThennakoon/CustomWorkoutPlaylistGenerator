@@ -214,6 +214,9 @@ class UserLogin(Resource):
         if not email or not data or 'password' not in data:
             return create_error_response(400, "Invalid input data for user login")
 
+        if MASON != "application/vnd.mason+json":
+            return create_error_response(415, "Unsupported Media Type", "This service accept JSON input.")
+        
         user_schema = User.json_schema()
         validate_request(data, user_schema)
 
@@ -225,27 +228,29 @@ class UserLogin(Resource):
             "user_type": user.user_type,
             "user_id": user.id
         }
+        try:
+            if not user:
+                return create_error_response(404, "No such user in the system")
+
+            if not user.verify_password(password):
+                return create_error_response(401, "Invalid password")
+
+            access_token = create_access_token(identity=user.id, expires_delta=timedelta(days=1))
+            
+            user_builder = UserBuilder()
+            user_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+            # user_builder.add_control_edit_user(user.id)
+            # user_builder.add_control_delete_user(user.id)
+            user_builder.add_control("profile", href=USER_PROFILE)
+            user_builder["message"] = "Login successful"
+            user_builder["access_token"] = access_token
+            for key, value in user_dict.items():
+                user_builder[key] = value
+
+            return Response(json.dumps(user_builder), status=200, mimetype=MASON)
+        except Exception as e:
+            return create_error_response(500, "Internal Server Error", str(e))
         
-        if not user:
-            return create_error_response(404, "No such user in the system")
-
-        if not user.verify_password(password):
-            return create_error_response(401, "Invalid password")
-
-        access_token = create_access_token(identity=user.id, expires_delta=timedelta(days=1))
-        
-        user_builder = UserBuilder()
-        user_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
-        # user_builder.add_control_edit_user(user.id)
-        # user_builder.add_control_delete_user(user.id)
-        user_builder.add_control("profile", href=USER_PROFILE)
-        user_builder["message"] = "Login successful"
-        user_builder["access_token"] = access_token
-        for key, value in user_dict.items():
-            user_builder[key] = value
-
-        return Response(json.dumps(user_builder), status=200, mimetype=MASON)
-
 class UserResource(Resource):
     """
         This resource includes the GET, DETELE and PUT user endpoints.
@@ -265,8 +270,6 @@ class UserResource(Resource):
             populated with corresponding values from the input user object.
         """
         user_data = []
-        if not user:
-            return create_error_response(404, "User not found")
 
         user_builder = UserBuilder()
         user_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
@@ -283,7 +286,7 @@ class UserResource(Resource):
         for key, value in user_data.items():
             user_builder[key] = value
 
-        return Response(json.dumps(user_builder), mimetype=MASON)
+        return Response(json.dumps(user_builder), 200, mimetype=MASON)
 
     def delete(self, user):
         """
@@ -325,6 +328,8 @@ class UserResource(Resource):
         data = request.json
         if not data:
             return create_error_response(400, "No input data provided")
+        if MASON != "application/vnd.mason+json":
+            return create_error_response(415, "Unsupported Media Type", "This service accept JSON input.")
 
         try:
             validate(request.json, User.json_schema(), format_checker=FormatChecker())
@@ -354,7 +359,7 @@ class UserResource(Resource):
         user_builder.add_control("profile", href=USER_PROFILE)
         user_builder["message"] = "User updated successfully"
 
-        return Response(json.dumps(user_builder), mimetype=MASON)
+        return Response(json.dumps(user_builder), 204, mimetype=MASON)
 
     # def post(self, user):
     #     """

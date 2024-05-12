@@ -1,9 +1,10 @@
 """
    This module responsible for all initial configurations
 """
+import json
 import os
 import yaml
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, Response, jsonify, render_template, request
 from flask_restful import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -22,6 +23,7 @@ def create_app(test_config=None):
     """
     app = Flask(__name__, instance_relative_config=True)
     CORS(app, resources={r"/api/*": {"origins": "*", "allow_headers": ["Content-Type", "Authorization", "X-API-Key"], "supports_credentials": True}})
+
     @app.route('/playlist_link_relation')
     def playlist_link_relation():
         return render_template('playlist_link_relation.html')

@@ -147,8 +147,6 @@ class PlaylistResource(Resource):
             and the list of songs it contains. The playlist and its associated songs
             are retrieved from the database.
         """
-        if not playlist:
-            return create_error_response(404, "Playlist not found")
 
         playlist_builder = PlaylistBuilder()
         playlist_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
@@ -182,7 +180,7 @@ class PlaylistResource(Resource):
             }
         for key, value in playlist_dict.items():
             playlist_builder[key] = value
-        return Response(json.dumps(playlist_builder), mimetype=MASON)
+        return Response(json.dumps(playlist_builder), 200, mimetype=MASON)
 
     # user can change the playlist song order
     def put(self, playlist):
@@ -192,6 +190,8 @@ class PlaylistResource(Resource):
         """
         if g.current_api_key.user.user_type != 'admin':
             return create_error_response(403, "Unauthorized access")
+        if MASON != "application/vnd.mason+json":
+            return create_error_response(415, "Unsupported Media Type", "This service accept JSON input.")
         data = request.json
         if not data:
             return create_error_response(400, "No input data provided")
@@ -223,7 +223,7 @@ class PlaylistResource(Resource):
             playlist_builder.add_control("profile", href=PLAYLIST_PROFILE)
             playlist_builder["message"] = "Workout updated successfully"
 
-            return Response(json.dumps(playlist_builder), 200, mimetype=MASON)
+            return Response(json.dumps(playlist_builder), 204, mimetype=MASON)
 
         except ValidationError as e:
             return create_error_response(400, "Invalid JSON document", str(e))
@@ -257,7 +257,7 @@ class PlaylistResource(Resource):
         playlist_builder.add_control("profile", href=PLAYLIST_PROFILE)
         playlist_builder["message"] = "Workout deleted successfully"
 
-        return Response(json.dumps(playlist_builder), 200, mimetype=MASON)
+        return Response(json.dumps(playlist_builder), 204, mimetype=MASON)
 
 class PlaylistCreation(Resource):
     """
@@ -279,68 +279,73 @@ class PlaylistCreation(Resource):
         if not data or 'workout_ids' not in data:
             return create_error_response(400,"Invalid input data on CreatePlayList")
 
+        if MASON != "application/vnd.mason+json":
+            return create_error_response(415, "Unsupported Media Type", "This service accept JSON input.")
+        
         playlist_name_rec = data['playlist_name']
         workout_ids = data['workout_ids']
 
         songs_list = []
         total_workouts_duration = 0.0
+        try:
+            # Add songs to playlist for each workout
+            for workout_id in workout_ids:
+                workout = Workout.query.get(workout_id)
+                if workout:
+                    duration = workout.duration
+                    intensity = workout.workout_intensity
+                    genre = ""
 
-        # Add songs to playlist for each workout
-        for workout_id in workout_ids:
-            workout = Workout.query.get(workout_id)
-            if workout:
-                duration = workout.duration
-                intensity = workout.workout_intensity
-                genre = ""
+                    # Determine genre based on intensity
+                    if intensity == "slow":
+                        genre = ["Ambient", "Classical", "Jazz"]
+                    elif intensity == "mild":
+                        genre = ["Pop", "R&B", "Indie"]
+                    elif intensity == "intermediate":
+                        genre = ["Rock", "Hip-hop", "EDM"]
+                    elif intensity == "fast":
+                        genre = ["Techno", "Dance", "House"]
+                    elif intensity == "extreme":
+                        genre = ["Metal", "Hardcore", "Dubstep"]
 
-                # Determine genre based on intensity
-                if intensity == "slow":
-                    genre = ["Ambient", "Classical", "Jazz"]
-                elif intensity == "mild":
-                    genre = ["Pop", "R&B", "Indie"]
-                elif intensity == "intermediate":
-                    genre = ["Rock", "Hip-hop", "EDM"]
-                elif intensity == "fast":
-                    genre = ["Techno", "Dance", "House"]
-                elif intensity == "extreme":
-                    genre = ["Metal", "Hardcore", "Dubstep"]
+                    # Get songs based on workout duration and genre
+                    songs = Song.query.filter(Song.song_genre.in_(genre)).all()
+                    temp_duration = 0.0
+                    for song in songs:
+                        song_dict = {
+                            "song_id": song.song_id
+                        }
+                        songs_list.append(song_dict)
+                        temp_duration += song.song_duration
+                        if temp_duration >= duration:
+                            break
+                    total_workouts_duration = total_workouts_duration + temp_duration
 
-                # Get songs based on workout duration and genre
-                songs = Song.query.filter(Song.song_genre.in_(genre)).all()
-                temp_duration = 0.0
-                for song in songs:
-                    song_dict = {
-                        "song_id": song.song_id
-                    }
-                    songs_list.append(song_dict)
-                    temp_duration += song.song_duration
-                    if temp_duration >= duration:
-                        break
-                total_workouts_duration = total_workouts_duration + temp_duration
+            # Create playlist
+            playlist = Playlist(playlist_duration=total_workouts_duration,
+                                playlist_name=playlist_name_rec)
+            db.session.add(playlist)
+            db.session.commit()
 
-        # Create playlist
-        playlist = Playlist(playlist_duration=total_workouts_duration,
-                            playlist_name=playlist_name_rec)
-        db.session.add(playlist)
-        db.session.commit()
+            # Add songs related to playlist to playlist_item table
+            for song in songs_list:
+                playlist_item = PlaylistItem(
+                    playlist_id=playlist.playlist_id,
+                    song_id=song['song_id'],
+                )
+                db.session.add(playlist_item)
+            db.session.commit()
+            cache.clear()
 
-        # Add songs related to playlist to playlist_item table
-        for song in songs_list:
-            playlist_item = PlaylistItem(
-                playlist_id=playlist.playlist_id,
-                song_id=song['song_id'],
-            )
-            db.session.add(playlist_item)
-        db.session.commit()
-        cache.clear()
+            playlist_builder = PlaylistBuilder()
+            playlist_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+            playlist_builder.add_control("profile", href=PLAYLIST_PROFILE)
+            playlist_builder["message"] = "Playlist created successfully"
+            playlist_builder["playlist_id"] = playlist.playlist_id
 
-        playlist_builder = PlaylistBuilder()
-        playlist_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
-        playlist_builder.add_control("profile", href=PLAYLIST_PROFILE)
-        playlist_builder["message"] = "Playlist created successfully"
-        playlist_builder["playlist_id"] = playlist.playlist_id
-
-        return Response(json.dumps(playlist_builder), status=201, mimetype=MASON)
+            return Response(json.dumps(playlist_builder), status=201, mimetype=MASON)
+        except Exception as e:
+            return create_error_response(500, "Internal Server Error", str(e))
 
 class PlaylistItemResource(Resource):
     """
@@ -374,5 +379,5 @@ class PlaylistItemResource(Resource):
             playlist_builder["Song list"] = playlistItem_list
 
             return Response(json.dumps(playlist_builder), mimetype=MASON)
-        except KeyError:
-            return create_error_response(400, "Invalid input data") 
+        except Exception as e:
+            return create_error_response(500, "Internal Server Error", str(e))

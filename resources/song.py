@@ -167,8 +167,6 @@ class SongResource(Resource):
                 A tuple containing a list of dictionaries
                 representing song details and an HTTP status code.
         """
-        if not song:
-            return create_error_response(404, "Song not found")
 
         song_builder = SongBuilder()
         song_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
@@ -201,6 +199,10 @@ class SongResource(Resource):
         """
         if g.current_api_key.user.user_type != 'admin':
             return create_error_response(403, "Unauthorized access")
+        
+        if MASON != "application/vnd.mason+json":
+            return create_error_response(415, "Unsupported Media Type", "This service accept JSON input.")
+        
         data = request.json
 
         try:
@@ -258,7 +260,7 @@ class SongResource(Resource):
         song_builder.add_control("profile", href=SONG_PROFILE)
         song_builder["message"] = "Song deleted successfully"
 
-        return Response(json.dumps(song_builder), 200, mimetype=MASON)
+        return Response(json.dumps(song_builder), 204, mimetype=MASON)
 
 class SongsCollection(Resource):
     """
@@ -285,16 +287,7 @@ class SongsCollection(Resource):
 
                 song_builder = SongBuilder()
                 song_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
-                # song_builder.add_control_get_song(song.song_id)
-                # song_builder.add_control("profile", href=SONG_PROFILE)
 
-                # song_dict = {
-                #     "song_id": song.song_id,
-                #     "song_name": song.song_name,
-                #     "song_artist": song.song_artist,
-                #     "song_genre": song.song_genre,
-                #     "song_duration": song.song_duration,
-                # }
                 song_dict = SongBuilder(
                     song_id=song.song_id,
                     song_name= song.song_name,
@@ -302,11 +295,6 @@ class SongsCollection(Resource):
                     song_genre= song.song_genre,
                     song_duration= song.song_duration
                 )
-                # if(song.playlist_item is not None):
-                #     for playlistItem in song.playlist_item:
-                #        playlistId = playlistItem.playlist_id
-                #        song_dict.add_control_get_playlist(playlistId)  
-                
                 if song.playlist_item:
                     playlists_controls = []
                     for playlistItem in song.playlist_item:
@@ -333,7 +321,7 @@ class SongsCollection(Resource):
 
             return Response(json.dumps(song_builder), 200, mimetype=MASON)
         except Exception as e:
-            return create_error_response(400, "Invalid input data", str(e))
+            return create_error_response(500, "Internal Server Error", str(e))
 
     def post(self):
         """
@@ -347,6 +335,9 @@ class SongsCollection(Resource):
         if g.current_api_key.user.user_type != 'admin':
             return create_error_response(403, "Unauthorized access")
 
+        if MASON != "application/vnd.mason+json":
+            return create_error_response(415, "Unsupported Media Type", "This service accept JSON input.")
+            
         data = request.json
 
         try:

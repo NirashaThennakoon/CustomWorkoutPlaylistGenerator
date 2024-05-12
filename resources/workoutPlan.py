@@ -145,6 +145,16 @@ class WorkoutPlanBuilder(MasonBuilder):
             method="GET",
             title="Get Workouts for the Plan"
         )
+    def add_control_get_all_workouts(self):
+        """
+            Adds a control to get workouts
+        """
+        self.add_control(
+            "item",
+            href=f"/api/workout",
+            method="GET",
+            title="Get all Workouts"
+        )
 
 MASON = "application/vnd.mason+json"
 ERROR_PROFILE = "/profiles/error/"
@@ -179,47 +189,44 @@ class WorkoutPlanResource(Resource):
                   'plan_name', 'user_id', and 'duration', populated with corresponding values
                   from the input workout plan object.
         """
-        try:
 
-            workout_plan_builder = WorkoutPlanBuilder()
-            workout_plan_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
-            workout_plan_builder.add_control_edit_workout_plan(workoutPlan.workout_plan_id)
-            workout_plan_builder.add_control_delete_workout_plan(workoutPlan.workout_plan_id)
-            workout_plan_builder.add_control_get_playlist(workoutPlan.playlist_id)
-            workout_plan_builder.add_control_get_user(workoutPlan.user_id)
-            workout_plan_builder.add_control_get_workouts(workoutPlan.workout_plan_id)
-            workout_plan_builder.add_control("profile", href=WORKOUT_PLAN_PROFILE)
+        workout_plan_builder = WorkoutPlanBuilder()
+        workout_plan_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+        workout_plan_builder.add_control_edit_workout_plan(workoutPlan.workout_plan_id)
+        workout_plan_builder.add_control_delete_workout_plan(workoutPlan.workout_plan_id)
+        workout_plan_builder.add_control_get_playlist(workoutPlan.playlist_id)
+        workout_plan_builder.add_control_get_user(workoutPlan.user_id)
+        workout_plan_builder.add_control_get_workouts(workoutPlan.workout_plan_id)
+        workout_plan_builder.add_control("profile", href=WORKOUT_PLAN_PROFILE)
 
-            workoutplan_items = WorkoutPlanItem.query.filter_by(workout_plan_id=workoutPlan.workout_plan_id).all()
+        workoutplan_items = WorkoutPlanItem.query.filter_by(workout_plan_id=workoutPlan.workout_plan_id).all()
 
-            workouts_list = []
-            for item in workoutplan_items:
-                workout = Workout.query.get(item.workout_id)
-                if workout:
-                    workout_dict = {
-                        "workout_id": workout.workout_id,
-                        "workout_name": workout.workout_name,
-                        "duration": workout.duration,
-                        "workout_intensity": workout.workout_intensity,
-                        "equipment": workout.equipment,
-                        "workout_type": workout.workout_type,
-                    }
-                workouts_list.append(workout_dict)
+        workouts_list = []
+        for item in workoutplan_items:
+            workout = Workout.query.get(item.workout_id)
+            if workout:
+                workout_dict = {
+                    "workout_id": workout.workout_id,
+                    "workout_name": workout.workout_name,
+                    "duration": workout.duration,
+                    "workout_intensity": workout.workout_intensity,
+                    "equipment": workout.equipment,
+                    "workout_type": workout.workout_type,
+                }
+            workouts_list.append(workout_dict)
 
-            workout_plan_dict = {
-                "workout_plan_id": workoutPlan.workout_plan_id,
-                "plan_name": workoutPlan.plan_name,
-                "user_id": workoutPlan.user_id,
-                "playlist_id": workoutPlan.playlist_id,
-                "duration": workoutPlan.duration,
-                "workouts_list": workouts_list
-            }
-            for key, value in workout_plan_dict.items():
-                workout_plan_builder[key] = value
-            return Response(json.dumps(workout_plan_builder), mimetype=MASON)
+        workout_plan_dict = {
+            "workout_plan_id": workoutPlan.workout_plan_id,
+            "plan_name": workoutPlan.plan_name,
+            "user_id": workoutPlan.user_id,
+            "playlist_id": workoutPlan.playlist_id,
+            "duration": workoutPlan.duration,
+            "workouts_list": workouts_list
+        }
+        for key, value in workout_plan_dict.items():
+            workout_plan_builder[key] = value
+        return Response(json.dumps(workout_plan_builder), 200, mimetype=MASON)
 
-        except ValueError as e:
-            return create_error_response(400, "Invalid input data", str(e))
 
     def put(self, workoutPlan):
         """
@@ -235,7 +242,9 @@ class WorkoutPlanResource(Resource):
         """
         if g.current_api_key.user.user_type != 'admin':
             return create_error_response(403, "Unauthorized access")
-
+        if MASON != "application/vnd.mason+json":
+            return create_error_response(415, "Unsupported Media Type", "This service accept JSON input.")
+        
         data = request.json
 
         try:
@@ -314,18 +323,39 @@ class WorkoutPlanByUserResource(Resource):
                   'plan_name', 'user_id', and 'duration', populated with corresponding values
                   from the input workout plan object.
         """
+class WorkoutPlanByUserResource(Resource):
+    """
+        This resource includes the user workout plan GET endpoint.
+    """
+    @cache.cached(timeout=60)
+    def get(self, user):
+        """
+            This method fetches details about a workout plan belongs to given user and returns
+            them in a list format.
+
+            Args:
+                userid: An id representing the workout plan for which
+                information is to be retrieved.
+
+            Returns:
+                A tuple containing a list of dictionaries representing workout plan details and
+                an HTTP status code. Each dictionary in the list contains keys 'workout_plan_id',
+                  'plan_name', 'user_id', and 'duration', populated with corresponding values
+                  from the input workout plan object.
+        """
         try:
             workoutPlans = WorkoutPlan.query.filter_by(user_id=user.id).all()
             if workoutPlans is None:
                 raise NotFound(f"Workout Plan for the user with id :{user} not found.")
             workout_plans_builder = WorkoutPlanBuilder()
             workout_plans_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+            workout_plans_builder.add_control_get_all_workouts()
             workout_plans_list = []
             for workoutPlan in workoutPlans:
                 
                 workout_plan_builder = WorkoutPlanBuilder()
                 workout_plan_builder.add_control_get_workout_plan(workoutPlan.workout_plan_id)
-                # workout_plan_builder.add_control_delete_workout_plan(workoutPlan.workout_plan_id)
+                workout_plan_builder.add_control_delete_workout_plan(workoutPlan.workout_plan_id)
                 # workout_plan_builder.add_control_get_playlist(workoutPlan.playlist_id)
                 # workout_plan_builder.add_control_get_user(workoutPlan.user_id)
                 # workout_plan_builder.add_control_get_workouts(workoutPlan.workout_plan_id)
@@ -382,6 +412,8 @@ class WorkoutPlanCreator(Resource):
 
         if not data or 'workout_ids' not in data:
             return create_error_response(400, "Invalid input data on Create Workout Plan")
+        if MASON != "application/vnd.mason+json":
+            return create_error_response(415, "Unsupported Media Type", "This service accept JSON input.")
         try:
             validate(request.json, WorkoutPlan.json_schema(), format_checker=FormatChecker())
         except ValidationError as e:
@@ -401,48 +433,50 @@ class WorkoutPlanCreator(Resource):
             "Content-Type": "application/json",
             "X-API-Key": g.current_api_key.key
         }
+        try:
+            response = requests.post('http://127.0.0.1:5000/' + url_for('api.playlistcreation'),
+                                    json=data, headers=headers)
+            playlist_id = response.json()["playlist_id"]
 
-        response = requests.post('http://127.0.0.1:5000/' + url_for('api.playlistcreation'),
-                                 json=data, headers=headers)
-        playlist_id = response.json()["playlist_id"]
-
-        # Create workout plan
-        workoutPlan = WorkoutPlan(
-            plan_name=plan_name,
-            user_id= g.current_api_key.user.id,
-            duration=0,
-            playlist_id = playlist_id
-        )
-        db.session.add(workoutPlan)
-        db.session.commit()
-
-        for workout_id in workout_ids:
-            # calculate total duration of the workout plan
-            print(workout_id)
-            workout = Workout.query.get(workout_id)
-            totalDuration = totalDuration + workout.duration
-
-            # update workout_id and workout_plan_id in WorkoutPlanItem table
-            workout_plan_item = WorkoutPlanItem(
-                workout_plan_id=workoutPlan.workout_plan_id,
-                workout_id=workout_id
+            # Create workout plan
+            workoutPlan = WorkoutPlan(
+                plan_name=plan_name,
+                user_id= g.current_api_key.user.id,
+                duration=0,
+                playlist_id = playlist_id
             )
-            db.session.add(workout_plan_item)
-        db.session.commit()
+            db.session.add(workoutPlan)
+            db.session.commit()
 
-        # update total duration of the workout plan
-        workoutPlan = WorkoutPlan.query.get(workoutPlan.workout_plan_id)
-        workoutPlan.duration = totalDuration
-        db.session.commit()
-        cache.clear()
+            for workout_id in workout_ids:
+                # calculate total duration of the workout plan
+                print(workout_id)
+                workout = Workout.query.get(workout_id)
+                totalDuration = totalDuration + workout.duration
 
-        workout_plan_builder = WorkoutPlanBuilder()
-        workout_plan_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
-        workout_plan_builder.add_control("profile", href=WORKOUT_PLAN_PROFILE)
-        workout_plan_builder["message"] = "Workout plan created successfully"
+                # update workout_id and workout_plan_id in WorkoutPlanItem table
+                workout_plan_item = WorkoutPlanItem(
+                    workout_plan_id=workoutPlan.workout_plan_id,
+                    workout_id=workout_id
+                )
+                db.session.add(workout_plan_item)
+            db.session.commit()
 
-        return Response(json.dumps(workout_plan_builder), status=201, mimetype=MASON)
+            # update total duration of the workout plan
+            workoutPlan = WorkoutPlan.query.get(workoutPlan.workout_plan_id)
+            workoutPlan.duration = totalDuration
+            db.session.commit()
+            cache.clear()
 
+            workout_plan_builder = WorkoutPlanBuilder()
+            workout_plan_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+            workout_plan_builder.add_control("profile", href=WORKOUT_PLAN_PROFILE)
+            workout_plan_builder["message"] = "Workout plan created successfully"
+
+            return Response(json.dumps(workout_plan_builder), status=201, mimetype=MASON)
+        except Exception as e:
+            return create_error_response(500, "Internal Server Error", str(e))
+        
 class WorkoutPlanItemResource(Resource):
     """
         This resource includes the GET workout plan items endpoint.
