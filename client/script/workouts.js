@@ -109,6 +109,8 @@ function submitWorkout(event) {
 
 function resetForm() {
   document.getElementById('workoutForm').reset();
+  document.getElementById('createBtn').removeAttribute('disabled'); // Enable Create button
+  document.getElementById('editBtn').setAttribute('disabled', true); // Disable Edit button
   // Additional reset logic if needed
 }
 

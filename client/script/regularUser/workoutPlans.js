@@ -72,7 +72,8 @@ function submitWorkoutPlan(event) {
   let data = {
       plan_name: $('#workoutPlanName').val(),
       duration: parseFloat($('#duration').val()),
-      playlist_id: $('#playlist').val()
+      playlist_id: $('#playlist').val(),
+      workout_ids : getSelectedWorkouts()
   };
 
   let method = form.attr("method");
@@ -109,6 +110,9 @@ function submitWorkoutPlan(event) {
 
 function resetForm() {
   document.getElementById('workoutPlanForm').reset();
+  document.getElementById('createBtn').removeAttribute('disabled'); // Enable Create button
+  document.getElementById('editBtn').setAttribute('disabled', true); // Disable Edit button
+  document.getElementById('playlist').setAttribute('disabled', true);
   // Additional reset logic if needed
 }
 
@@ -127,7 +131,7 @@ function editWorkoutPlan(body) {
     document.getElementById('workoutPlanName').value = body.plan_name;
     document.getElementById('duration').value = body.duration;
     document.getElementById('playlist').value = body.playlist_id;
-    
+    document.getElementById('playlist').removeAttribute('disabled');
     document.getElementById('createBtn').setAttribute('disabled', true);
     document.getElementById('editBtn').removeAttribute('disabled');
 }
@@ -156,18 +160,19 @@ function showConfirmationDialog(message, callback) {
 // Define deleteConfirmation function
 function deleteConfirmation(event, body) {
   event.preventDefault();
-  showConfirmationDialog("Are you sure you want to delete this workout?", function(confirmed) {
+  showConfirmationDialog("Are you sure you want to delete this workout plan?", function(confirmed) {
       if (confirmed) {
-          deleteWorkout(body);
+        deleteWorkoutPlan(body);
       }
   });
 }
 
-// Modify deleteWorkout function to include refreshing the table after deletion and showing success message
+// Modify deleteWorkoutPlan function to include refreshing the table after deletion and showing success message
 function deleteWorkoutPlan(body) {
+    console.log(body["@controls"])
   let ctrl = body["@controls"].delete;
   sendData(ctrl.href, ctrl.method, null, function() {
-      showModal("Workout successfully deleted");
+      showModal("Workout plan successfully deleted");
       getResource("/api/workoutPlan", renderWorkoutPlans, baseURL); // Refresh table after deletion
   });
 }
@@ -219,14 +224,14 @@ function detailedWorkoutPlanRow(workoutplan) {
 
 // Modify workoutPlanRow function to include the deleteConfirmation function
 function workoutPlanRow(item) {
-  let link = item["@controls"].item.href;
-
+  let itemLink = item["@controls"].item.href;
+   
   return "<tr><td>" + item.plan_name +
           "</td><td>" + item.duration +
           "</td><td>" + item.playlist_id +
           "</td><td>" + item.workouts_list.map(workout => workout.workout_name).join(', ') +
           "</td><td>" +
-              "<button onclick='editButtonAction(event, \"" + link + "\", editWorkoutPlan)'>Edit</button>" +
+              "<button onclick='editButtonAction(event, \"" + itemLink + "\", editWorkoutPlan)'>Edit</button>" +
               "<button onclick='deleteConfirmation(event, " + JSON.stringify(item) + ")'>Delete</button>" +
               "<button onclick='getWorkoutPlans(event, " + JSON.stringify(item) + ")'>View Plans</button>" +
           "</td></tr>"; 
@@ -253,17 +258,49 @@ function showModal(message) {
   }
 }
 
-
 // Define renderWorkoutPlans function
 function renderWorkoutPlans(body) {
     $("div.navigation").empty();
     let tbody = $("#workoutPlanTable tbody");
     tbody.empty();
-    
     body["workout_plans_list"].forEach(function (item) {
         tbody.append(workoutPlanRow(item));
     });
+    populateWorkoutsDropdown(body["@controls"].item.href)
 }
 
+function populateWorkoutsDropdown(link) {
+    getResource(link, renderDropDown, baseURL)
+}
 
+function renderDropDown(body) {
+    let tbody = $("#workoutsSelectionTable tbody");
+    tbody.empty();
+    body["workout list"].forEach(function(workout){
+        tbody.append(populateOptionForDropdown(workout))
+    });
+}
 
+function populateOptionForDropdown(workout){
+    return "<tr><td hidden>" + workout.workout_id +
+    "</td><td>" + workout.workout_name +
+    "</td><td>" + workout.workout_intensity +
+    "</td><td>" + workout.duration +
+    "</td><td>" + workout.equipment +
+    "</td><td>" + workout.workout_type +
+    "</td><td>" +
+    "<input type='checkbox' class='workoutCheckbox' value=" + workout.workout_id +
+    "</td></tr>"; 
+}
+
+function selectAllWorkouts(checkbox) {
+    $('.workoutCheckbox').prop('checked', checkbox.checked);
+}
+
+function getSelectedWorkouts() {
+    let selectedWorkouts = [];
+    $('.workoutCheckbox:checked').each(function() {
+        selectedWorkouts.push($(this).val());
+    });
+    return selectedWorkouts;
+}

@@ -9,7 +9,7 @@
 </head>
 <body>
 
-    <h1>Workout Management</h1>
+    <h1>Workout Plans</h1>
     <div class="notification"></div>
     <form id="workoutPlanForm">
         <input type="hidden" id="workoutPlanId" value="">
@@ -17,8 +17,25 @@
         <input type="text" id="workoutPlanName" required>
         <label for="duration">Duration:</label>
         <input type="text" id="duration" required>
-        <label for="playlist">Playlist:</label>
-        <input type="text" id="playlist" required>
+        <label for="workouts">Select Workouts:</label>
+        <table id ="workoutsSelectionTable">
+            <thead>
+                <tr>
+                    <th hidden>Id</th>
+                    <th>Workout Name</th>
+                    <th>Workout Intensity</th>
+                    <th>Duration</th>
+                    <th>Equipment</th>
+                    <th>Type</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Workouts will be dynamically added here -->
+            </tbody>
+        </table>
+        <label for="playlist" disabled>Playlist:</label>
+        <input type="text" id="playlist" disabled>
         <button type="button" id="createBtn" onclick="submitWorkoutPlan(event)">Create</button>
         <button type="button" id="editBtn" onclick="submitWorkoutPlan(event)" disabled>Edit</button>
         <button type="button" onclick="resetForm()">Cancel</button>

@@ -145,6 +145,17 @@ class WorkoutPlanBuilder(MasonBuilder):
             method="GET",
             title="Get Workouts for the Plan"
         )
+    
+    def add_control_get_all_workouts(self):
+        """
+            Adds a control to get workouts
+        """
+        self.add_control(
+            "item",
+            href=f"/api/workout",
+            method="GET",
+            title="Get all Workouts"
+        )
 
 MASON = "application/vnd.mason+json"
 ERROR_PROFILE = "/profiles/error/"
@@ -320,12 +331,13 @@ class WorkoutPlanByUserResource(Resource):
                 raise NotFound(f"Workout Plan for the user with id :{user} not found.")
             workout_plans_builder = WorkoutPlanBuilder()
             workout_plans_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
+            workout_plans_builder.add_control_get_all_workouts()
             workout_plans_list = []
             for workoutPlan in workoutPlans:
                 
                 workout_plan_builder = WorkoutPlanBuilder()
                 workout_plan_builder.add_control_get_workout_plan(workoutPlan.workout_plan_id)
-                # workout_plan_builder.add_control_delete_workout_plan(workoutPlan.workout_plan_id)
+                workout_plan_builder.add_control_delete_workout_plan(workoutPlan.workout_plan_id)
                 # workout_plan_builder.add_control_get_playlist(workoutPlan.playlist_id)
                 # workout_plan_builder.add_control_get_user(workoutPlan.user_id)
                 # workout_plan_builder.add_control_get_workouts(workoutPlan.workout_plan_id)
