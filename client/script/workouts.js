@@ -3,7 +3,6 @@ const PLAINJSON = "application/json";
 var baseURL = config.baseUrl;
 
 $(document).ready(function () {
-  // Your jQuery-dependent code here
   getResource("api/workout", renderWorkouts, baseURL);
 });
 
@@ -107,6 +106,8 @@ function submitWorkout(event) {
 
 function resetForm() {
   document.getElementById("workoutForm").reset();
+  document.getElementById("createBtn").removeAttribute("disabled"); // Enable Create button
+  document.getElementById("editBtn").setAttribute("disabled", true); // Disable Edit button
   // Additional reset logic if needed
 }
 

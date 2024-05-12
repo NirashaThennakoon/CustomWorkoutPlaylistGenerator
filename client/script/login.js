@@ -30,13 +30,16 @@ document.getElementById("login-form").addEventListener("submit", function (e) {
       return response.json();
     })
     .then((data) => {
-      // Assuming server returns user role
-      console.log(data);
+      var userId = data.user_id;
+      console.log(userId);
+      localStorage.setItem("userId", userId);
+
       if (data.user_type === "admin") {
         // Redirect to admin dashboard
         window.location.href = "workouts.html";
       } else {
         // Handle successful login for other users
+        window.location.href = "regularUser/workoutplans.html";
         console.log(data);
         document.getElementById("message").textContent = "Login successful!";
       }

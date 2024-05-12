@@ -266,10 +266,9 @@ class WorkoutResource(Resource):
         
         workoutplan_items = WorkoutPlanItem.query.filter_by(workout_id=workout.workout_id).all()
 
-        # Delete workoutplan items
-        for item in workoutplan_items:
-            db.session.delete(item)
-
+        if workoutplan_items:
+            return create_error_response(403, "This workout belongs to a workout plan")
+        
         db.session.delete(workout)
         db.session.commit()
         cache.clear()
