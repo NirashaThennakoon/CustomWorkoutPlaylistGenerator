@@ -250,13 +250,13 @@ function workoutRow(item) {
     "</td><td>" +
     item.workout_type +
     "</td><td>" +
-    "<button type='button' class='btn btn-warning me-3' onclick='editButtonAction(event, \"" +
+    "<button type='button' class='btn me-3' style='background-color: #4a4e69; color: white;' onclick='editButtonAction(event, \"" +
     link +
     "\", editWorkout)'>Edit</button>" +
     "<button type='button' class='btn btn-danger' onclick='deleteConfirmation(event, " +
     JSON.stringify(item) +
     ")'>Delete</button>" +
-    "<button type='button' class='btn btn-info mx-3' onclick='getWorkoutPlans(event, " +
+    "<button type='button' class='btn mx-3' style='background-color: #008000; color: white;' onclick='getWorkoutPlans(event, " +
     JSON.stringify(item) +
     ")'>View Plans</button>" +
     "</td></tr>"

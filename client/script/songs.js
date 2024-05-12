@@ -220,13 +220,13 @@ function songRow(item) {
     "</td><td>" +
     item.song_duration +
     "</td><td>" +
-    "<button class='btn btn-warning me-3' onclick='editButtonAction(event, \"" +
+    "<button class='btn me-3' style='background-color: #4a4e69; color: white;' onclick='editButtonAction(event, \"" +
     link +
     "\", editSong)'>Edit</button>" +
     "<button class='btn btn-danger' onclick='deleteConfirmation(event, " +
     JSON.stringify(item) +
     ")'>Delete</button>" +
-    "<button class='btn btn-info mx-3' onclick='getPlaylists(event, " +
+    "<button class='btn mx-3' style='background-color: #008000; color: white;' onclick='getPlaylists(event, " +
     JSON.stringify(item) +
     ")'>View Playlists</button>" +
     "</td></tr>"

@@ -39,9 +39,8 @@ document.getElementById("login-form").addEventListener("submit", function (e) {
         window.location.href = "workouts.html";
       } else {
         // Handle successful login for other users
-        window.location.href = "regularUser/workoutplans.html";
-        console.log(data);
         document.getElementById("message").textContent = "Login successful!";
+        window.location.href = "regularUser/workoutplans.html";
       }
     })
     .catch((error) => {
