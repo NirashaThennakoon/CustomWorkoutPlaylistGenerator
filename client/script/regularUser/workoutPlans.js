@@ -4,14 +4,18 @@ var baseURL = config.baseUrl;
 
 $(document).ready(function() {
     var userId = localStorage.getItem('userId');
+    var apiKey = localStorage.getItem('apiKey');
     url = "api/" + userId + "/workoutPlan";
-    getResource(url, renderWorkoutPlans, baseURL);
+    getResource(url, renderWorkoutPlans, baseURL,apiKey);
 });
 
 // Define getResource function
-function getResource(href, renderer, baseURL) {
+function getResource(href, renderer, baseURL, apiKey) {
     $.ajax({
         url: baseURL + href,
+        headers: {
+            'X-Api-Key': apiKey,
+        },
         success: renderer,
         error: renderError
     });
@@ -77,12 +81,10 @@ function submitWorkoutPlan(event) {
   let method = form.attr("method");
   let action = form.attr("action");
   if (!action) {
-    // If action attribute is not set, it's a create operation
-    action = "/api/workoutPlan"; // Set action to the create endpoint
+    action = "/api/workoutPlan"; 
   }
 
   if (!method) {
-    // If action attribute is not set, it's a create operation
     method = "POST";
   }
 
@@ -99,8 +101,8 @@ function submitWorkoutPlan(event) {
           } else if (method === "PUT") {
               renderMsg("Successfully updated workout");
           }
-          getResource("/api/workoutPlan/", renderWorkoutPlans, baseURL); // Refresh table after creation or update
-          resetForm(); // Reset the form after submission
+          getResource("/api/workoutPlan/", renderWorkoutPlans, baseURL); 
+          resetForm(); 
       },
       error: renderError
   });
@@ -110,7 +112,6 @@ function resetForm() {
   document.getElementById('workoutPlanForm').reset();
   document.getElementById('createBtn').removeAttribute('disabled'); // Enable Create button
   document.getElementById('editBtn').setAttribute('disabled', true); // Disable Edit button
-  // Additional reset logic if needed
 }
 
 
@@ -236,6 +237,10 @@ function detailedWorkoutPlanRow(workoutplan) {
 // Modify workoutPlanRow function to include the deleteConfirmation function
 function workoutPlanRow(item) {
   let itemLink = item["@controls"].item.href;
+//   let songs = getWorkoutPlan(itemLink);
+//   setTimeout(100000);
+//   console.log(songs)
+
   let song = "../../../client/songs/Unduwap.mp3"
   return "<tr><td>" + item.plan_name +
           "</td><td>" + item.duration +
@@ -249,6 +254,27 @@ function workoutPlanRow(item) {
               "<audio class='playlist' controls hidden><source src="+song+" type='audio/mpeg'></audio>" +
           "</td></tr>"; 
 }
+
+
+// Function to fetch songs list and render them
+// function getWorkoutPlan(link){
+//     return getResource(link, renderSongColumn, baseURL); 
+// }
+
+// function renderSongColumn(body){
+//     let link =  body["@controls"]["custWorkoutPlaylistGen:playlist"]["href"];
+//     let test = getResource(link, renderSong, baseURL)
+//     console.log(test)
+//     return getResource(link, renderSong, baseURL); 
+// }
+
+// // Function to render the songs column
+// function renderSong(body){
+//     console.log("song in")
+//     let songs = body["songs_list"].map(song => song.song_name).join(',');
+//     console.log(songs)
+//     return songs;
+// }
 
 // Function to play background music
 function play() {

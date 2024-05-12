@@ -218,12 +218,13 @@ class UserLogin(Resource):
         validate_request(data, user_schema)
 
         password = data['password']
-
         user = User.query.filter_by(email=email).first()
+        apiKey = ApiKey.query.filter_by(user_id=user.id).first
         user_dict = {
             "email": email,
             "user_type": user.user_type,
-            "user_id": user.id
+            "user_id": user.id,
+            "apiKey": apiKey
         }
         
         if not user:

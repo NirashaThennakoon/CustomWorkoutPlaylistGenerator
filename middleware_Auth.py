@@ -18,6 +18,7 @@ def authenticate():
     # Continue with your existing authentication logic for other endpoints
     if request.endpoint != 'static':
         api_key = request.headers.get('X-API-Key')
+        print(request.headers)
         if not api_key:
             return jsonify({'error': 'API key is missing'}), 401
         api_key_object = ApiKey.query.filter_by(key=api_key).first()

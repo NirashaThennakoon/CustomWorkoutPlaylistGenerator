@@ -21,7 +21,7 @@ def create_app(test_config=None):
         Create and configure the Flask application.
     """
     app = Flask(__name__, instance_relative_config=True)
-    CORS(app, resources={r"/api/*": {"origins": "*", "allow_headers": ["Content-Type", "Authorization", "X-API-Key"], "supports_credentials": True}})
+    CORS(app, resources={r"/api/*": {"origins": "*", "allow_headers": ["Content-Type", "Authorization", "X-API-Key", "Access-Control-Allow-Origin"], "supports_credentials": True}})
     @app.route('/playlist_link_relation')
     def playlist_link_relation():
         return render_template('playlist_link_relation.html')
@@ -53,8 +53,9 @@ def create_app(test_config=None):
             response = app.make_default_options_response()
             response.headers['Access-Control-Allow-Origin'] = '*'
             response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
-            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-API-Key'
             return response
+    
     
     app.config.from_mapping(
         SQLALCHEMY_DATABASE_BASE_URI=

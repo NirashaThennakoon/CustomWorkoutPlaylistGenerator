@@ -24,7 +24,8 @@ document.getElementById('register-form').addEventListener('submit', function(e) 
     fetch(baseURL +'/api/user', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-API-Key': '1baf9207-4e72-4de8-b30b-fbbbbef5'
       },
       body: JSON.stringify(formData)
     })
