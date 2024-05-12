@@ -236,7 +236,7 @@ function detailedWorkoutPlanRow(workoutplan) {
 // Modify workoutPlanRow function to include the deleteConfirmation function
 function workoutPlanRow(item) {
   let itemLink = item["@controls"].item.href;
-   
+  let song = "../../../client/songs/Unduwap.mp3"
   return "<tr><td>" + item.plan_name +
           "</td><td>" + item.duration +
           "</td><td>" + item.playlist_id +
@@ -244,9 +244,23 @@ function workoutPlanRow(item) {
           "</td><td>" +
               "<button onclick='editButtonAction(event, \"" + itemLink + "\", editWorkoutPlan)'>Edit</button>" +
               "<button onclick='deleteConfirmation(event, " + JSON.stringify(item) + ")'>Delete</button>" +
-              "<button onclick='getWorkoutPlans(event, " + JSON.stringify(item) + ")'>View Plans</button>" +
+              "<button onClick='play() '>Start</button>" +
+              "<button onClick='stop() '>Stop</button>" +
+              "<audio class='playlist' controls hidden><source src="+song+" type='audio/mpeg'></audio>" +
           "</td></tr>"; 
 }
+
+// Function to play background music
+function play() {
+    let audio = document.getElementsByClassName("playlist");
+    audio[0].play();
+}
+  
+function stop() {
+    let audio = document.getElementsByClassName("playlist");
+    audio[0].pause();
+}
+ 
 
 // Function to display modal with message
 function showModal(message) {
