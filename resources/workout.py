@@ -394,6 +394,7 @@ class WorkoutsCollection(Resource):
             response_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
             response_builder.add_control("profile", href=WORKOUT_PROFILE)
             response_builder["message"] = "Workout added successfully"
+            response_builder["workout_id"] = workout.workout_id
 
             location = url_for('api.workoutresource', workout=workout, _external=True)
             return Response(json.dumps(response_builder), status=201, mimetype=MASON, headers={"Location": location})

@@ -369,6 +369,7 @@ class SongsCollection(Resource):
             song_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
             song_builder.add_control("profile", href=SONG_PROFILE)
             song_builder["message"] = "Song added successfully"
+            song_builder["song_id"] = song.song_id
 
             location = url_for('api.songresource', song=song, _external=True)
             return Response(json.dumps(song_builder), status=201, mimetype=MASON, headers={"Location": location})
