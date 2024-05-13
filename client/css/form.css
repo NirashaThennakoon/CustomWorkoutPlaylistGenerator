@@ -1,5 +1,5 @@
 body {
-  font-family: "Lato", sans-serif;
+  font-family: Lato, sans-serif;
 }
 
 h1 {
@@ -15,6 +15,7 @@ label {
   width: 80%;
   margin-left: 3px;
 }
+
 .help-block.with-errors {
   color: #ff5050;
   margin-top: 5px;
