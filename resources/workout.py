@@ -238,7 +238,6 @@ class WorkoutResource(Resource):
             workout_builder = WorkoutBuilder()
             workout_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
             workout_builder.add_control("profile", href=WORKOUT_PROFILE)
-            workout_builder["message"] = "Workout updated successfully"
 
             return Response(json.dumps(workout_builder), 204, mimetype=MASON)
 
@@ -277,7 +276,6 @@ class WorkoutResource(Resource):
         workout_builder = WorkoutBuilder()
         workout_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
         workout_builder.add_control("profile", href=WORKOUT_PROFILE)
-        workout_builder["message"] = "Workout deleted successfully"
 
         return Response(json.dumps(workout_builder), 204, mimetype=MASON)
 

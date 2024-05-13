@@ -311,9 +311,8 @@ class UserResource(Resource):
         user_builder = UserBuilder()
         user_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
         user_builder.add_control("profile", href=USER_PROFILE)
-        user_builder["message"] = "User deleted successfully"
 
-        return Response(json.dumps(user_builder), mimetype=MASON)
+        return Response(json.dumps(user_builder), 204, mimetype=MASON)
 
     def put(self, user):
         """
@@ -359,7 +358,6 @@ class UserResource(Resource):
         user_builder = UserBuilder()
         user_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
         user_builder.add_control("profile", href=USER_PROFILE)
-        user_builder["message"] = "User updated successfully"
 
         return Response(json.dumps(user_builder), 204, mimetype=MASON)
 

@@ -51,8 +51,11 @@ def test_post_workout_plan(client, mock_post):
     assert data["@error"]["@message"] == "Invalid input data on Create Workout Plan"
 
     # Test with valid data
+    print(valid_data)
     resp = client.post(RESOURCE_URL, json=valid_data)
+    print(resp)
     assert resp.status_code == 201
+    
     data = json.loads(resp.data)
     assert data["message"] == "Workout plan created successfully", "workout_plan_id 1"
 
@@ -91,9 +94,7 @@ def test_put_workout_plan(client):
     assert resp.status_code == 404
     # test with valid
     resp = client.put(f'{RESOURCE_URL}/2', json=valid)
-    assert resp.status_code == 200
-    data = json.loads(resp.data)
-    assert data["message"] == "Workout plan updated successfully"
+    assert resp.status_code == 204
     # remove field
     valid.pop("plan_name")
     resp = client.put(f'{RESOURCE_URL}/2', json=valid)
@@ -121,9 +122,8 @@ def test_delete_workout_plan(client):
     """
     #delete workout plan with valid id
     resp = client.delete(f'{RESOURCE_URL}/3')
-    assert resp.status_code == 200
-    data = json.loads(resp.data)
-    assert data["message"] == "Workout plan deleted successfully"
+    assert resp.status_code == 204
+
     #delete same data
     resp = client.delete(f'{RESOURCE_URL}/3')
     assert resp.status_code == 404
@@ -149,8 +149,7 @@ def _get_json_for_post():
     """
     return {
         "plan_name": "test-workout-plan-2",
-        "workout_ids": [4, 3 ,5],
-        "duration": 78.9
+        "workout_ids": [4, 3 ,5]
     }
 def _get_json_for_post_with_control():
     """
@@ -158,8 +157,7 @@ def _get_json_for_post_with_control():
     """
     return {
         "plan_name": "test-workout-plan-4",
-        "workout_ids": [4, 3 ,5],
-        "duration": 78.9
+        "workout_ids": [4, 3 ,5]
     }
 
 def _get_json_without_workout_ids():
@@ -202,7 +200,7 @@ def _check_control_delete_method(ctrl, client, obj):
     method = obj["@controls"][ctrl]["method"].lower()
     assert method == "delete"
     resp = client.delete(href)
-    assert resp.status_code == 200
+    assert resp.status_code == 204
 
 def _check_control_put_method(ctrl, client, obj):
     """
@@ -225,7 +223,7 @@ def _check_control_put_method(ctrl, client, obj):
     body["plan_name"] = obj["plan_name"]
     validate(body, schema)
     resp = client.put(href, json=body)
-    assert resp.status_code == 200
+    assert resp.status_code == 204
 
 def _check_control_post_method(ctrl, client, obj, mock_post):
     """

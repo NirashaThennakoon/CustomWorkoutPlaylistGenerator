@@ -265,9 +265,8 @@ class WorkoutPlanResource(Resource):
             workout_plan_builder = WorkoutPlanBuilder()
             workout_plan_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
             workout_plan_builder.add_control("profile", href=WORKOUT_PLAN_PROFILE)
-            workout_plan_builder["message"] = "Workout plan updated successfully"
 
-            return Response(json.dumps(workout_plan_builder), 200, mimetype=MASON)
+            return Response(json.dumps(workout_plan_builder), 204, mimetype=MASON)
 
         except ValidationError as e:
             return create_error_response(400, "Invalid JSON document", str(e))
@@ -299,9 +298,8 @@ class WorkoutPlanResource(Resource):
         workout_plan_builder = WorkoutPlanBuilder()
         workout_plan_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
         workout_plan_builder.add_control("profile", href=WORKOUT_PLAN_PROFILE)
-        workout_plan_builder["message"] = "Workout plan deleted successfully"
 
-        return Response(json.dumps(workout_plan_builder), 200, mimetype=MASON)
+        return Response(json.dumps(workout_plan_builder), 204, mimetype=MASON)
 
 class WorkoutPlanByUserResource(Resource):
     """

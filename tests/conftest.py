@@ -75,7 +75,7 @@ def _populate_db():
     """
     populate_user_api_key_tables()
     populate_workout_table()
-    for i in range(1, 6):
+    for i in range(1, 5):
         p = Playlist(
             playlist_duration=random.random(),
             playlist_name=f"test-workout-plan-{i} Playlist"
@@ -106,7 +106,7 @@ def _populate_db():
     )
     wp_item1 = WorkoutPlanItem(
         workout_plan_id= 1,
-        workout_id = 1
+        workout_id = 3
     )
     db.session.add(wp1)
     db.session.add(wp_item1)
@@ -114,11 +114,11 @@ def _populate_db():
             plan_name="test-workout-plan-2",
             duration=random.random(),
             user_id= 2,
-            playlist_id=2
+            playlist_id=1
     )
     wp_item2 = WorkoutPlanItem(
         workout_plan_id= 2,
-        workout_id = 2
+        workout_id = 3
     )
     db.session.add(wp2)
     db.session.add(wp_item2)
@@ -126,7 +126,7 @@ def _populate_db():
             plan_name="test-workout-plan-3",
             duration=random.random(),
             user_id= 3,
-            playlist_id=3
+            playlist_id=1
     )
     wp_item3 = WorkoutPlanItem(
         workout_plan_id= 3,

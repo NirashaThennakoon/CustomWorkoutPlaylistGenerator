@@ -62,7 +62,10 @@ def create_app(test_config=None):
         SQLALCHEMY_DATABASE_BASE_URI=
         "mysql+mysqldb://admin:pwpdb7788@workoutplaylists.cpcoaea0i7dq.us-east-1.rds.amazonaws.com",
         SQLALCHEMY_DATABASE_URI=
-        "mysql+mysqldb://admin:pwpdb7788@workoutplaylists.cpcoaea0i7dq.us-east-1.rds.amazonaws.com/workout_playlists",
+        "mysql+mysqldb://admin:pwpdb7788@"
+            "workoutplaylists.cpcoaea0i7dq."
+            "us-east-1.rds.amazonaws.com/"
+            "test_workout_playlists",
         SQLALCHEMY_TRACK_MODIFICATIONS=False
     )
     app.config['JWT_SECRET_KEY'] = 'ireshisthe key'

@@ -222,9 +222,8 @@ class SongResource(Resource):
             song_builder = SongBuilder()
             song_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
             song_builder.add_control("profile", href=SONG_PROFILE)
-            song_builder["message"] = "Song updated successfully"
 
-            return Response(json.dumps(song_builder), 200, mimetype=MASON)
+            return Response(json.dumps(song_builder), 204, mimetype=MASON)
 
         except ValidationError as e:
             return create_error_response(400, "Invalid JSON document", str(e))
@@ -258,7 +257,6 @@ class SongResource(Resource):
         song_builder = SongBuilder()
         song_builder.add_namespace("custWorkoutPlaylistGen", LINK_RELATION)
         song_builder.add_control("profile", href=SONG_PROFILE)
-        song_builder["message"] = "Song deleted successfully"
 
         return Response(json.dumps(song_builder), 204, mimetype=MASON)
 

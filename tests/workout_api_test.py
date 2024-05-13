@@ -42,8 +42,8 @@ def test_get_workouts(client):
     response = client.get(RESOURCE_URL)
     assert response.status_code == 200
     data = json.loads(response.data)
-    print(data)
-    assert len(data['workout list']) == 5
+    print(data['workout list'])
+    assert len(data['workout list']) == 4
 
 def test_post_workout(client):
     """
@@ -118,8 +118,7 @@ def test_put_workout(client):
     # test with valid
     resp = client.put(f'{RESOURCE_URL}/3', json=valid)
     assert resp.status_code == 204
-    data = json.loads(resp.data)
-    assert data["message"] == "Workout updated successfully"
+
     # remove field
     valid.pop("workout_name")
     resp = client.put(f'{RESOURCE_URL}/3', json=valid)
@@ -153,12 +152,10 @@ def test_delete_workout(client):
     #delete workout with valid id
     resp = client.delete(f'{RESOURCE_URL}/2')
     assert resp.status_code == 204
-    data = json.loads(resp.data)
-    assert data["message"] == "Workout deleted successfully"
 
     #delete same data
     resp = client.delete(f'{RESOURCE_URL}/2')
-    assert resp.status_code == 403
+    assert resp.status_code == 404
 
     #delete data with invalid id
     resp = client.delete(f'{RESOURCE_URL}/2')
@@ -221,7 +218,7 @@ def _check_control_delete_method(ctrl, client, obj):
     method = obj["@controls"][ctrl]["method"].lower()
     assert method == "delete"
     resp = client.delete(href)
-    assert resp.status_code == 200
+    assert resp.status_code == 204
 
 def _check_control_put_method(ctrl, client, obj):
     """
@@ -244,7 +241,7 @@ def _check_control_put_method(ctrl, client, obj):
     body["workout_name"] = obj["workout_name"]
     validate(body, schema)
     resp = client.put(href, json=body)
-    assert resp.status_code == 200
+    assert resp.status_code == 204
 
 def _check_control_post_method(ctrl, client, obj):
     """

@@ -118,8 +118,9 @@ def test_put_user(client):
     # test with valid
     resp = client.put(resource_url, json=valid)
     assert resp.status_code == 204
-    data = json.loads(resp.data)
-    assert data["message"] == "User updated successfully"
+    assert resp.data == b''
+    # data = json.loads(resp.data)
+    # assert data["message"] == "User updated successfully"
     # remove field
     valid.pop("email")
     resp = client.put('/api/user/3', json=valid)

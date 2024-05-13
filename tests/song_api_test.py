@@ -32,7 +32,7 @@ def test_get_all_songs(client):
     assert response.status_code == 200
 
     data = json.loads(response.data)
-    assert len(data['song list']) == 5
+    assert len(data['song list']) == 3
 
 def test_get_all_playlists_song_belongs(client):
     """
@@ -119,8 +119,7 @@ def test_put_song(client):
     # test with valid
     resp = client.put(f'{RESOURCE_URL}5/', json=valid)
     assert resp.status_code == 204
-    data = json.loads(resp.data)
-    assert data["message"] == "Song updated successfully"
+
     # remove field
     valid.pop("song_name")
     resp = client.put(f'{RESOURCE_URL}3/', json=valid)

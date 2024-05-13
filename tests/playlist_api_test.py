@@ -54,12 +54,12 @@ def test_put_playlist(client):
     valid = _get_playlist_json()
 
     # test with wrong content type
-    resp = client.put(f'{RESOURCE_URL}6/', data="notjson",
+    resp = client.put(f'{RESOURCE_URL}5/', data="notjson",
                       headers=Headers({"Content-Type": "text"}))
     assert resp.status_code in (400, 415)
 
     # test withoyt data
-    resp = client.put(f'{RESOURCE_URL}6/', json = {})
+    resp = client.put(f'{RESOURCE_URL}5/', json = {})
     assert resp.status_code== 400
     data = json.loads(resp.data)
     assert data["@error"]["@message"] == "No input data provided"
@@ -75,11 +75,11 @@ def test_put_playlist(client):
     assert resp.status_code == 404
 
     # test with valid
-    resp = client.put(f'{RESOURCE_URL}6/', json=valid)
+    resp = client.put(f'{RESOURCE_URL}5/', json=valid)
     assert resp.status_code == 204
     # remove field
     valid.pop("playlist_name")
-    resp = client.put(f'{RESOURCE_URL}6/', json=valid)
+    resp = client.put(f'{RESOURCE_URL}5/', json=valid)
     assert resp.status_code == 400
 
 def test_delete_playlist(client):
@@ -88,10 +88,10 @@ def test_delete_playlist(client):
     """
     #delete playlist with a valid id
     resp = client.delete(f'{RESOURCE_URL}3/')
-    assert resp.status_code == 403
+    assert resp.status_code == 204
     #delete playlist with same id
     resp = client.delete(f'{RESOURCE_URL}3/')
-    assert resp.status_code == 403
+    assert resp.status_code == 404
     #delete playlist with invalid id
     resp = client.delete(f'{RESOURCE_URL}id/')
     assert resp.status_code == 404
@@ -157,7 +157,7 @@ def _check_control_delete_method(ctrl, client, obj):
     method = obj["@controls"][ctrl]["method"].lower()
     assert method == "delete"
     resp = client.delete(href)
-    assert resp.status_code == 403
+    assert resp.status_code == 204
 
 def _check_control_put_method(ctrl, client, obj):
     """
