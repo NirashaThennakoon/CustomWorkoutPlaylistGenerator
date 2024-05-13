@@ -65,7 +65,7 @@ def create_app(test_config=None):
         "mysql+mysqldb://admin:pwpdb7788@"
             "workoutplaylists.cpcoaea0i7dq."
             "us-east-1.rds.amazonaws.com/"
-            "test_workout_playlists",
+            "workout_playlists",
         SQLALCHEMY_TRACK_MODIFICATIONS=False
     )
     app.config['JWT_SECRET_KEY'] = 'ireshisthe key'
