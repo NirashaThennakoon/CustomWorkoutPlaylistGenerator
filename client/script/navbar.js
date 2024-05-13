@@ -1,7 +1,8 @@
 function logout() {
   localStorage.removeItem("userId");
-  window.location.href = "../login.html";
+  window.location.href = "../html/login.html";
 }
+
 document
   .getElementById("logoutLink")
   .addEventListener("click", function (event) {
