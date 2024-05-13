@@ -246,6 +246,7 @@ function detailedWorkoutPlanRow(workoutplan) {
 function workoutPlanRow(item) {
   let itemLink = item["@controls"].item.href;
 
+  let song = "../../../client/songs/Unduwap.mp3";
   return (
     "<tr><td>" +
     item.plan_name +
@@ -265,8 +266,26 @@ function workoutPlanRow(item) {
     "<button type='button' class='btn mx-3' style='background-color: #008000; color: white;' onclick='getWorkoutPlans(event, " +
     JSON.stringify(item) +
     ")'>View Plans</button>" +
+    "<div class='btn-group ms-5' role='group'>" +
+    "<button type='button' class='btn btn-primary' onclick='play()'><i class='fa fa-play' aria-hidden='true'></i></button>" +
+    "<button type='button' class='btn btn-danger' onclick='stop()'><i class='fa fa-pause'></i></button>" +
+    "</div>" +
+    "<audio class='playlist' controls hidden><source src='" +
+    song +
+    "' type='audio/mpeg'></audio>" +
     "</td></tr>"
   );
+}
+
+// Function to play background music
+function play() {
+  let audio = document.getElementsByClassName("playlist");
+  audio[0].play();
+}
+
+function stop() {
+  let audio = document.getElementsByClassName("playlist");
+  audio[0].pause();
 }
 
 // Function to display modal with message

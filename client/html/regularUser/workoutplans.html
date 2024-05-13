@@ -16,6 +16,10 @@
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
   </head>
   <body>
     <!-- navbar -->
@@ -34,7 +38,7 @@
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-md-auto gap-2">            
+          <ul class="navbar-nav ms-md-auto gap-2">
             <li class="nav-item dropdown rounded">
               <a
                 class="nav-link dropdown-toggle"
@@ -65,70 +69,86 @@
 
     <!-- workout plan create and edit form -->
     <div class="container">
-        <div class="text-center mt-4 mb-2">
-          <h1>Workout Plans</h1>
-        </div>
-        <div class="notification"></div>
-  
-        <div class="row">
-          <div class="col-lg-9 mx-auto mt-5">
-            <div class="card mt-2 mx-auto p-4 pb-0 bg-light">
-              <div class="card-body bg-light">
-                <div class="container">
-                  <!-- <h4 class="mb-3">Create a Workout Plan</h4> -->
-                  <div class="d-flex justify-content-between align-items-center">
-                    <h4 class="mb-3">Create a Workout Plan</h4>
-                    <!-- <a style="text-decoration: none; color: inherit;" href="#workoutPlanTable" onclick="scrollToTarget() ">See all created workout plans</a> -->
-                    <button onclick="scrollToTarget()" class="scroll-down-button" >See all created workout plans</button>
-                  </div>
-                  <form id="workoutForm" role="form" onsubmit="return submitWorkout(event)">
-                    <div class="controls">
-                      <div class="row">
-                        <div class="col-md-6">
-                          <!-- Workout Plan Name -->
-                          <div class="form-group">
-                            <label for="workoutPlanName">Workout Name:</label>
-                            <input
-                              id="workoutPlanName"
-                              type="text"
-                              name="workoutPlanName"
-                              class="form-control"
-                              required="required"
-                              data-error="Workout Plan Name is required."
-                            />
-                          </div>
-                        </div>                        
+      <div class="text-center mt-4 mb-2">
+        <h1>Workout Plans</h1>
+      </div>
+      <div class="notification"></div>
+
+      <div class="row">
+        <div class="col-lg-9 mx-auto mt-5">
+          <div class="card mt-2 mx-auto p-4 pb-0 bg-light">
+            <div class="card-body bg-light">
+              <div class="container">
+                <!-- <h4 class="mb-3">Create a Workout Plan</h4> -->
+                <div class="d-flex justify-content-between align-items-center">
+                  <h4 class="mb-3">Create a Workout Plan</h4>
+                  <!-- <a style="text-decoration: none; color: inherit;" href="#workoutPlanTable" onclick="scrollToTarget() ">See all created workout plans</a> -->
+                  <button onclick="scrollToTarget()" class="scroll-down-button">
+                    See all created workout plans
+                  </button>
+                </div>
+                <form
+                  id="workoutForm"
+                  role="form"
+                  onsubmit="return submitWorkout(event)"
+                >
+                  <div class="controls">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <!-- Workout Plan Name -->
+                        <div class="form-group">
+                          <label for="workoutPlanName">Workout Name:</label>
+                          <input
+                            id="workoutPlanName"
+                            type="text"
+                            name="workoutPlanName"
+                            class="form-control"
+                            required="required"
+                            data-error="Workout Plan Name is required."
+                          />
+                        </div>
                       </div>
-                      <div class="row">
-                        <label for="workouts">Select Workouts:</label>
-                        <div class="col-md-12">
-                          <!-- Select wrokouts for the plan -->
-                          <section class="intro mt-2">
-                            <!-- <h4 class="mb-3 ms-4">All Workouts</h4> -->
-                            <div class="bg-image h-100">
-                              <div class="mask d-flex align-items-center h-100">
-                                <div class="container">
-                                  <div class="row justify-content-center">
-                                    <div class="col-12">
-                                      <div class="card shadow-2-strong" style="background-color: #f5f7fa;">
-                                        <div class="card-body">
-                                          <div class="table-responsive">
-                                            <table class="table table-borderless mb-0" id="workoutsSelectionTable" >
-                                              <thead>
-                                                <tr>
-                                                    <th hidden>Id</th>
-                                                    <th scope="col">Workout Name</th>
-                                                    <th scope="col">Workout Intensity</th>
-                                                    <th scope="col">Duration</th>
-                                                    <th scope="col">Equipment</th>
-                                                    <th scope="col">Type</th>
-                                                    <th scope="col">Select Workout</th>
-                                                </tr>
-                                              </thead>
-                                              <tbody>                                                  
-                                              </tbody>
-                                            </table>
-                                          </div>
+                    </div>
+                    <div class="row">
+                      <label for="workouts">Select Workouts:</label>
+                      <div class="col-md-12">
+                        <!-- Select wrokouts for the plan -->
+                        <section class="intro mt-2">
+                          <!-- <h4 class="mb-3 ms-4">All Workouts</h4> -->
+                          <div class="bg-image h-100">
+                            <div class="mask d-flex align-items-center h-100">
+                              <div class="container">
+                                <div class="row justify-content-center">
+                                  <div class="col-12">
+                                    <div
+                                      class="card shadow-2-strong"
+                                      style="background-color: #f5f7fa"
+                                    >
+                                      <div class="card-body">
+                                        <div class="table-responsive">
+                                          <table
+                                            class="table table-borderless mb-0"
+                                            id="workoutsSelectionTable"
+                                          >
+                                            <thead>
+                                              <tr>
+                                                <th hidden>Id</th>
+                                                <th scope="col">
+                                                  Workout Name
+                                                </th>
+                                                <th scope="col">
+                                                  Workout Intensity
+                                                </th>
+                                                <th scope="col">Duration</th>
+                                                <th scope="col">Equipment</th>
+                                                <th scope="col">Type</th>
+                                                <th scope="col">
+                                                  Select Workout
+                                                </th>
+                                              </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                          </table>
                                         </div>
                                       </div>
                                     </div>
@@ -136,39 +156,54 @@
                                 </div>
                               </div>
                             </div>
-                          </section>
-                          
-                        </div>                
+                          </div>
+                        </section>
                       </div>
-  
-                      <div class="row justify-content-end align-items-center">
-                          <div class="col-md-3 text-center submit-btn-div mt-3">
-                              <button type="submit" class="btn btn-success btn-send btn-block" type="button" id="createBtn" onsubmit="submitWorkout(event)">
-                                  Create
-                                </button>
-                          </div>
-      
-                          <div class="col-md-3 text-center submit-btn-div mt-3">
-                              <button class="btn btn-success btn-send btn-block" type="button" id="editBtn" onclick="submitWorkout(event)" disabled>
-                                  Edit
-                                </button>
-                          </div>
-      
-                          <div class="col-md-3 text-center submit-btn-div mt-3">
-                              <button class="btn btn-success btn-send btn-block" type="button" id="editBtn" onclick="resetForm()">
-                                  Clear
-                                </button>
-                          </div>
-                      </div>        
                     </div>
-                  </form>
-                </div>
+
+                    <div class="row justify-content-end align-items-center">
+                      <div class="col-md-3 text-center submit-btn-div mt-3">
+                        <button
+                          class="btn btn-success btn-send btn-block"
+                          type="button"
+                          id="createBtn"
+                          onsubmit="submitWorkout(event)"
+                        >
+                          Create
+                        </button>
+                      </div>
+
+                      <div class="col-md-3 text-center submit-btn-div mt-3">
+                        <button
+                          class="btn btn-success btn-send btn-block"
+                          type="button"
+                          id="editBtn"
+                          onclick="submitWorkout(event)"
+                          disabled
+                        >
+                          Edit
+                        </button>
+                      </div>
+
+                      <div class="col-md-3 text-center submit-btn-div mt-3">
+                        <button
+                          class="btn btn-success btn-send btn-block"
+                          type="button"
+                          onclick="resetForm()"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-    <!-- <h1>Workout Plans</h1>
+      <!-- <h1>Workout Plans</h1>
     <div class="notification"></div>
     <form id="workoutPlanForm">
       <input type="hidden" id="workoutPlanId" value="" />
@@ -206,18 +241,24 @@
       <button type="button" onclick="resetForm()">Cancel</button>
     </form> -->
 
-    <!-- Table section -->
-    <section class="intro my-5">
+      <!-- Table section -->
+      <section class="intro my-5">
         <h4 class="mb-3 ms-4">All Created Workout Plans</h4>
         <div class="bg-image h-100">
           <div class="mask d-flex align-items-center h-100">
             <div class="container">
               <div class="row justify-content-center">
                 <div class="col-12">
-                  <div class="card shadow-2-strong" style="background-color: #f5f7fa;">
+                  <div
+                    class="card shadow-2-strong"
+                    style="background-color: #f5f7fa"
+                  >
                     <div class="card-body">
                       <div class="table-responsive">
-                        <table class="table table-borderless mb-0" id="workoutPlanTable" >
+                        <table
+                          class="table table-borderless mb-0"
+                          id="workoutPlanTable"
+                        >
                           <thead>
                             <tr>
                               <th scope="col">Workout Plan Name</th>
@@ -227,8 +268,7 @@
                               <th scope="col">Actions</th>
                             </tr>
                           </thead>
-                          <tbody>                                                  
-                          </tbody>
+                          <tbody></tbody>
                         </table>
                       </div>
                     </div>
@@ -240,8 +280,8 @@
         </div>
       </section>
 
-    <!-- workout plan showcase table -->
-    <!-- <table id="workoutPlanTable">
+      <!-- workout plan showcase table -->
+      <!-- <table id="workoutPlanTable">
       <thead>
         <tr>
           <th>Workout Plan Name</th>
@@ -255,38 +295,39 @@
       </tbody>
     </table> -->
 
-    <div id="myModal" class="modal">
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        <p id="modalMessage"></p>
+      <div id="myModal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <p id="modalMessage"></p>
+        </div>
       </div>
-    </div>
 
-    <!-- Custom Confirmation Dialog -->
-    <div id="confirmationModal" class="modal">
-      <div class="modal-content">
-        <p id="confirmationMessage"></p>
-        <button id="confirmBtn">Confirm</button>
-        <button id="cancelBtn">Cancel</button>
+      <!-- Custom Confirmation Dialog -->
+      <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+          <p id="confirmationMessage"></p>
+          <button id="confirmBtn">Confirm</button>
+          <button id="cancelBtn">Cancel</button>
+        </div>
       </div>
-    </div>
 
-    <div id="workoutPlansModal" class="modal">
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Workout Plans</h2>
-        <table class="plans-table">
-          <thead>
-            <tr>
-              <th>Workout Plan ID</th>
-              <th>Workout Plan Name</th>
-              <th>All Workouts</th>
-            </tr>
-          </thead>
-          <tbody id="plansTableBody">
-            <!-- Plans will be dynamically added here -->
-          </tbody>
-        </table>
+      <div id="workoutPlansModal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <h2>Workout Plans</h2>
+          <table class="plans-table">
+            <thead>
+              <tr>
+                <th>Workout Plan ID</th>
+                <th>Workout Plan Name</th>
+                <th>All Workouts</th>
+              </tr>
+            </thead>
+            <tbody id="plansTableBody">
+              <!-- Plans will be dynamically added here -->
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
