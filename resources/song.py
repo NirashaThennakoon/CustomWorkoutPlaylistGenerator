@@ -4,7 +4,7 @@
 import json
 from jsonschema import validate, ValidationError, FormatChecker
 from flask_restful import Resource
-from flask import Response, request, g
+from flask import Response, request, g, url_for
 from data_models.models import PlaylistItem, Song
 from extensions import db
 from extensions import cache
@@ -184,7 +184,7 @@ class SongResource(Resource):
         }
         for key, value in song_dict.items():
             song_builder[key] = value
-        return Response(json.dumps(song_builder), mimetype=MASON)
+        return Response(json.dumps(song_builder), 200, mimetype=MASON)
 
     def put(self, song):
         """
@@ -370,7 +370,8 @@ class SongsCollection(Resource):
             song_builder.add_control("profile", href=SONG_PROFILE)
             song_builder["message"] = "Song added successfully"
 
-            return Response(json.dumps(song_builder), status=201, mimetype=MASON)
+            location = url_for('api.songresource', song=song, _external=True)
+            return Response(json.dumps(song_builder), status=201, mimetype=MASON, headers={"Location": location})
         except Exception as e:
             return create_error_response(500, "Internal Server Error", str(e))
 

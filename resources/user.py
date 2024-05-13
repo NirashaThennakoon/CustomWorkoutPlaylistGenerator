@@ -10,7 +10,7 @@ import json
 from flask_jwt_extended import create_access_token
 from jsonschema import validate, ValidationError, FormatChecker
 from flask_restful import Resource
-from flask import Response, request, g
+from flask import Response, request, g, url_for
 from werkzeug.exceptions import BadRequest
 from data_models.models import ApiKey, User
 from extensions import db
@@ -193,9 +193,10 @@ class UserRegistration(Resource):
         response_builder["message"] = "User registered successfully"
         response_builder["user_id"] = user.id
 
-        return Response(json.dumps(response_builder), 201, mimetype=MASON)
+        # return Response(json.dumps(response_builder), 201, mimetype=MASON)
+        location = url_for('api.userresource', user=user, _external=True)
+        return Response(json.dumps(response_builder), status=201, mimetype=MASON, headers={"Location": location})
 
-# TODO need to check email validation
 class UserLogin(Resource):
     """
         This resource includes the user login POST endpoint.
@@ -247,7 +248,8 @@ class UserLogin(Resource):
             for key, value in user_dict.items():
                 user_builder[key] = value
 
-            return Response(json.dumps(user_builder), status=200, mimetype=MASON)
+            location = url_for('api.userresource', user=user, _external=True)
+            return Response(json.dumps(user_builder), status=201, mimetype=MASON, headers={"Location": location})
         except Exception as e:
             return create_error_response(500, "Internal Server Error", str(e))
         

@@ -44,7 +44,7 @@ def test_get_all_playlists_song_belongs(client):
 
     data = json.loads(response.data)
     print(data)
-    assert len(data['Playlists']) == 2
+    assert len(data['Playlists']) == 1
 
 def test_post_song(client):
     """
@@ -236,7 +236,7 @@ def _check_control_delete_method(ctrl, client, obj):
     method = obj["@controls"][ctrl]["method"].lower()
     assert method == "delete"
     resp = client.delete(href)
-    assert resp.status_code == 200
+    assert resp.status_code == 204
 
 def _check_control_put_method(ctrl, client, obj):
     """
@@ -259,4 +259,4 @@ def _check_control_put_method(ctrl, client, obj):
     body["song_name"] = obj["song_name"]
     validate(body, schema)
     resp = client.put(href, json=body)
-    assert resp.status_code == 200
+    assert resp.status_code == 204

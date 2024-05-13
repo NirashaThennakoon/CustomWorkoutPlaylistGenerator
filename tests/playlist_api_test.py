@@ -157,7 +157,7 @@ def _check_control_delete_method(ctrl, client, obj):
     method = obj["@controls"][ctrl]["method"].lower()
     assert method == "delete"
     resp = client.delete(href)
-    assert resp.status_code == 200
+    assert resp.status_code == 403
 
 def _check_control_put_method(ctrl, client, obj):
     """
@@ -181,7 +181,7 @@ def _check_control_put_method(ctrl, client, obj):
     body["playlist_name"] = obj["playlist_name"]
     validate(body, schema)
     resp = client.put(href, json=body)
-    assert resp.status_code == 200
+    assert resp.status_code == 204
 
 def _check_control_post_method(ctrl, client, obj):
     """

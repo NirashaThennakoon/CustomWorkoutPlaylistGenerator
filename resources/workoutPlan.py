@@ -473,7 +473,9 @@ class WorkoutPlanCreator(Resource):
             workout_plan_builder.add_control("profile", href=WORKOUT_PLAN_PROFILE)
             workout_plan_builder["message"] = "Workout plan created successfully"
 
-            return Response(json.dumps(workout_plan_builder), status=201, mimetype=MASON)
+            location = url_for('api.workoutplanresource', workoutPlan=workoutPlan, _external=True)
+            return Response(json.dumps(workout_plan_builder), status=201, mimetype=MASON, headers={"Location": location})
+        
         except Exception as e:
             return create_error_response(500, "Internal Server Error", str(e))
         

@@ -3,7 +3,7 @@
 """
 import json
 from jsonschema import validate, ValidationError, FormatChecker
-from flask import Response, request, g
+from flask import Response, request, g, url_for
 from flask_restful import Resource
 from data_models.models import Playlist, PlaylistItem, Workout, Song, WorkoutPlan
 from extensions import db
@@ -343,7 +343,8 @@ class PlaylistCreation(Resource):
             playlist_builder["message"] = "Playlist created successfully"
             playlist_builder["playlist_id"] = playlist.playlist_id
 
-            return Response(json.dumps(playlist_builder), status=201, mimetype=MASON)
+            location = url_for('api.playlistresource', playlist=playlist, _external=True)
+            return Response(json.dumps(playlist_builder), status=201, mimetype=MASON, headers={"Location": location})
         except Exception as e:
             return create_error_response(500, "Internal Server Error", str(e))
 

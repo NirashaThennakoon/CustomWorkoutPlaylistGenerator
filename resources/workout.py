@@ -5,7 +5,7 @@ from enum import Enum
 import json
 from jsonschema import validate, ValidationError, FormatChecker
 from flask_restful import Resource
-from flask import Response, request, g
+from flask import Response, request, g, url_for
 from data_models.models import Workout, WorkoutPlanItem
 from extensions import db, cache
 
@@ -395,7 +395,9 @@ class WorkoutsCollection(Resource):
             response_builder.add_control("profile", href=WORKOUT_PROFILE)
             response_builder["message"] = "Workout added successfully"
 
-            return Response(json.dumps(response_builder), status=201, mimetype=MASON)
+            location = url_for('api.workoutresource', workout=workout, _external=True)
+            return Response(json.dumps(response_builder), status=201, mimetype=MASON, headers={"Location": location})
+    
         except Exception as e:
             return create_error_response(500, "Internal Server Error", str(e))
 
