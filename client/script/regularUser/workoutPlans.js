@@ -310,15 +310,15 @@ function showModal(message) {
 }
 
 // Define renderWorkoutPlans function
-function renderWorkoutPlans(body) {
-  $("div.navigation").empty();
-  let tbody = $("#workoutPlanTable tbody");
-  tbody.empty();
-  body["workout_plans_list"].forEach(function (item) {
-    tbody.append(workoutPlanRow(item));
-  });
-  populateWorkoutsDropdown(body["@controls"].item.href);
-}
+// function renderWorkoutPlans(body) {
+//   $("div.navigation").empty();
+//   let tbody = $("#workoutPlanTable tbody");
+//   tbody.empty();
+//   body["workout_plans_list"].forEach(function (item) {
+//     tbody.append(workoutPlanRow(item));
+//   });
+//   populateWorkoutsDropdown(body["@controls"].item.href);
+// }
 
 function populateWorkoutsDropdown(link) {
   getResource(link, renderDropDown, baseURL);
